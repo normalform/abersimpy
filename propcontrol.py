@@ -1,7 +1,7 @@
 """
 PropControl
 """
-from abersim_size import NS
+from consts import NS
 
 import abc
 from dataclasses import dataclass

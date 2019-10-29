@@ -1,3 +1,5 @@
+NS = 128
+
 ZSCALE = 1e-2
 PSCALE = 1e6
 TSCALE = 1e-6
