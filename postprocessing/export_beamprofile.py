@@ -9,8 +9,6 @@ import numpy
 import json
 import codecs
 
-import matplotlib.pyplot as plt
-
 
 def export_beamprofile(u_z,
                        propcontrol,

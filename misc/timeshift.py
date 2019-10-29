@@ -1,7 +1,6 @@
 from filter.get_freqs import get_freqs
 
 import numpy
-import matplotlib.pyplot as plt
 
 
 def timeshift(u,

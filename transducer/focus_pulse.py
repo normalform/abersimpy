@@ -3,7 +3,6 @@ from transducer.get_focal_curvature import get_focal_curvature
 from misc.timeshift import timeshift
 
 import numpy
-import matplotlib.pyplot as plt
 
 
 def focus_pulse(u_z,

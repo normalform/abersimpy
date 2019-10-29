@@ -5,6 +5,7 @@ from visualization.plot_beamprofile import plot_beamprofile
 from visualization.plot_pulse import plot_pulse
 
 import numpy
+import matplotlib.pyplot as plt
 
 
 if __name__ == '__main__':
@@ -31,3 +32,5 @@ if __name__ == '__main__':
     plot_beamprofile(rmspro[..., idx:idx+1, :], propcontrol)
 
     plot_pulse(axplse, propcontrol, 1)
+
+    plt.show()

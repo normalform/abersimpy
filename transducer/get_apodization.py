@@ -1,8 +1,6 @@
 import numpy
 import scipy.signal
 
-import matplotlib.pyplot as plt
-
 
 def get_apodization(nx,
                     ny = 1,

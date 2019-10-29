@@ -1,7 +1,5 @@
 import numpy
 
-import matplotlib.pyplot as plt
-
 
 def makedb(u,
            dyn = None,

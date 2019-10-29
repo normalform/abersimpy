@@ -47,6 +47,7 @@ def plot_beamprofile(prof,
             htstr = '{}. harmonic'.format(ii)
 
         if tmpndim == 3:
+            fig.canvas.set_window_title('Beam profile 3 Dim')
             data = makedb(numpy.squeeze(tmp[int(chan[1]), :, :]), dyn, nrm)
             axs[ii, k].imshow(data,
                              cmap=cmap,
@@ -65,6 +66,7 @@ def plot_beamprofile(prof,
             axs[ii, k + 1].set_ylabel('Elevation [mm]')
             axs[ii, k + 1].set_title('El. {}'.format(htstr))
         elif tmpndim == 2 and numpy.prod(tmp.shape) != numpy.max(tmp.shape):
+            fig.canvas.set_window_title('Beam profile 2 Dim')
             if sz[0] == 1:
                 tstr = 'Az.'
                 xax = z
@@ -95,6 +97,7 @@ def plot_beamprofile(prof,
             else:
                 raise NotImplementedError
         else:
+            fig.canvas.set_window_title('Beam profile 1 Dim')
             if dyn > 0:
                 if nrm is None:
                     nrm = numpy.max(tmp)
@@ -121,4 +124,3 @@ def plot_beamprofile(prof,
                 k = k + 1
             else:
                 raise NotImplementedError
-    plt.show()

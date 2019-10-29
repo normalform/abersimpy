@@ -3,7 +3,6 @@ from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
 
 import numpy
-import matplotlib.pyplot as plt
 
 
 def propagate(u_z,

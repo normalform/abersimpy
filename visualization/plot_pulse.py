@@ -30,6 +30,7 @@ def plot_pulse(u,
     y = numpy.arange(-numpy.floor(ny / 2), numpy.ceil(ny / 2)) * propcontrol.dy * 1e3
 
     fig, axs = plt.subplots(2, 2)
+    fig.canvas.set_window_title('Pulse')
     if axflag == 0:
         x = numpy.arange(-numpy.floor(nx / 2), numpy.ceil(nx / 2)) * propcontrol.dx * 1e3
         if propcontrol.annflag != 0 and propcontrol.ndims == 2:
@@ -117,5 +118,3 @@ def plot_pulse(u,
             axs[idx, 1].set_xlabel('Frequency [MHz]')
             axs[idx, 1].set_ylabel('Depth [mm]')
             axs[idx, 1].set_title('Frequency spectrum, {}. harmonic'.format(idx))
-
-    plt.show()

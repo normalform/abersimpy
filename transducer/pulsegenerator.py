@@ -5,7 +5,6 @@ from transducer.focus_pulse import focus_pulse
 
 from scipy.signal import hilbert
 import numpy
-import matplotlib.pyplot as plt
 
 
 def pulsegenerator(propcontrol,

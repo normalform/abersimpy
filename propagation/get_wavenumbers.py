@@ -4,7 +4,6 @@ from consts import TSCALE, ZSCALE
 
 import numpy
 from scipy.signal import hilbert
-import matplotlib.pyplot as plt
 
 
 def get_wavenumbers(propcontrol = None,
