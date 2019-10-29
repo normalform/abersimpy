@@ -1,7 +1,7 @@
 from material.list_matrial import MUSCLE, ABPHANTOM
 from material.check_material import check_material
 from material.set_material import set_material
-from log2roundoff import log2roundoff
+from misc.log2round_off import log2round_off
 from propcontrol import PropControl, Config, \
     NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
@@ -139,7 +139,7 @@ def initpropcontrol(simulation_name='beamsim',
 
     omegax = daz + 2 * nlambdapad * lambdai
     nptx = omegax / dx
-    nx = log2roundoff(nptx)
+    nx = log2round_off(nptx)
     if config.annular_transducer and \
             (diffraction_type == PseudoDifferential or
              diffraction_type == FiniteDifferenceTimeDifferenceReduced or
@@ -151,7 +151,7 @@ def initpropcontrol(simulation_name='beamsim',
              diffraction_type == AngularSpectrumDiffraction):
         omegay = _del + 2 * nlambdapad * lambdai
         npty = omegay / dy
-        ny = log2roundoff(npty)
+        ny = log2round_off(npty)
     else:
         ny = 1
     if num_dimensions == 1:
@@ -161,7 +161,7 @@ def initpropcontrol(simulation_name='beamsim',
     Fs = numpy.maximum(40e6, 10.0 * ft)
     dt = 1.0 / Fs
     nptt = nperiods * (np / ft) / dt
-    nt = log2roundoff(nptt)
+    nt = log2round_off(nptt)
 
     new_config = Config(
         diffraction_type=diffraction_type,

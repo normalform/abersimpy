@@ -1,3 +1,5 @@
+# pylint: disable-all
+
 from propcontrol import NoDiffraction, \
     ExactDiffraction, \
     AngularSpectrumDiffraction,\
@@ -28,7 +30,3 @@ class DiffractionComparison(unittest.TestCase):
                         PseudoDifferential !=
                         FiniteDifferenceTimeDifferenceReduced !=
                         FiniteDifferenceTimeDifferenceFull)
-
-
-if __name__ == '__main__':
-    unittest.main()
