@@ -2,68 +2,76 @@ from material.list_matrial import MUSCLE, ABPHANTOM
 from material.check_material import check_material
 from material.set_material import set_material
 from log2roundoff import log2roundoff
-from propcontrol import PropControl
+from propcontrol import PropControl, Config, \
+    NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential, \
+    FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
+from consts import PROFHISTORY
 
 import numpy
 
 
-def initpropcontrol(fn = 'beamsim',
-                    ndim = 2,
-                    flags = [1, 1, 1, 0, 0, 0, 2],
-                    harm = 2,
-                    fi = 3,
-                    bandwidth = 0.5,
-                    np = 0,
-                    amp = 0.5,
-                    material = MUSCLE,
-                    temp = 37.0,
-                    endpoint = 0.1,
-                    faz = 0.06,
-                    fel = [],
-                    nelaz = None,
-                    dimelaz = None,
-                    nelel = None,
-                    dimelel = None):
+def initpropcontrol(simulation_name='beamsim',
+                    num_dimensions=2,
+                    config: Config = Config(
+                        diffraction_type=ExactDiffraction,
+                        non_linearity=True,
+                        attenuation=True,
+                        heterogeneous_medium=True,
+                        annular_transducer=False,
+                        equidistant_steps=False,
+                        history=PROFHISTORY
+                    ),
+                    harm=2,
+                    fi=3,
+                    bandwidth=0.5,
+                    np=0,
+                    amp=0.5,
+                    material=MUSCLE,
+                    temp=37.0,
+                    endpoint=0.1,
+                    faz=0.06,
+                    fel=[],
+                    nelaz=None,
+                    dimelaz=None,
+                    nelel=None,
+                    dimelel=None):
     if np == 0:
         np = 4 * numpy.sqrt(numpy.log(2)) / (numpy.pi * bandwidth)
 
-    diffrflag = flags[0]
-    nonlinflag = flags[1]
-    lossflag = flags[2]
-    abflag = flags[3]
-    annflag = flags[4]
-    equidistflag = flags[5]
-    historyflag = flags[6]
+    diffraction_type = config.diffraction_type
+    non_linearity = config.non_linearity
 
-    if annflag != 0:
-        if abflag != 0:
-            diffrflag = 1
-            ndim = 3
-        elif diffrflag < 3:
-            diffrflag = 3
-            ndim = 2
+    if config.annular_transducer:
+        if config.heterogeneous_medium:
+            diffraction_type = ExactDiffraction
+            num_dimensions = 3
+        if diffraction_type == NoDiffraction or \
+                diffraction_type == ExactDiffraction or \
+                diffraction_type == AngularSpectrumDiffraction:
+            diffraction_type = PseudoDifferential
+            num_dimensions = 2
         else:
-            ndim = 2
+            num_dimensions = 2
     if harm > 1:
-        nonlinflag = 1
+        non_linearity = 1
 
     if nelaz is None:
-        if annflag != 0:
+        if config.annular_transducer:
             nelaz = 8
         else:
             nelaz = 64
     if dimelaz is None:
-        if annflag != 0:
+        if config.annular_transducer:
             dimelaz = 13e-4
         else:
             dimelaz = 3.5e-4
     if nelel is None:
-        if annflag != 0:
+        if config.annular_transducer:
             nelel = 8
         else:
             nelel = 1
     if dimelel is None:
-        if annflag != 0:
+        if config.annular_transducer:
             dimelel = 13e-4
         else:
             dimelel = 0.012
@@ -85,62 +93,68 @@ def initpropcontrol(fn = 'beamsim',
     ft = fi / harm
     c = material.c0
     lambdai = c / fi
-    if ndim == 2:
+    if num_dimensions == 2:
         scale = 2
     else:
         scale = 1
 
     dx = lambdai / (2 * scale)
     ndxprel = numpy.ceil(dimelaz / dx)
-    if numpy.mod(ndxprel, 2) == 0 and annflag != 0:
+    if numpy.mod(ndxprel, 2) == 0 and config.annular_transducer:
         ndxprel = ndxprel + 1
     dx = dimelaz / ndxprel
-    if annflag != 0:
+    if config.annular_transducer:
         daz = (2 * nelaz - 1) * dimelaz
     else:
         daz = nelaz * dimelaz
 
     dy = lambdai / (2 * scale)
     ndyprel = numpy.ceil(dimelel / dy)
-    if numpy.mod(ndyprel, 2) == 0 and annflag != 0:
+    if numpy.mod(ndyprel, 2) == 0 and config.annular_transducer:
         ndyprel = ndyprel + 1
     dy = dimelel / ndyprel
-    if annflag != 0:
+    if config.annular_transducer:
         _del = (2 * nelel - 1) * dimelel
     else:
         _del = nelel * dimelel
 
-    idx = numpy.where(abs(fi - fs) == min(abs(fi-fs)))[0][-1]
+    idx = numpy.where(abs(fi - fs) == min(abs(fi - fs)))[0][-1]
     stepsize = ss[idx]
 
     # calculate domain specific variables
     if not fel:
         fel = faz
-    elif fel != (faz and annflag):
+    elif fel != (faz and config.annular_transducer):
         fel = faz
 
-    if ndim == 1:
+    if num_dimensions == 1:
         nlambdapad = 0
         nperiods = 12
-    elif ndim == 2:
+    elif num_dimensions == 2:
         nlambdapad = 35
         nperiods = 12
-    elif ndim == 3:
+    elif num_dimensions == 3:
         nlambdapad = 25
         nperiods = 8
 
-    omegax= daz + 2 * nlambdapad * lambdai
+    omegax = daz + 2 * nlambdapad * lambdai
     nptx = omegax / dx
     nx = log2roundoff(nptx)
-    if annflag and diffrflag >= 3:
+    if config.annular_transducer and \
+            (diffraction_type == PseudoDifferential or
+             diffraction_type == FiniteDifferenceTimeDifferenceReduced or
+             diffraction_type == FiniteDifferenceTimeDifferenceFull):
         nx = nx / 2
-    if ndim == 3 and diffrflag < 3:
+    if num_dimensions == 3 and \
+            (diffraction_type == NoDiffraction or
+             diffraction_type == ExactDiffraction or
+             diffraction_type == AngularSpectrumDiffraction):
         omegay = _del + 2 * nlambdapad * lambdai
         npty = omegay / dy
         ny = log2roundoff(npty)
     else:
         ny = 1
-    if ndim == 1:
+    if num_dimensions == 1:
         nx = 1
         ny = 1
 
@@ -149,25 +163,23 @@ def initpropcontrol(fn = 'beamsim',
     nptt = nperiods * (np / ft) / dt
     nt = log2roundoff(nptt)
 
+    new_config = Config(
+        diffraction_type=diffraction_type,
+        non_linearity=non_linearity,
+        attenuation=config.attenuation,
+        heterogeneous_medium=config.heterogeneous_medium,
+        annular_transducer=config.annular_transducer,
+        equidistant_steps=config.equidistant_steps,
+        history=config.history)
+
     # simulation name
-    propcontrol = PropControl()
-    propcontrol.simname = fn
+    propcontrol = PropControl(simulation_name, num_dimensions, new_config)
 
     # domain and grid specifications
-    propcontrol.ndims = ndim
     propcontrol.nx = nx
     propcontrol.ny = ny
     propcontrol.nt = nt
     propcontrol.PMLwidth = 0
-
-    # flags used for propagation
-    propcontrol.diffrflag = diffrflag
-    propcontrol.nonlinflag = nonlinflag
-    propcontrol.lossflag = lossflag
-    propcontrol.abflag = abflag
-    propcontrol.annflag = annflag
-    propcontrol.equidistflag = equidistflag
-    propcontrol.historyflag = historyflag
 
     # simulation parameters
     propcontrol.stepsize = stepsize
@@ -188,10 +200,12 @@ def initpropcontrol(fn = 'beamsim',
     propcontrol.numscreens = ns
     propcontrol.abamp = 0.09 * numpy.ones((ns, 1)) * 1e-3
     propcontrol.ablength = numpy.ones((ns, 1)) * 1e-3 * numpy.array([4, 100])
-    propcontrol.abseed = numpy.arange(1, ns+1)
-    if abflag == 2:
+    propcontrol.abseed = numpy.arange(1, ns + 1)
+    if config.heterogeneous_medium == 2:
+        # TODO is it not a bool?
         propcontrol.abfile = 'randseq.mat'
-    elif abflag == 3:
+    elif config.heterogeneous_medium == 3:
+        # TODO is it not a bool?
         propcontrol.abfile = 'phantoml.mat'
     else:
         propcontrol.abfile = ''
@@ -214,7 +228,9 @@ def initpropcontrol(fn = 'beamsim',
     propcontrol.Dy = _del
     propcontrol.Fx = faz
     propcontrol.Fy = fel
-    if diffrflag >= 3 and annflag != 0:
+    if (new_config.diffraction_type == PseudoDifferential or
+            new_config.diffraction_type == FiniteDifferenceTimeDifferenceReduced or
+            new_config.diffraction_type == FiniteDifferenceTimeDifferenceFull) and new_config.annular_transducer:
         propcontrol.cchannel = numpy.array([1, 1])
     else:
         propcontrol.cchannel = numpy.floor([propcontrol.nx / 2, propcontrol.ny / 2]) + 1
@@ -224,7 +240,7 @@ def initpropcontrol(fn = 'beamsim',
     propcontrol.esizex = dimelaz
     propcontrol.esizey = dimelel
 
-    if abflag != 0:
+    if new_config.heterogeneous_medium:
         propcontrol.storepos = numpy.array([propcontrol.storepos, propcontrol.d])
     propcontrol.storepos = numpy.unique(propcontrol.storepos)
 

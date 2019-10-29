@@ -7,7 +7,7 @@ def get_window(N = (256, 1),
                ds = None,
                Lw = 0.1,
                L0 = 0.1,
-               annflag = 0):
+               annular_transducer = 0):
     if ds is None:
         ds = 1 / N[0]
 
@@ -17,7 +17,7 @@ def get_window(N = (256, 1),
         return -1
 
     # return rectangular window
-    if annflag == 2:
+    if annular_transducer == 2:
         w = numpy.ones(N[0]*N[1])
         return w
 
@@ -33,9 +33,9 @@ def get_window(N = (256, 1),
     nLwx = int(numpy.ceil(Lw[0] / ds[0]))
     nL0x = int(numpy.ceil(L0[0] / ds[0]))
 
-    # adjust Nx for annflag = 1
+    # adjust Nx for annular_transducer = 1
     Ny = N[1]
-    if Ny == 1 and annflag != 0:
+    if Ny == 1 and annular_transducer:
         Nx = 2 * N[0]
         nLwy = 0
         nL0y = 0
@@ -50,7 +50,7 @@ def get_window(N = (256, 1),
 
     # create window in x
     wx = raised_cos(nwx, nLwx, Nx)
-    if Ny == 1 and annflag != 0:
+    if Ny == 1 and annular_transducer:
         wx = wx[N[0]:]
         Nx = Nx / 2
 

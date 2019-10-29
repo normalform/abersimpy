@@ -29,12 +29,12 @@ def bodywall(u_z,
     zpos = None
 
     # Initiate variables
-    ndim = propcontrol.ndims
+    num_dimensions = propcontrol.num_dimensions
     nx = propcontrol.nx
     ny = propcontrol.ny
     nt = propcontrol.nt
-    abflag = propcontrol.abflag
-    annflag = propcontrol.annflag
+    heterogeneous_medium = propcontrol.config.heterogeneous_medium
+    annular_transducer = propcontrol.annular_transducer
     dx = propcontrol.dx
     dy = propcontrol.dy
 
@@ -44,11 +44,11 @@ def bodywall(u_z,
     endpoint = numpy.min(propcontrol.endpoint, d)
 
     # adjust stepsizes
-    if abflag == 1 or phantom is None:
+    if heterogeneous_medium == 1 or phantom is None:
         if phantom is None:
-            print('Changing abflag to 1')
-            abflag = 1
-            propcontrol.abflag = abflag
+            print('Changing heterogeneous_medium to 1')
+            heterogeneous_medium = 1
+            propcontrol.config.heterogeneous_medium = heterogeneous_medium
 
     dscreen = d / ns
     nsubsteps = numpy.ceil(dscreen / stepsize)

@@ -1,3 +1,5 @@
+from propcontrol import NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential
+
 import numpy
 import scipy.interpolate
 
@@ -6,12 +8,12 @@ def get_focal_curvature(F,
                         ndx,
                         Nel,
                         dx,
-                        elsize = None,
-                        lensfoc = numpy.inf,
-                        annflag = 0,
-                        diffrflag = 1):
+                        elsize=None,
+                        lensfoc=numpy.inf,
+                        annular_transducer=False,
+                        diffraction_type=ExactDiffraction):
 
-    if elsize == None:
+    if elsize is None:
         elsize = ndx * dx / Nel
 
     # if number of points ar one
@@ -24,7 +26,7 @@ def get_focal_curvature(F,
             Rd = numpy.zeros((ndx, 1))
         else:
             nsprel = numpy.round(elsize / dx)
-            if annflag != 0:
+            if annular_transducer:
                 ae = numpy.arange(0, Nel) * elsize
             else:
                 ae = numpy.arange(-int(numpy.floor(Nel / 2)), int(numpy.ceil(Nel / 2))) * elsize + numpy.mod(Nel + 1, 2) * elsize / 2
@@ -32,12 +34,15 @@ def get_focal_curvature(F,
             a = numpy.zeros((ae.size * int(nsprel)))
             for x in range(int(nsprel)):
                 a[x::int(nsprel)] = ae
-            if annflag != 0:
+            if annular_transducer:
                 if numpy.mod(nsprel, 2) == 0:
                     a = a[int(numpy.ceil(nsprel/2)):] + dx / 2
                 else:
                     a = a[int(numpy.floor(nsprel/2)):]
-            if diffrflag <= 3:
+            if diffraction_type == NoDiffraction or \
+                    diffraction_type == ExactDiffraction or \
+                    diffraction_type == AngularSpectrumDiffraction or \
+                    diffraction_type == PseudoDifferential:
                 Rd = numpy.sqrt(a ** 2 + F ** 2) - F
             else:
                 Rd = a ** 2 / (2 * F)
@@ -51,11 +56,14 @@ def get_focal_curvature(F,
 
     # use evnetual lens focusing
     if lensfoc is not numpy.inf and lensfoc != 0.0:
-        if annflag != 0:
+        if annular_transducer:
             ac = numpy.arange(0, ndx) * dx + numpy.mod(ndx+1, 2) * dx / 2
         else:
             ac = numpy.arange(-int(numpy.floor(ndx/2)), int(numpy.ceil(ndx/2))) * dx + numpy.mod(ndx+1, 2) * dx / 2
-        if diffrflag <= 3:
+        if diffraction_type == NoDiffraction or \
+                diffraction_type == ExactDiffraction or \
+                diffraction_type == AngularSpectrumDiffraction or \
+                diffraction_type == PseudoDifferential:
             R1 = numpy.sqrt(ac ** 2 + lensfoc ** 2) - lensfoc
         else:
             R1 = ac ** 2 / (2 * lensfoc)

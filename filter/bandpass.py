@@ -18,8 +18,8 @@ def bandpass(u,
     nt = u.shape[0]
     ny = 1
     nx = 1
-    ndim = u.ndim
-    if ndim == 2:
+    num_dimensions = u.ndim
+    if num_dimensions == 2:
         nx = u.shape[1]
         u = u.reshape((nt, nx*ny))
 
@@ -53,7 +53,7 @@ def bandpass(u,
     U = dfilt * U
     u = numpy.fft.ifftn(U, axes=(0,)).real
 
-    if ndim == 2:
+    if num_dimensions == 2:
         u = u.reshape((nt, ny, nx))
 
     return u, filt

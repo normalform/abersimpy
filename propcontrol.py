@@ -1,28 +1,116 @@
+"""
+PropControl
+"""
 from abersim_size import NS
-from material.material import Material
 
-import json
-import numpy
+import abc
+from dataclasses import dataclass
 
 
-class PropControl(object):
-    simname = None
+class IDiffractionType(abc.ABC):
+    """
+    DiffractionType
+    """
 
-    ndims = 0
+
+class NoDiffraction(IDiffractionType):
+    """
+    No diffraction
+    """
+
+
+class ExactDiffraction(IDiffractionType):
+    """
+    Exact diffraction using angular spectrum with Kz as a variable
+    """
+
+
+class AngularSpectrumDiffraction(IDiffractionType):
+    """
+    Angular spectrum with Kz as vectors (saves memory)
+    """
+
+
+class PseudoDifferential(IDiffractionType):
+    """
+    Pseudo differential model using matrix diagonalization for decoupling of equations
+    """
+
+
+class FiniteDifferenceTimeDifferenceReduced(IDiffractionType):
+    """
+    Using a finite difference time
+    difference scheme in time and space with the parabolic
+    approximation. The matrices used for differentiation
+    are banded to improve computation time.
+    """
+
+
+class FiniteDifferenceTimeDifferenceFull(IDiffractionType):
+    """
+    Using a finite difference time
+    difference scheme in time and space with the parabolic
+    approximation. The matrices used for differentiation
+    are full and requires more computation time.
+    """
+
+
+@dataclass
+class Config:
+    """
+    Config
+    """
+
+    # pylint: disable=too-many-arguments
+    def __init__(self,
+                 diffraction_type: IDiffractionType,
+                 non_linearity: bool,
+                 attenuation: bool,
+                 heterogeneous_medium: int,
+                 annular_transducer: bool,
+                 equidistant_steps: bool,
+                 history):
+        self.diffraction_type = diffraction_type
+        self.non_linearity = non_linearity
+        self.attenuation = attenuation
+        self.heterogeneous_medium = heterogeneous_medium
+        self.annular_transducer = annular_transducer
+        self.equidistant_steps = equidistant_steps
+        self.history = history
+
+    def __str__(self):
+        msg = 'Config('
+        msg += f'diffraction type:{self.diffraction_type}, '
+        msg += f'non-linearity:{self.non_linearity}, '
+        msg += f'attenuation:{self.attenuation}, '
+        msg += f'heterogeneous_medium:{self.heterogeneous_medium}, '
+        msg += f'annular transducer:{self.annular_transducer}, '
+        msg += f'equidistant steps:{self.equidistant_steps}, '
+        msg += f'history:{self.history})'
+
+        return msg
+
+
+@dataclass
+class PropControl:
+    """
+    PropControl
+    """
+
+    # pylint: disable=too-many-instance-attributes
+    def __init__(self,
+                 simulation_name: str,
+                 num_dimensions: int,
+                 config: Config):
+        self.simulation_name = simulation_name
+        self.num_dimensions = num_dimensions
+        self.config = config
 
     nx = 0
     ny = 0
     nt = 0
 
     PMLwidth = 0
-
-    diffrflag = 0
-    nonlinflag = 0
-    lossflag = 0
-    abflag = 0
-    annflag = 0
-    equidistflag = 0
-    historyflag = 0
 
     stepsize = 0.0
     nwindow = 0.0
@@ -64,15 +152,3 @@ class PropControl(object):
     Ney = 0
     esizex = 0.0
     esizey = 0.0
-
-class PropControlDataDecoder(json.JSONEncoder):
-    def default(self, object):
-        if isinstance(object, PropControl):
-            return object.__dict__
-        if isinstance(object, numpy.ndarray):
-            data = object.tolist()
-            return data
-        if isinstance(object, Material):
-            return object.__dict__
-        else:
-            return json.JSONEncoder.default(self, object)

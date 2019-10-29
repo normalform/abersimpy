@@ -17,10 +17,10 @@ def plot_pulse(u,
     if propcontrol is None:
         propcontrol = initpropcontrol()
 
-    ndim = u.ndim
+    num_dimensions = u.ndim
     nt = u.shape[0]
     ny = u.shape[1]
-    if ndim == 2:
+    if num_dimensions == 2:
         nx = ny
     else:
         nx = u.shape[2]
@@ -33,10 +33,10 @@ def plot_pulse(u,
     fig.canvas.set_window_title('Pulse')
     if axflag == 0:
         x = numpy.arange(-numpy.floor(nx / 2), numpy.ceil(nx / 2)) * propcontrol.dx * 1e3
-        if propcontrol.annflag != 0 and propcontrol.ndims == 2:
+        if propcontrol.config.annular_transducer and propcontrol.num_dimensions == 2:
             x = numpy.arange(nx) * propcontrol.dx * 1e3
 
-        if ndim == 3:
+        if num_dimensions == 3:
             data = makedb(numpy.transpose(numpy.squeeze(u[:, int(cc[1]), :])), dyn, nrm)
             axs[0, 0].imshow(data,
                              cmap=cmap,

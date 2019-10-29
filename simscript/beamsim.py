@@ -7,11 +7,11 @@ from propagation.get_wavenumbers import get_wavenumbers
 from postprocessing.export_beamprofile import export_beamprofile
 from simscript.bodywall import bodywall
 from propagation.propagate import propagate
-from propcontrol import PropControlDataDecoder
+from propcontrol import ExactDiffraction, PseudoDifferential
+from consts import NOHISTORY, PROFHISTORY
 
 import numpy
 import scipy.sparse
-import json
 import codecs
 import time
 
@@ -34,7 +34,7 @@ def beamsim(propcontrol = None,
     stepsize = propcontrol.stepsize
     storepos = propcontrol.storepos
 
-    if propcontrol.abflag != 0:
+    if propcontrol.config.heterogeneous_medium:
         if propcontrol.currentpos >= propcontrol.d:
             nsteps, step, stepidx = find_steps(currentpos, endpoint, stepsize, storepos)
         else:
@@ -46,13 +46,20 @@ def beamsim(propcontrol = None,
     dstepidx = numpy.concatenate((numpy.array([0], dtype=int), numpy.diff(stepidx)))
     nrecalc = len(numpy.where(dstepidx)[0])
 
-    if propcontrol.diffrflag == 1 or propcontrol.diffrflag == 3:
-        if nrecalc / nsteps < 0.5 / propcontrol.diffrflag:
+    if propcontrol.config.diffraction_type == ExactDiffraction or \
+            propcontrol.config.diffraction_type == PseudoDifferential:
+        if propcontrol.config.diffraction_type == ExactDiffraction:
+            diffraction_factor = 1
+        else:
+            diffraction_factor = 3
+        if nrecalc / nsteps < 0.5 / diffraction_factor:
             dorecalc = 1
             if stepidx[0] == 0:
-                propcontrol.equidistflag = 1
+                # TODO do not change the member directly
+                propcontrol.config.equidistant_steps = True
         else:
-            propcontrol.equidistflag = 0
+            # TODO do not change the member directly
+            propcontrol.config.equidistant_steps = False
             dorecalc = 0
     else:
         dorecalc = 0
@@ -61,17 +68,17 @@ def beamsim(propcontrol = None,
     nx = propcontrol.nx
     ny = propcontrol.ny
     nt = propcontrol.nt
-    nonlinflag = propcontrol.nonlinflag
-    annflag = propcontrol.annflag
-    historyflag = propcontrol.historyflag
-    ndim = propcontrol.ndims
+    non_linearity = propcontrol.config.non_linearity
+    annular_transducer = propcontrol.config.annular_transducer
+    history = propcontrol.config.history
+    num_dimensions = propcontrol.num_dimensions
     dx = propcontrol.dx
     dy = propcontrol.dy
 
     # initializing variables
     if screen.size != 0:
         raise NotImplementedError
-    fn = propcontrol.simname
+    fn = propcontrol.simulation_name
 
     global Kz
     Kz = get_wavenumbers(propcontrol)
@@ -80,24 +87,24 @@ def beamsim(propcontrol = None,
     if w is None:
         w = propcontrol.nwindow
     if isinstance(w, int) and w > 0:
-        w = get_window((nx, ny), (dx, dy), w * stepsize, 2 * stepsize, annflag)
+        w = get_window((nx, ny), (dx, dy), w * stepsize, 2 * stepsize, annular_transducer)
 
     t = numpy.zeros(nsteps + 1)
     tlap = 0
 
     # reporting simulation type
-    if nonlinflag == 0:
-        nstr = 'linear'
-    else:
+    if non_linearity:
         nstr = 'non-linear'
-    if ndim == 2:
+    else:
+        nstr = 'linear'
+    if num_dimensions == 2:
         dstr = '{} x {}'.format(nx, nt)
     else:
         dstr = '{} x {} x {}'.format(nx, ny, nt)
     print('starting {} simulation of size {}'.format(nstr, dstr))
 
     # calculating beam profiles
-    if historyflag != 0:
+    if history != NOHISTORY:
         rmspro = numpy.zeros((ny, nx, nsteps, propcontrol.harmonic+1))
         maxpro = numpy.zeros((ny, nx, nsteps, propcontrol.harmonic+1))
         axplse = numpy.zeros((nt, nsteps))
@@ -112,12 +119,12 @@ def beamsim(propcontrol = None,
     rmspro, maxpro, axplse, zpos = export_beamprofile(u_z, propcontrol, rmspro, maxpro, axplse, zpos, stepnr)
 
     # Propagating through body wall
-    if propcontrol.abflag != 0 and currentpos < propcontrol.d:
+    if propcontrol.config.heterogeneous_medium != 0 and currentpos < propcontrol.d:
         print('Entering body wall')
         u_z = propcontrol, rmpro, mxpro, axpls, zps = bodywall(u_z, 1, propcontrol, Kz, w, phantom)
         print('Done with body wall')
 
-        if historyflag != 0:
+        if history != NOHISTORY:
             pnx, pny, pns, pnh = rmpro.shape
             stepnr = pns
             raise NotImplementedError
@@ -139,7 +146,11 @@ def beamsim(propcontrol = None,
         # recalculate wave number operator
         if dorecalc != 0:
             if dstepidx[ii] != 0:
-                propcontrol.equidistflag = stepidx[ii]
+                # TODO do not change directly
+                if stepidx[ii] == 0:
+                    propcontrol.config.equidistant_steps = False
+                else:
+                    propcontrol.config.equidistant_steps = True
                 Kz = get_wavenumbers(propcontrol)
 
         # Propagation
@@ -148,10 +159,10 @@ def beamsim(propcontrol = None,
 
         # windowing of solution
         if w.data[0, 0] != -1:
-            if ndim == 3:
+            if num_dimensions == 3:
                 u_z = u_z.reshape((nt, nx * ny))
             u_z = u_z * w
-            if ndim == 3:
+            if num_dimensions == 3:
                 u_z = u_z.reshape((nt, ny, nx))
 
         # calculate beam profiles
@@ -164,16 +175,8 @@ def beamsim(propcontrol = None,
           .format(t[-2] / 60.0, numpy.mean(numpy.diff(t[:-2]))))
 
     # saving the last profiles
-    if historyflag == 2:
-        data = {'rmspro': rmspro,
-                'maxpro': maxpro,
-                'axplse': axplse,
-                'zpos': zpos,
-                'control': propcontrol}
-        json.dump(data, codecs.open(fn, 'w', encoding='utf-8'),
-                  separators=(',', ':'),
-                  sort_keys=True,
-                  indent=4,
-                  cls=PropControlDataDecoder)
+    if history == PROFHISTORY:
+        # TODO Current (removed) json Serialization is not working well.
+        print('[DUMMY] Saving the last profiles')
 
     return u_z, propcontrol, rmspro, maxpro, axplse, zpos

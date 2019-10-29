@@ -6,14 +6,14 @@ def aberrator(propcontrol = None,
     if propcontrol is None:
         propcontrol = initpropcontrol()
 
-    abflag = propcontrol.abflag
+    heterogeneous_medium = propcontrol.config.heterogeneous_medium
     if phantom is None:
-        abflag = 1
+        heterogeneous_medium = 1
 
-    if abflag == 1 or abflag == 2:
+    if heterogeneous_medium == 1 or heterogeneous_medium == 2:
         raise NotImplementedError
         #delta = aberrator_delayscreen(propcontrol)
-    elif abflag == 3:
+    elif heterogeneous_medium == 3:
         raise NotImplementedError
         #delta = aberrator_phantom(propcontrol, phantom)
     else:

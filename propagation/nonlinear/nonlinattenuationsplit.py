@@ -12,15 +12,15 @@ def nonlinattenuationsplit(t,
                            u,
                            dz,
                            shockstep,
-                           material = None,
-                           nonlinflag = 1,
-                           lossflag = 1):
+                           material=None,
+                           non_linearity=True,
+                           attenuation=True):
     if material is None:
         material = set_material(MUSCLE, 37)
 
     # Initiation of sizes
-    ndim = u.ndim
-    if ndim == 3:
+    num_dimensions = u.ndim
+    if num_dimensions == 3:
         nt, ny, nx = u.shape
         u = u.reshape((nt, nx * ny))
     else:
@@ -43,19 +43,19 @@ def nonlinattenuationsplit(t,
             nstep = nstep + 1
             if isreg != 0:
                 # for regular materials
-                if nonlinflag != 0 and lossflag == 0:
+                if non_linearity and attenuation is False:
                     utmp = burgerssolve(t, utmp, utmp, epsn, zstep)
-                elif nonlinflag != 0 and lossflag != 0:
+                elif non_linearity and attenuation:
                     utmp = burgerssolve(t, utmp, utmp, epsn, zstep / 2)
                     utmp = attenuationsolve(t, utmp, zstep, epsa, epsb)
                     utmp = burgerssolve(t, utmp, utmp, epsn, zstep / 2)
-                elif nonlinflag == 0 and lossflag != 0:
+                elif non_linearity is False and attenuation:
                     utmp = attenuationsolve(t, utmp, zstep, epsa, epsb)
             else:
                 raise NotImplementedError
         u[:, ii] = utmp
 
-    if ndim == 3:
+    if num_dimensions == 3:
         u = u.reshape((nt, ny, nx))
 
     return u

@@ -27,7 +27,7 @@ def plot_beamprofile(prof,
     x = numpy.arange(-numpy.floor(nx/2), numpy.ceil(nx/2)) * propcontrol.dx * 1e3
     y = numpy.arange(-numpy.floor(ny/2), numpy.ceil(ny/2)) * propcontrol.dy * 1e3
     z = numpy.arange(nz) * propcontrol.stepsize * 1e3
-    if propcontrol.annflag != 0 and propcontrol.ndims == 2:
+    if propcontrol.config.annular_transducer and propcontrol.num_dimensions == 2:
         x = numpy.arange(0, nx) * propcontrol.dx * 1e3
 
     k = 0
@@ -35,18 +35,18 @@ def plot_beamprofile(prof,
         sz = prof[..., harm[ii]].shape
         tmp = numpy.squeeze(prof[..., harm[ii]])
         tmp = tmp + numpy.finfo(float).eps
-        tmpndim = tmp.ndim
+        tmp_num_dimensions = tmp.ndim
 
         if ii == 0:
-            if tmpndim <= 2:
+            if tmp_num_dimensions <= 2:
                 fig, axs = plt.subplots(nh, 1)
-            elif tmpndim == 3:
+            elif tmp_num_dimensions == 3:
                 fig, axs = plt.subplots(nh, 2)
             htstr = 'total field'
         else:
             htstr = '{}. harmonic'.format(ii)
 
-        if tmpndim == 3:
+        if tmp_num_dimensions == 3:
             fig.canvas.set_window_title('Beam profile 3 Dim')
             data = makedb(numpy.squeeze(tmp[int(chan[1]), :, :]), dyn, nrm)
             axs[ii, k].imshow(data,
@@ -65,7 +65,7 @@ def plot_beamprofile(prof,
             axs[ii, k + 1].set_xlabel('Depth [mm]')
             axs[ii, k + 1].set_ylabel('Elevation [mm]')
             axs[ii, k + 1].set_title('El. {}'.format(htstr))
-        elif tmpndim == 2 and numpy.prod(tmp.shape) != numpy.max(tmp.shape):
+        elif tmp_num_dimensions == 2 and numpy.prod(tmp.shape) != numpy.max(tmp.shape):
             fig.canvas.set_window_title('Beam profile 2 Dim')
             if sz[0] == 1:
                 tstr = 'Az.'

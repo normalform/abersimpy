@@ -6,10 +6,10 @@ import numpy
 def timeshift(u,
               delta,
               method = 'fft'):
-    ndim = u.ndim
+    num_dimensions = u.ndim
     (nt, ny, nx) = u.shape
 
-    if ndim == 2:
+    if num_dimensions == 2:
         nch = ny
     else:
         nch = nx * ny
@@ -25,8 +25,6 @@ def timeshift(u,
         if numpy.max(delta.shape) == 1:
             delta = numpy.ones(nch) * delta
         sh = numpy.exp(-1j * 2 * numpy.pi * k * delta)
-#        plt.plot(delta)
-#        plt.show()
         u = u * sh
         u = numpy.fft.ifftn(u, axes=(0,)).real
     else:

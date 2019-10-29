@@ -7,7 +7,7 @@ import scipy.sparse
 def get_diffmatrix(N = 8,
                    h = 1,
                    order = 4,
-                   annflag = 0,
+                   annular_transducer=False,
                    leftbc = 'symmetric'):
     col = numpy.ones((N, 1))
     d = get_diffstencil(order, 2)

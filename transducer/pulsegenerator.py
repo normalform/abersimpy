@@ -32,7 +32,7 @@ def pulsegenerator(propcontrol,
     dy = propcontrol.dy
     dt = propcontrol.dt
     c = propcontrol.material.c0
-    annflag = propcontrol.annflag
+    annular_transducer = propcontrol.config.annular_transducer
 
     # set length of transducer
     (idxx, idxy, _, _, _) = get_xdidx(propcontrol)
@@ -74,7 +74,7 @@ def pulsegenerator(propcontrol,
     else:
         nttr = int(numpy.ceil((sig.size - nt) / 2.0))
         sig = sig[nttr:nt + nttr]
-    if propcontrol.ndims == 1:
+    if propcontrol.num_dimensions == 1:
         u = sig
         return u
 
@@ -92,9 +92,9 @@ def pulsegenerator(propcontrol,
             raise NotImplementedError
         elif isinstance(apod, list):
             apod = numpy.array(apod)
-            A = get_apodization(xdnx, xdny, 'tukey', apod, annflag)
+            A = get_apodization(xdnx, xdny, 'tukey', apod, annular_transducer)
         elif isinstance(apod, int):
-            A = get_apodization(xdnx, xdny, 'tukey', apod, annflag)
+            A = get_apodization(xdnx, xdny, 'tukey', apod, annular_transducer)
         else:
             raise NotImplementedError
 

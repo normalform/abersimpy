@@ -27,8 +27,8 @@ def focus_pulse(u_z,
     dx = propcontrol.dx
     dy = propcontrol.dy
     dt = propcontrol.dt
-    diffrflag = propcontrol.diffrflag
-    annflag = propcontrol.annflag
+    diffraction_type = propcontrol.config.diffraction_type
+    annular_transducer = propcontrol.config.annular_transducer
     c = propcontrol.material.c0
 
     if isinstance(physlens, int) is False:
@@ -52,12 +52,12 @@ def focus_pulse(u_z,
     xdny = len(idxys)
 
     # calculate focusing
-    if annflag != 0:
+    if annular_transducer:
         raise NotImplementedError
     else:
         # straight forward rectangular transducer
-        Rx = get_focal_curvature(Fx, xdnx, Nex, dx, esizex, lensfoc[0], annflag, diffrflag)
-        Ry = get_focal_curvature(Fy, xdny, Ney, dy, esizey, lensfoc[1], annflag, diffrflag)
+        Rx = get_focal_curvature(Fx, xdnx, Nex, dx, esizex, lensfoc[0], annular_transducer, diffraction_type)
+        Ry = get_focal_curvature(Fy, xdny, Ney, dy, esizey, lensfoc[1], annular_transducer, diffraction_type)
         if isinstance(Ry, numpy.ndarray) is False:
             Ry = numpy.array([Ry])
         deltafocx = numpy.ones((xdny, 1)) * numpy.transpose(Rx) / c

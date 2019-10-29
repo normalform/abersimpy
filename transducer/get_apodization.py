@@ -6,9 +6,9 @@ def get_apodization(nx,
                     ny = 1,
                     type = 'tukey',
                     s = 0,
-                    annflag = 0):
+                    annular_transducer=False):
     # return apodization based on type
-    if ny == 1 and annflag == 0 and isinstance(s, list) is False:
+    if ny == 1 and annular_transducer is False and isinstance(s, list) is False:
         if type == 'tukey':
             apod = scipy.signal.tukey(nx, s)
         elif type == 'hamming':
@@ -22,7 +22,7 @@ def get_apodization(nx,
         return apod
 
     # calculate 2d and annular apodizations
-    if annflag != 0:
+    if annular_transducer:
         if ny == 1:
             # get apodization for axis-symmetric simulations
             apodx = get_apodization(2 * nx - 1, 1, type, s[0])

@@ -1,14 +1,16 @@
 from initpropcontrol import initpropcontrol
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
+from propcontrol import ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+    FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 
 import numpy
 
 
 def propagate(u_z,
               dir,
-              propcontrol = None,
-              Kz = None):
+              propcontrol=None,
+              Kz=None):
     global KZ
 
     if propcontrol is None:
@@ -17,9 +19,9 @@ def propagate(u_z,
         KZ = Kz
         del Kz
 
-    diffrflag = propcontrol.diffrflag
-    nonlinflag = propcontrol.nonlinflag
-    lossflag = propcontrol.lossflag
+    diffraction_type = propcontrol.config.diffraction_type
+    non_linearity = propcontrol.config.non_linearity
+    attenuation = propcontrol.config.attenuation
     stepsize = propcontrol.stepsize
 
     nx = propcontrol.nx
@@ -32,33 +34,36 @@ def propagate(u_z,
     elif dir < 0:
         propcontrol.currentpos = propcontrol.currentpos - stepsize
 
-    if (diffrflag <= 3 and diffrflag > 0) and (nonlinflag == 0 or abs(dir) == 2):
+    if (diffraction_type == ExactDiffraction or
+        diffraction_type == AngularSpectrumDiffraction or
+        diffraction_type == PseudoDifferential) and \
+            (non_linearity is False or abs(dir) == 2):
         # Linear propagation and exact diffraction
         if KZ.size == 0:
             KZ = get_wavenumbers(propcontrol)
 
         # Forward spatial transform
-        if diffrflag == 1 or diffrflag == 2:
-            if propcontrol.ndims == 3:
+        if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
+            if propcontrol.num_dimensions == 3:
                 u_z = numpy.fft.fftn(u_z, axes=(2,))
                 u_z = numpy.fft.fftn(u_z, axes=(1,))
                 u_z = u_z.reshape((nt, nx * ny))
             else:
                 u_z = numpy.fft.fftn(u_z, axes=(1,))
-        elif diffrflag == 3:
-            tmp = KZ[:,nx:]
+        elif diffraction_type == PseudoDifferential:
+            tmp = KZ[:, nx:]
             raise NotImplementedError
 
         # Forward temporal FFT
         u_z = numpy.fft.fftn(u_z, axes=(0,))  # FFT in time
 
         # Propagation step
-        if diffrflag == 1 or diffrflag == 3:
-            if propcontrol.equidistflag != 0:
-                u_z = u_z * numpy.squeeze(KZ[:nt, :nx*ny])
+        if diffraction_type == ExactDiffraction or diffraction_type == PseudoDifferential:
+            if propcontrol.config.equidistant_steps:
+                u_z = u_z * numpy.squeeze(KZ[:nt, :nx * ny])
             else:
                 u_z = u_z * numpy.exp((-1j * stepsize) * numpy.squeeze(KZ[:nt, :nx * ny, 0]))
-        elif diffrflag == 2:
+        elif diffraction_type == AngularSpectrumDiffraction:
             raise NotImplementedError
             kx = KZ[:nx, 0]
             ky = KZ[:ny, 1]
@@ -81,21 +86,25 @@ def propagate(u_z,
         u_z = numpy.fft.ifftn(u_z, axes=(0,))
 
         # Backward spatial transform
-        if diffrflag == 1 or diffrflag == 2:
-            if propcontrol.ndims == 3:
+        if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
+            if propcontrol.num_dimensions == 3:
                 u_z = u_z.reshape((nt, ny, nx))
                 u_z = numpy.fft.ifftn(u_z, axes=(1,))
                 u_z = numpy.fft.ifftn(u_z, axes=(2,))
             else:
                 u_z = numpy.fft.ifftn(u_z, axes=(1,))
             u_z = u_z.real
-        elif diffrflag == 3:
+        elif diffraction_type == PseudoDifferential:
             u_z = u_z.real
             raise NotImplementedError
-        elif diffrflag > 3 or (nonlinflag != 0 or lossflag != 0):
+        elif (diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
+                diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
+                (non_linearity or attenuation):
             # Nonlinear propagation in external function
             raise NotImplementedError
-    elif diffrflag > 3 or (nonlinflag != 0 or lossflag != 0):
+    elif (diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
+            diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
+            (non_linearity or attenuation):
         # Nonlinear propagation in external function
         u_z = nonlinearpropagate(u_z, dir, propcontrol, KZ)
     else:

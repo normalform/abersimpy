@@ -4,6 +4,8 @@ from propagation.nonlinear.nonlinattenuationsplit import nonlinattenuationsplit
 import propagation
 from misc.make_banded import make_banded
 from consts import ZSCALE, TSCALE
+from propcontrol import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+    FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 
 import numpy
 
@@ -35,12 +37,12 @@ def nonlinearpropagate(u_z,
     dx = propcontrol.dx / ZSCALE    # dx scaled to centimeter
     dy = propcontrol.dy / ZSCALE    # dy scaled to centimeter
     dz = propcontrol.dz / ZSCALE    # dz scaled to centimeter
-    ndim = propcontrol.ndims
+    num_dimensions = propcontrol.num_dimensions
     nx = propcontrol.nx
     ny = propcontrol.ny
     nt = propcontrol.nt
 
-    annflag = propcontrol.annflag
+    annular_transducer = propcontrol.config.annular_transducer
     shockstep = propcontrol.shockstep
     stepsize = propcontrol.stepsize
     PMLwidth = propcontrol.PMLwidth
@@ -51,50 +53,57 @@ def nonlinearpropagate(u_z,
     tspan = numpy.transpose(numpy.linspace(dt, nt * dt + dt, nt))
 
     # assign flags
-    diffrflag = propcontrol.diffrflag
-    nonlinflag = propcontrol.nonlinflag
-    lossflag = propcontrol.lossflag
+    diffraction_type = propcontrol.config.diffraction_type
+    non_linearity = propcontrol.config.non_linearity
+    attenuation = propcontrol.config.attenuation
 
     # prepare PML and FD matrices
     if PMLwidth > 0:
         A = d * get_diffmatrix(2 * PMLwidth, dx, 4)
-    if diffrflag > 3:
+    if diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
+            diffraction_type == FiniteDifferenceTimeDifferenceFull:
         if numpy.abs(KZ[4] - d) > 1e-12:
             # find difference matrix A
-            Ax = d * get_diffmatrix(nx, dx, 4, annflag)
+            Ax = d * get_diffmatrix(nx, dx, 4, annular_transducer)
             Bx = numpy.eye(nx) + Ax
             Dx = numpy.eye(nx) - Ax
             Dxi = numpy.inv(Dx)
 
-            if diffrflag == 4:
+            if diffraction_type == FiniteDifferenceTimeDifferenceReduced:
                 # Make matrices banded
                 Bxb = make_banded(Bx, numpy.arange(-2, 2, dtype=int))
                 Dxib = make_banded(Dxi, numpy.arange(-10, 10, dtype=int))
-            elif diffrflag == 5:
+            elif diffraction_type == FiniteDifferenceTimeDifferenceFull:
                 raise NotImplementedError
-    elif diffrflag <= 3:
+    elif diffraction_type == NoDiffraction or \
+            diffraction_type == ExactDiffraction or \
+            diffraction_type == AngularSpectrumDiffraction or \
+            diffraction_type == PseudoDifferential:
         propcontrol.stepsize = dz * ZSCALE
 
     # Nonlinear propagation
     for ni in range(nsubsteps):
         # diffraction
-        if diffrflag <= 3 and diffrflag > 0:
+        if diffraction_type == ExactDiffraction or \
+            diffraction_type == AngularSpectrumDiffraction or \
+            diffraction_type == PseudoDifferential:
             u_z, _ = propagation.propagate.propagate(u_z, 2 * dir, propcontrol, KZ)
-        elif diffrflag == 4 or diffrflag == 5:
+        elif diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
+                diffraction_type == FiniteDifferenceTimeDifferenceFull:
             raise NotImplementedError
 
         # perfectly matching layers, absorbing boundaries
         if PMLwidth > 0:
-            if propagation.ndims == 2:
+            if propagation.num_dimensions == 2:
                 u_z = u_z.reshape((nx, 1, nt))
                 raise NotImplementedError
 
         # Nonlinear and attenuation
-        if nonlinflag != 0 or lossflag != 0:
-            u_z = nonlinattenuationsplit(tspan, u_z, dz, shockstep, mat, nonlinflag, lossflag)
+        if non_linearity or attenuation:
+            u_z = nonlinattenuationsplit(tspan, u_z, dz, shockstep, mat, non_linearity, attenuation)
 
     # set stepsize back to normal
-    if diffrflag == 1 or diffrflag == 2:
+    if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
         propcontrol.stepsize = stepsize
 
     return u_z

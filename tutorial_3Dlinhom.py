@@ -1,21 +1,32 @@
 from initpropcontrol import initpropcontrol
+from propcontrol import Config, ExactDiffraction
 from transducer.pulsegenerator import pulsegenerator
 from simscript.beamsim import beamsim
 from visualization.plot_beamprofile import plot_beamprofile
 from visualization.plot_pulse import plot_pulse
+from consts import PROFHISTORY
 
 import numpy
+import matplotlib.pyplot as plt
 
 
 if __name__ == '__main__':
     # input variables for Propcontrol
-    name = 'test_3dlinhom'
-    ndim = 3
-    flags = [1, 0, 1, 0, 0, 0, 2]
+    name = 'test_3dLinHom'
+    num_dimensions = 3
+    config = Config(
+        diffraction_type=ExactDiffraction,
+        non_linearity=False,
+        attenuation=True,
+        heterogeneous_medium=False,
+        annular_transducer=False,
+        equidistant_steps=False,
+        history=PROFHISTORY
+    )
     harm = 1
 
     # generate Propcontrol
-    propcontrol = initpropcontrol(name, ndim, flags, harm)
+    propcontrol = initpropcontrol(name, num_dimensions, config, harm)
 
     # generate a  wave field at the transducer
     u, _, _ = pulsegenerator(propcontrol, 'transducer', [0, 1])
@@ -34,3 +45,5 @@ if __name__ == '__main__':
     plot_beamprofile(rmspro[..., idx:idx+1, :], propcontrol)
 
     plot_pulse(axplse, propcontrol, 1)
+
+    plt.show()
