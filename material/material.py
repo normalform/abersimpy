@@ -58,11 +58,11 @@ class BaseMaterial(ABC):
 
     @property
     @abstractmethod
-    def wave_speed(self) -> float:
+    def sound_speed(self) -> float:
         """
-        Get the wave speed
+        Get the sound speed
         :param: the temperature
-        :return: wave speed
+        :return: sound speed
         """
 
     @property
@@ -96,10 +96,10 @@ class BaseMaterial(ABC):
         """
         beta_n = self.non_linearity_coefficient
         kappa = self.compressibility
-        wave_speed = self.wave_speed
+        sound_speed = self.sound_speed
 
         scale = ScaleForSpatialVariablesZ * ScaleForPressure / ScaleForTemporalVariable
-        return beta_n * kappa * wave_speed * scale
+        return beta_n * kappa * sound_speed * scale
 
     @property
     def compressibility(self) -> float:
@@ -108,9 +108,9 @@ class BaseMaterial(ABC):
         :param: the temperature
         :return: The compressibility
         """
-        wave_speed = self.wave_speed
+        sound_speed = self.sound_speed
         rho = self.mass_density
-        kappa = 1. / (wave_speed ** 2.0 * rho)
+        kappa = 1. / (sound_speed ** 2.0 * rho)
 
         return kappa
 

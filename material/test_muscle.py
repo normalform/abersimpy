@@ -10,7 +10,7 @@ class TestMuscle(unittest.TestCase):
         self.muscle = Muscle(37.0)
 
     def test_wave_speed(self):
-        self.assertAlmostEqual(1549.9, self.muscle.wave_speed)
+        self.assertAlmostEqual(1549.9, self.muscle.sound_speed)
 
     def test_mass_density(self):
         self.assertAlmostEqual(1060.0, self.muscle.mass_density)

@@ -29,7 +29,7 @@ def focus_pulse(u_z,
     dt = propcontrol.dt
     diffraction_type = propcontrol.config.diffraction_type
     annular_transducer = propcontrol.config.annular_transducer
-    c = propcontrol.material.wave_speed
+    c = propcontrol.material.sound_speed
 
     if isinstance(physlens, int) is False:
         raise NotImplementedError

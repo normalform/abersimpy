@@ -89,7 +89,7 @@ def init_prop_control(simulation_name='beamsim',
     filter = numpy.array([1.0, 1.6, 2.0, 2.0, 2.0, 2.2, 2.2, 2.2, 2.2, 2.2]) / numpy.arange(1, 11) * 0.5
     fi = fi * 1e6
     ft = fi / harm
-    c = material.wave_speed
+    c = material.sound_speed
     lambdai = c / fi
     if num_dimensions == 2:
         scale = 2

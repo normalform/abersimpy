@@ -31,7 +31,7 @@ def pulsegenerator(propcontrol,
     dx = propcontrol.dx
     dy = propcontrol.dy
     dt = propcontrol.dt
-    c = propcontrol.material.wave_speed
+    c = propcontrol.material.sound_speed
     annular_transducer = propcontrol.config.annular_transducer
 
     # set length of transducer

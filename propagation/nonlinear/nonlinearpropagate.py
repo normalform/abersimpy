@@ -31,7 +31,7 @@ def nonlinearpropagate(u_z,
 
     # preparation of variables
     mat = propcontrol.material
-    c = mat.wave_speed
+    c = mat.sound_speed
     c = c / ScaleForSpatialVariablesZ * ScaleForTemporalVariable  # scaling wave-speed
     dt = propcontrol.dt / ScaleForTemporalVariable  # scale sampling to microsecs
     dx = propcontrol.dx / ScaleForSpatialVariablesZ  # dx scaled to centimeter
