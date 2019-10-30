@@ -13,10 +13,10 @@ from propagation.nonlinear.nonlinattenuationsplit import nonlinattenuationsplit
 def nonlinearpropagate(u_z,
                        dir,
                        prop_control=None,
-                       kz = None,
-                       eps_n = None,
-                       eps_a = None,
-                       eps_b = None):
+                       kz=None,
+                       eps_n=None,
+                       eps_a=None,
+                       eps_b=None):
     global KZ
     if prop_control is None:
         print('Wave field, direction and prop_control must be specified')
@@ -85,8 +85,8 @@ def nonlinearpropagate(u_z,
     for ni in range(nsubsteps):
         # diffraction
         if diffraction_type == ExactDiffraction or \
-            diffraction_type == AngularSpectrumDiffraction or \
-            diffraction_type == PseudoDifferential:
+                diffraction_type == AngularSpectrumDiffraction or \
+                diffraction_type == PseudoDifferential:
             u_z, _ = propagation.propagate.propagate(u_z, 2 * dir, prop_control, KZ)
         elif diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
                 diffraction_type == FiniteDifferenceTimeDifferenceFull:
