@@ -1,13 +1,13 @@
+import numpy
+import matplotlib.pyplot as plt
+
 from initpropcontrol import initpropcontrol
 from propcontrol import Config, ExactDiffraction
 from transducer.pulsegenerator import pulsegenerator
 from simscript.beamsim import beamsim
 from visualization.plot_beamprofile import plot_beamprofile
 from visualization.plot_pulse import plot_pulse
-from consts import PROFHISTORY
-
-import numpy
-import matplotlib.pyplot as plt
+from consts import PROFHISTORY, NoAberrationAndHomogeneousMedium
 
 
 if __name__ == '__main__':
@@ -18,7 +18,7 @@ if __name__ == '__main__':
         diffraction_type=ExactDiffraction,
         non_linearity=False,
         attenuation=True,
-        heterogeneous_medium=False,
+        heterogeneous_medium=NoAberrationAndHomogeneousMedium,
         annular_transducer=False,
         equidistant_steps=False,
         history=PROFHISTORY

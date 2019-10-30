@@ -16,3 +16,8 @@ PROFHISTORY = 2
 FULLHISTORY = 3
 PLANEHISTORY = 4
 AXPHISTORY = 5
+
+NoAberrationAndHomogeneousMedium: int = 0
+AberrationFromDelayScreenBodyWall: int = 1
+AberrationFromFile: int = 2
+AberrationPhantom: int = 3

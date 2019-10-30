@@ -1,16 +1,20 @@
-from initpropcontrol import initpropcontrol
-from propagation.get_wavenumbers import get_wavenumbers
-from heterogeneous.aberrator import aberrator
-
+"""
+body_wall.py
+"""
 import numpy
 
+from initpropcontrol import initpropcontrol
+from propagation.get_wavenumbers import get_wavenumbers
+from heterogeneous.aberration import aberration
+from consts import AberrationFromDelayScreenBodyWall
 
-def bodywall(u_z,
-             dir,
-             propcontrol = None,
-             Kz = None,
-             w = None,
-             phantom = None):
+
+def body_wall(u_z,
+              dir,
+              propcontrol=None,
+              Kz=None,
+              w=None,
+              phantom=None):
     if propcontrol is None:
         propcontrol = initpropcontrol()
 
@@ -44,10 +48,10 @@ def bodywall(u_z,
     endpoint = numpy.min(propcontrol.endpoint, d)
 
     # adjust stepsizes
-    if heterogeneous_medium == 1 or phantom is None:
+    if heterogeneous_medium == AberrationFromDelayScreenBodyWall or phantom is None:
         if phantom is None:
-            print('Changing heterogeneous_medium to 1')
-            heterogeneous_medium = 1
+            print('Changing heterogeneous_medium to AberrationFromDelayScreenBodyWall')
+            heterogeneous_medium = AberrationFromDelayScreenBodyWall
             propcontrol.config.heterogeneous_medium = heterogeneous_medium
 
     dscreen = d / ns
@@ -55,8 +59,8 @@ def bodywall(u_z,
     abstepsize = dscreen / nsubsteps
     propcontrol.stepsize = abstepsize
 
-    # Prepares bodywall model
-    delta = aberrator(propcontrol)
+    # Prepares body wall model
+    delta = aberration(propcontrol)
 
     # TODO
     raise NotImplementedError

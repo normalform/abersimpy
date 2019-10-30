@@ -1,3 +1,8 @@
+"""
+initpropcontrol.py
+"""
+import numpy
+
 from material.list_matrial import MUSCLE, ABPHANTOM
 from material.check_material import check_material
 from material.set_material import set_material
@@ -5,9 +10,7 @@ from misc.log2round_off import log2round_off
 from propcontrol import PropControl, Config, \
     NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-from consts import PROFHISTORY
-
-import numpy
+from consts import PROFHISTORY, NoAberrationAndHomogeneousMedium, AberrationFromFile, AberrationPhantom
 
 
 def initpropcontrol(simulation_name='beamsim',
@@ -16,7 +19,7 @@ def initpropcontrol(simulation_name='beamsim',
                         diffraction_type=ExactDiffraction,
                         non_linearity=True,
                         attenuation=True,
-                        heterogeneous_medium=True,
+                        heterogeneous_medium=NoAberrationAndHomogeneousMedium,
                         annular_transducer=False,
                         equidistant_steps=False,
                         history=PROFHISTORY
@@ -201,10 +204,10 @@ def initpropcontrol(simulation_name='beamsim',
     propcontrol.abamp = 0.09 * numpy.ones((ns, 1)) * 1e-3
     propcontrol.ablength = numpy.ones((ns, 1)) * 1e-3 * numpy.array([4, 100])
     propcontrol.abseed = numpy.arange(1, ns + 1)
-    if config.heterogeneous_medium == 2:
+    if config.heterogeneous_medium == AberrationFromFile:
         # TODO is it not a bool?
         propcontrol.abfile = 'randseq.mat'
-    elif config.heterogeneous_medium == 3:
+    elif config.heterogeneous_medium == AberrationPhantom:
         # TODO is it not a bool?
         propcontrol.abfile = 'phantoml.mat'
     else:

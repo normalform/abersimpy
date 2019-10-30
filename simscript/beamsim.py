@@ -5,7 +5,7 @@ from misc.get_window import get_window
 from misc.estimate_eta import estimate_eta
 from propagation.get_wavenumbers import get_wavenumbers
 from postprocessing.export_beamprofile import export_beamprofile
-from simscript.bodywall import bodywall
+from simscript.body_wall import body_wall
 from propagation.propagate import propagate
 from propcontrol import ExactDiffraction, PseudoDifferential
 from consts import NOHISTORY, PROFHISTORY
@@ -121,7 +121,7 @@ def beamsim(propcontrol = None,
     # Propagating through body wall
     if propcontrol.config.heterogeneous_medium != 0 and currentpos < propcontrol.d:
         print('Entering body wall')
-        u_z = propcontrol, rmpro, mxpro, axpls, zps = bodywall(u_z, 1, propcontrol, Kz, w, phantom)
+        u_z = propcontrol, rmpro, mxpro, axpls, zps = body_wall(u_z, 1, propcontrol, Kz, w, phantom)
         print('Done with body wall')
 
         if history != NOHISTORY:

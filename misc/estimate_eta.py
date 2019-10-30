@@ -8,7 +8,7 @@ def estimate_eta(t,
                  tlap,
                  bwflag=0):
     if bwflag != 0:
-        fstr = 'to end of bodywall'
+        fstr = 'to end of body_wall'
     else:
         fstr = 'to final endpoint'
     step = step + 1
