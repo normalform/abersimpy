@@ -1,7 +1,7 @@
-from filter.get_freqs import get_freqs
-
 import numpy
 import scipy.sparse
+
+from filter.get_freqs import get_freqs
 
 
 def bandpass(u,

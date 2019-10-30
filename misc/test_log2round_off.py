@@ -1,8 +1,8 @@
 # pylint: disable-all
 
-from misc.log2round_off import log2round_off
-
 import unittest
+
+from misc.log2round_off import log2round_off
 
 
 class DiffractionComparison(unittest.TestCase):

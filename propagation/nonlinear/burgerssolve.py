@@ -1,6 +1,6 @@
-from propagation.nonlinear.get_linear import get_linear
-
 import numpy
+
+from propagation.nonlinear.get_linear import get_linear
 
 
 def burgerssolve(t,

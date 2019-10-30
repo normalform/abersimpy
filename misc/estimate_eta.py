@@ -1,5 +1,6 @@
-import numpy
 import time
+
+import numpy
 
 
 def estimate_eta(t,

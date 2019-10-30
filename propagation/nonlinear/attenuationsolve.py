@@ -1,7 +1,7 @@
-from filter.get_freqs import get_freqs
+import numpy
 from scipy.signal import hilbert
 
-import numpy
+from filter.get_freqs import get_freqs
 
 
 def attenuationsolve(t,

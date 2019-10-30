@@ -1,6 +1,6 @@
-from misc.raised_cos import raised_cos
-
 import numpy
+
+from misc.raised_cos import raised_cos
 
 
 def get_window(N = (256, 1),

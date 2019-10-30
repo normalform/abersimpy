@@ -2,11 +2,12 @@
 
 import unittest
 from unittest.mock import Mock
+
 import numpy
 
-from heterogeneous.aberration import aberration
 from consts import NoAberrationAndHomogeneousMedium, \
     AberrationFromDelayScreenBodyWall, AberrationFromFile, AberrationPhantom
+from heterogeneous.aberration import aberration
 
 
 class TestAberration(unittest.TestCase):

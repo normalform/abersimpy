@@ -1,7 +1,7 @@
-from propagation.get_diffstencil import get_diffstencil
-
 import numpy
 import scipy.sparse
+
+from propagation.get_diffstencil import get_diffstencil
 
 
 def get_diffmatrix(N = 8,
