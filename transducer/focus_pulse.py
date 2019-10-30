@@ -6,30 +6,30 @@ from transducer.get_xdidx import get_xdidx
 
 
 def focus_pulse(u_z,
-                propcontrol,
+                prop_control,
                 lensfoc = None,
                 nofocflag = 0,
                 physlens = 0):
     if lensfoc is None:
         lensfoc = numpy.zeros(2)
-        if propcontrol.Nex == 1:
-            lensfoc[0] = propcontrol.Fx
-        if propcontrol.Ney == 1:
-            lensfoc[1] = propcontrol.Fy
+        if prop_control.Nex == 1:
+            lensfoc[0] = prop_control.Fx
+        if prop_control.Ney == 1:
+            lensfoc[1] = prop_control.Fy
 
     # initiate variables
-    Fx = propcontrol.Fx
-    Fy = propcontrol.Fy
-    Nex = propcontrol.Nex
-    Ney = propcontrol.Ney
-    esizex = propcontrol.esizex
-    esizey = propcontrol.esizey
-    dx = propcontrol.dx
-    dy = propcontrol.dy
-    dt = propcontrol.dt
-    diffraction_type = propcontrol.config.diffraction_type
-    annular_transducer = propcontrol.config.annular_transducer
-    c = propcontrol.material.sound_speed
+    Fx = prop_control.Fx
+    Fy = prop_control.Fy
+    Nex = prop_control.Nex
+    Ney = prop_control.Ney
+    esizex = prop_control.esizex
+    esizey = prop_control.esizey
+    dx = prop_control.dx
+    dy = prop_control.dy
+    dt = prop_control.dt
+    diffraction_type = prop_control.config.diffraction_type
+    annular_transducer = prop_control.config.annular_transducer
+    c = prop_control.material.sound_speed
 
     if isinstance(physlens, int) is False:
         raise NotImplementedError
@@ -37,7 +37,7 @@ def focus_pulse(u_z,
     physlensy = physlens
 
     # find sizes and indices
-    (idxxs, idxys, _, _, _) = get_xdidx(propcontrol)
+    (idxxs, idxys, _, _, _) = get_xdidx(prop_control)
     (nt, uny, unx) = u_z.shape
     if unx == 1:
         unx = uny

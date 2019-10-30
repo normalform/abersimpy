@@ -1,28 +1,28 @@
-from consts import NoHistory, PositionHistory, ProfileHistory, FullHistory, PlaneHistory, PlaneByChannelHistory
-from misc.get_strpos import get_strpos
-from postprocessing.get_rms import get_rms
-from postprocessing.get_max import get_max
-from filter.bandpass import bandpass
-
 import numpy
+
+from consts import NoHistory, PositionHistory, ProfileHistory, FullHistory, PlaneHistory, PlaneByChannelHistory
+from filter.bandpass import bandpass
+from misc.get_strpos import get_strpos
+from postprocessing.get_max import get_max
+from postprocessing.get_rms import get_rms
 
 
 def export_beamprofile(u_z,
-                       propcontrol,
+                       prop_control,
                        rmpro = None,
                        mxpro = None,
                        axpls = None,
                        zps = None,
                        step = None):
     # setting variables
-    filename = propcontrol.simulation_name
+    filename = prop_control.simulation_name
     rmspro = None
     maxpro = None
     axplse = None
     zpos = None
 
-    history = propcontrol.config.history
-    pos = propcontrol.currentpos
+    history = prop_control.config.history
+    pos = prop_control.currentpos
     fn = '{}{}.json'.format(filename, get_strpos(pos * 1e3))
 
     # stores full field or exits
@@ -36,13 +36,13 @@ def export_beamprofile(u_z,
         raise NotImplementedError
         return rmspro, maxpro, axplse, zpos
 
-    harmonic = propcontrol.harmonic
-    storepos = propcontrol.storepos
-    cc = propcontrol.cchannel.astype(int)
+    harmonic = prop_control.harmonic
+    storepos = prop_control.storepos
+    cc = prop_control.cchannel.astype(int)
 
-    fc = propcontrol.fc
-    dt = propcontrol.dt
-    filterc = propcontrol.filter
+    fc = prop_control.fc
+    dt = prop_control.dt
+    filterc = prop_control.filter
 
     # initializing profiles
     rmspro = rmpro
@@ -51,7 +51,7 @@ def export_beamprofile(u_z,
     zpos = zps
 
     # finding dimensions
-    num_dimensions = propcontrol.num_dimensions
+    num_dimensions = prop_control.num_dimensions
     if num_dimensions == 2:
         nt, ny = u_z.shape
         nx = ny

@@ -3,19 +3,19 @@ import numpy
 from scipy.signal import hilbert
 
 from filter.bandpass import bandpass
-from init_prop_control import init_prop_control
+from prop_control import PropControl
 from visualization.makedb import makedb
 
 
 def plot_pulse(u,
-               propcontrol = None,
+               prop_control=None,
                axflag = 0,
                dyn = 40,
                nrm = None,
                fh = None,
                cmap = 'gray'):
-    if propcontrol is None:
-        propcontrol = init_prop_control()
+    if prop_control is None:
+        prop_control = PropControl.init_prop_control()
 
     num_dimensions = u.ndim
     nt = u.shape[0]
@@ -25,16 +25,16 @@ def plot_pulse(u,
     else:
         nx = u.shape[2]
 
-    cc = propcontrol.cchannel
-    t = numpy.arange(-numpy.floor(nt / 2), numpy.ceil(nt / 2)) * propcontrol.dt * 1e6
-    y = numpy.arange(-numpy.floor(ny / 2), numpy.ceil(ny / 2)) * propcontrol.dy * 1e3
+    cc = prop_control.cchannel
+    t = numpy.arange(-numpy.floor(nt / 2), numpy.ceil(nt / 2)) * prop_control.dt * 1e6
+    y = numpy.arange(-numpy.floor(ny / 2), numpy.ceil(ny / 2)) * prop_control.dy * 1e3
 
     fig, axs = plt.subplots(2, 2)
     fig.canvas.set_window_title('Pulse')
     if axflag == 0:
-        x = numpy.arange(-numpy.floor(nx / 2), numpy.ceil(nx / 2)) * propcontrol.dx * 1e3
-        if propcontrol.config.annular_transducer and propcontrol.num_dimensions == 2:
-            x = numpy.arange(nx) * propcontrol.dx * 1e3
+        x = numpy.arange(-numpy.floor(nx / 2), numpy.ceil(nx / 2)) * prop_control.dx * 1e3
+        if prop_control.config.annular_transducer and prop_control.num_dimensions == 2:
+            x = numpy.arange(nx) * prop_control.dx * 1e3
 
         if num_dimensions == 3:
             data = makedb(numpy.transpose(numpy.squeeze(u[:, int(cc[1]), :])), dyn, nrm)
@@ -67,14 +67,14 @@ def plot_pulse(u,
         else:
             raise NotImplementedError
     else:
-        x = numpy.arange(nx) * propcontrol.stepsize * 1e3
-        f = numpy.arange(numpy.floor(nt/2)) * propcontrol.Fs * 1e-6 / nt
+        x = numpy.arange(nx) * prop_control.stepsize * 1e3
+        f = numpy.arange(numpy.floor(nt / 2)) * prop_control.Fs * 1e-6 / nt
 
-        nh = propcontrol.harmonic
-        dt = propcontrol.dt
-        fc = propcontrol.fc
-        bw = propcontrol.bandwidth
-        filt = propcontrol.filter
+        nh = prop_control.harmonic
+        dt = prop_control.dt
+        fc = prop_control.fc
+        bw = prop_control.bandwidth
+        filt = prop_control.filter
         nrmp = numpy.max(numpy.max(numpy.abs(hilbert(u))))
 
         data = makedb(numpy.transpose(u), dyn, nrmp)

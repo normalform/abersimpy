@@ -4,41 +4,39 @@ import numpy
 import scipy.sparse
 
 from consts import NoHistory, ProfileHistory
-from init_prop_control import init_prop_control
 from misc.estimate_eta import estimate_eta
 from misc.find_steps import find_steps
 from misc.get_window import get_window
 from postprocessing.export_beamprofile import export_beamprofile
+from prop_control import ExactDiffraction, PseudoDifferential
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.propagate import propagate
-from propcontrol import ExactDiffraction, PseudoDifferential
 from simscript.body_wall import body_wall
 from transducer.pulsegenerator import pulsegenerator
 
 
-def beamsim(propcontrol = None,
+def beamsim(prop_control=None,
             u_z = None,
             screen = numpy.array([]),
             w = None,
             phantom = None):
-
-    if propcontrol is None:
-        propcontrol = init_prop_control()
+    if prop_control is None:
+        prop_control = init_prop_control()
 
     if u_z is None:
-        u_z = pulsegenerator(propcontrol, 'transducer')
+        u_z = pulsegenerator(prop_control, 'transducer')
 
     # calculate number of propagation steps beyond the body wall
-    currentpos = propcontrol.currentpos
-    endpoint = propcontrol.endpoint
-    stepsize = propcontrol.stepsize
-    storepos = propcontrol.storepos
+    currentpos = prop_control.currentpos
+    endpoint = prop_control.endpoint
+    stepsize = prop_control.stepsize
+    storepos = prop_control.storepos
 
-    if propcontrol.config.heterogeneous_medium:
-        if propcontrol.currentpos >= propcontrol.d:
+    if prop_control.config.heterogeneous_medium:
+        if prop_control.currentpos >= prop_control.d:
             nsteps, step, stepidx = find_steps(currentpos, endpoint, stepsize, storepos)
         else:
-            nsteps, step, stepidx = find_steps(propcontrol.d, endpoint, stepsize, storepos)
+            nsteps, step, stepidx = find_steps(prop_control.d, endpoint, stepsize, storepos)
     else:
         nsteps, step, stepidx = find_steps(currentpos, endpoint, stepsize, storepos)
 
@@ -46,9 +44,9 @@ def beamsim(propcontrol = None,
     dstepidx = numpy.concatenate((numpy.array([0], dtype=int), numpy.diff(stepidx)))
     nrecalc = len(numpy.where(dstepidx)[0])
 
-    if propcontrol.config.diffraction_type == ExactDiffraction or \
-            propcontrol.config.diffraction_type == PseudoDifferential:
-        if propcontrol.config.diffraction_type == ExactDiffraction:
+    if prop_control.config.diffraction_type == ExactDiffraction or \
+            prop_control.config.diffraction_type == PseudoDifferential:
+        if prop_control.config.diffraction_type == ExactDiffraction:
             diffraction_factor = 1
         else:
             diffraction_factor = 3
@@ -56,36 +54,36 @@ def beamsim(propcontrol = None,
             dorecalc = 1
             if stepidx[0] == 0:
                 # TODO do not change the member directly
-                propcontrol.config.equidistant_steps = True
+                prop_control.config.equidistant_steps = True
         else:
             # TODO do not change the member directly
-            propcontrol.config.equidistant_steps = False
+            prop_control.config.equidistant_steps = False
             dorecalc = 0
     else:
         dorecalc = 0
 
     # sets sizes
-    nx = propcontrol.nx
-    ny = propcontrol.ny
-    nt = propcontrol.nt
-    non_linearity = propcontrol.config.non_linearity
-    annular_transducer = propcontrol.config.annular_transducer
-    history = propcontrol.config.history
-    num_dimensions = propcontrol.num_dimensions
-    dx = propcontrol.dx
-    dy = propcontrol.dy
+    nx = prop_control.nx
+    ny = prop_control.ny
+    nt = prop_control.nt
+    non_linearity = prop_control.config.non_linearity
+    annular_transducer = prop_control.config.annular_transducer
+    history = prop_control.config.history
+    num_dimensions = prop_control.num_dimensions
+    dx = prop_control.dx
+    dy = prop_control.dy
 
     # initializing variables
     if screen.size != 0:
         raise NotImplementedError
-    fn = propcontrol.simulation_name
+    fn = prop_control.simulation_name
 
     global Kz
-    Kz = get_wavenumbers(propcontrol)
+    Kz = get_wavenumbers(prop_control)
 
     # calculate spatial window
     if w is None:
-        w = propcontrol.nwindow
+        w = prop_control.nwindow
     if isinstance(w, int) and w > 0:
         w = get_window((nx, ny), (dx, dy), w * stepsize, 2 * stepsize, annular_transducer)
 
@@ -105,8 +103,8 @@ def beamsim(propcontrol = None,
 
     # calculating beam profiles
     if history != NoHistory:
-        rmspro = numpy.zeros((ny, nx, nsteps, propcontrol.harmonic+1))
-        maxpro = numpy.zeros((ny, nx, nsteps, propcontrol.harmonic+1))
+        rmspro = numpy.zeros((ny, nx, nsteps, prop_control.harmonic + 1))
+        maxpro = numpy.zeros((ny, nx, nsteps, prop_control.harmonic + 1))
         axplse = numpy.zeros((nt, nsteps))
         zpos = numpy.zeros(nsteps)
     else:
@@ -116,12 +114,12 @@ def beamsim(propcontrol = None,
         zpos = numpy.array([])
     stepnr = 0
 
-    rmspro, maxpro, axplse, zpos = export_beamprofile(u_z, propcontrol, rmspro, maxpro, axplse, zpos, stepnr)
+    rmspro, maxpro, axplse, zpos = export_beamprofile(u_z, prop_control, rmspro, maxpro, axplse, zpos, stepnr)
 
     # Propagating through body wall
-    if propcontrol.config.heterogeneous_medium != 0 and currentpos < propcontrol.d:
+    if prop_control.config.heterogeneous_medium != 0 and currentpos < prop_control.d:
         print('Entering body wall')
-        u_z = propcontrol, rmpro, mxpro, axpls, zps = body_wall(u_z, 1, propcontrol, Kz, w, phantom)
+        u_z = prop_control, rmpro, mxpro, axpls, zps = body_wall(u_z, 1, prop_control, Kz, w, phantom)
         print('Done with body wall')
 
         if history != NoHistory:
@@ -148,14 +146,14 @@ def beamsim(propcontrol = None,
             if dstepidx[ii] != 0:
                 # TODO do not change directly
                 if stepidx[ii] == 0:
-                    propcontrol.config.equidistant_steps = False
+                    prop_control.config.equidistant_steps = False
                 else:
-                    propcontrol.config.equidistant_steps = True
-                Kz = get_wavenumbers(propcontrol)
+                    prop_control.config.equidistant_steps = True
+                Kz = get_wavenumbers(prop_control)
 
         # Propagation
-        propcontrol.stepsize = step[ii]
-        u_z, propcontrol = propagate(u_z, 1, propcontrol, Kz)
+        prop_control.stepsize = step[ii]
+        u_z, prop_control = propagate(u_z, 1, prop_control, Kz)
 
         # windowing of solution
         if w.data[0, 0] != -1:
@@ -166,7 +164,7 @@ def beamsim(propcontrol = None,
                 u_z = u_z.reshape((nt, ny, nx))
 
         # calculate beam profiles
-        rmspro, maxpro, axplse, zpos = export_beamprofile(u_z, propcontrol, rmspro, maxpro, axplse, zpos, stepnr)
+        rmspro, maxpro, axplse, zpos = export_beamprofile(u_z, prop_control, rmspro, maxpro, axplse, zpos, stepnr)
 
         toc = time.time() - start_time
         t[ii + 1] = t[ii] + toc
@@ -179,4 +177,4 @@ def beamsim(propcontrol = None,
         # TODO Current (removed) json Serialization is not working well.
         print('[DUMMY] Saving the last profiles')
 
-    return u_z, propcontrol, rmspro, maxpro, axplse, zpos
+    return u_z, prop_control, rmspro, maxpro, axplse, zpos

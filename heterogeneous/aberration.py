@@ -4,7 +4,7 @@ aberration.py
 import numpy
 
 from consts import AberrationFromDelayScreenBodyWall, AberrationFromFile, AberrationPhantom
-from init_prop_control import PropControl
+from prop_control import PropControl
 
 
 def aberration(prop_control: PropControl,

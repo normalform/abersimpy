@@ -1,19 +1,19 @@
 import numpy
 
 
-def get_xdidx(propcontrol):
+def get_xdidx(prop_control):
     # initiation of parameters
-    nx = propcontrol.nx
-    ny = propcontrol.ny
-    dx = propcontrol.dx
-    dy = propcontrol.dy
-    nex = propcontrol.Nex
-    ney = propcontrol.Ney
-    esizex = propcontrol.esizex
-    esizey = propcontrol.esizey
-    cc = propcontrol.cchannel
-    num_dimensions = propcontrol.num_dimensions
-    annular_transducer = propcontrol.config.annular_transducer
+    nx = prop_control.nx
+    ny = prop_control.ny
+    dx = prop_control.dx
+    dy = prop_control.dy
+    nex = prop_control.Nex
+    ney = prop_control.Ney
+    esizex = prop_control.esizex
+    esizey = prop_control.esizey
+    cc = prop_control.cchannel
+    num_dimensions = prop_control.num_dimensions
+    annular_transducer = prop_control.config.annular_transducer
 
     # set lengths of transducers
     if num_dimensions == 1:

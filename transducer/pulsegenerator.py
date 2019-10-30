@@ -7,7 +7,7 @@ from transducer.get_apodization import get_apodization
 from transducer.get_xdidx import get_xdidx
 
 
-def pulsegenerator(propcontrol,
+def pulsegenerator(prop_control,
                    src='transducer',
                    apod=0,
                    sig='gaussian',
@@ -16,26 +16,26 @@ def pulsegenerator(propcontrol,
                    nofocflag=0):
     if lensfoc == None:
         lensfoc = numpy.zeros(2)
-        if propcontrol.Nex == 1:
-            lensfoc[0] = propcontrol.Fx
-        if propcontrol.Ney == 1:
-            lensfoc[1] = propcontrol.Fy
+        if prop_control.Nex == 1:
+            lensfoc[0] = prop_control.Fx
+        if prop_control.Ney == 1:
+            lensfoc[1] = prop_control.Fy
 
-    fc = propcontrol.fc
-    p0 = propcontrol.amplitude
-    bandwidth = propcontrol.bandwidth
-    np = propcontrol.np
-    nx = propcontrol.nx
-    ny = propcontrol.ny
-    nt = propcontrol.nt
-    dx = propcontrol.dx
-    dy = propcontrol.dy
-    dt = propcontrol.dt
-    c = propcontrol.material.sound_speed
-    annular_transducer = propcontrol.config.annular_transducer
+    fc = prop_control.fc
+    p0 = prop_control.amplitude
+    bandwidth = prop_control.bandwidth
+    np = prop_control.np
+    nx = prop_control.nx
+    ny = prop_control.ny
+    nt = prop_control.nt
+    dx = prop_control.dx
+    dy = prop_control.dy
+    dt = prop_control.dt
+    c = prop_control.material.sound_speed
+    annular_transducer = prop_control.config.annular_transducer
 
     # set length of transducer
-    (idxx, idxy, _, _, _) = get_xdidx(propcontrol)
+    (idxx, idxy, _, _, _) = get_xdidx(prop_control)
     xdnx = idxx.size
     xdny = idxy.size
 
@@ -74,7 +74,7 @@ def pulsegenerator(propcontrol,
     else:
         nttr = int(numpy.ceil((sig.size - nt) / 2.0))
         sig = sig[nttr:nt + nttr]
-    if propcontrol.num_dimensions == 1:
+    if prop_control.num_dimensions == 1:
         u = sig
         return u
 
@@ -85,7 +85,7 @@ def pulsegenerator(propcontrol,
         raise NotImplementedError
     elif src == 'transducer':
         # generating pulse from transducer
-        propcontrol.currentpos = 0
+        prop_control.currentpos = 0
 
         # calculate apodization
         if isinstance(apod, str):
@@ -101,7 +101,7 @@ def pulsegenerator(propcontrol,
         # create wave field
         xdsig = sig[..., numpy.newaxis] * A.reshape((xdnx * xdny))
         xdsig = xdsig.reshape((nt, xdny, xdnx))
-        xdsig, deltafoc = focus_pulse(xdsig, propcontrol, lensfoc, nofocflag)
+        xdsig, deltafoc = focus_pulse(xdsig, prop_control, lensfoc, nofocflag)
 
         # create full domain
         u = numpy.zeros((nt, ny, nx))
@@ -113,7 +113,7 @@ def pulsegenerator(propcontrol,
     # squeeze y-direction for 2D sim
     u = numpy.squeeze(u)
 
-    return u, propcontrol, deltafoc
+    return u, prop_control, deltafoc
 
 
 def gaussian(dt, fc, np, nt):

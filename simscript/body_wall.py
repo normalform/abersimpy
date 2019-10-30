@@ -5,18 +5,18 @@ import numpy
 
 from consts import AberrationFromDelayScreenBodyWall
 from heterogeneous.aberration import aberration
-from init_prop_control import init_prop_control
+from prop_control import PropControl
 from propagation.get_wavenumbers import get_wavenumbers
 
 
 def body_wall(u_z,
               dir,
-              propcontrol=None,
+              prop_control=None,
               Kz=None,
               w=None,
               phantom=None):
-    if propcontrol is None:
-        propcontrol = init_prop_control()
+    if prop_control is None:
+        prop_control = PropControl.init_prop_control()
 
     global KZ
     if 'Kz' in globals():
@@ -24,7 +24,7 @@ def body_wall(u_z,
         del Kz
 
     if KZ is not None:
-        KZ  = get_wavenumbers(propcontrol)
+        KZ = get_wavenumbers(prop_control)
 
     # Initiates profiles
     rmspro = None
@@ -33,34 +33,34 @@ def body_wall(u_z,
     zpos = None
 
     # Initiate variables
-    num_dimensions = propcontrol.num_dimensions
-    nx = propcontrol.nx
-    ny = propcontrol.ny
-    nt = propcontrol.nt
-    heterogeneous_medium = propcontrol.config.heterogeneous_medium
-    annular_transducer = propcontrol.annular_transducer
-    dx = propcontrol.dx
-    dy = propcontrol.dy
+    num_dimensions = prop_control.num_dimensions
+    nx = prop_control.nx
+    ny = prop_control.ny
+    nt = prop_control.nt
+    heterogeneous_medium = prop_control.config.heterogeneous_medium
+    annular_transducer = prop_control.annular_transducer
+    dx = prop_control.dx
+    dy = prop_control.dy
 
-    stepsize = propcontrol.stepsize
-    ns = propcontrol.numscreens
-    d = propcontrol.d
-    endpoint = numpy.min(propcontrol.endpoint, d)
+    stepsize = prop_control.stepsize
+    ns = prop_control.numscreens
+    d = prop_control.d
+    endpoint = numpy.min(prop_control.endpoint, d)
 
     # adjust stepsizes
     if heterogeneous_medium == AberrationFromDelayScreenBodyWall or phantom is None:
         if phantom is None:
             print('Changing heterogeneous_medium to AberrationFromDelayScreenBodyWall')
             heterogeneous_medium = AberrationFromDelayScreenBodyWall
-            propcontrol.config.heterogeneous_medium = heterogeneous_medium
+            prop_control.config.heterogeneous_medium = heterogeneous_medium
 
     dscreen = d / ns
     nsubsteps = numpy.ceil(dscreen / stepsize)
     abstepsize = dscreen / nsubsteps
-    propcontrol.stepsize = abstepsize
+    prop_control.stepsize = abstepsize
 
     # Prepares body wall model
-    delta = aberration(propcontrol)
+    delta = aberration(prop_control)
 
     # TODO
     raise NotImplementedError

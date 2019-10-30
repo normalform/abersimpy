@@ -3,23 +3,23 @@ import numpy
 import propagation
 from consts import ScaleForSpatialVariablesZ, ScaleForTemporalVariable
 from misc.make_banded import make_banded
+from prop_control import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+    FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from propagation.get_diffmatrix import get_diffmatrix
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinattenuationsplit import nonlinattenuationsplit
-from propcontrol import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
-    FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 
 
 def nonlinearpropagate(u_z,
                        dir,
-                       propcontrol = None,
+                       prop_control=None,
                        kz = None,
                        eps_n = None,
                        eps_a = None,
                        eps_b = None):
     global KZ
-    if propcontrol is None:
-        print('Wave field, direction and propcontrol must be specified')
+    if prop_control is None:
+        print('Wave field, direction and prop_control must be specified')
         exit(-1)
     if kz is not None:
         KZ = kz
@@ -27,25 +27,25 @@ def nonlinearpropagate(u_z,
 
     # initialization
     if KZ.size == 0:
-        KZ = get_wavenumbers(propcontrol)
+        KZ = get_wavenumbers(prop_control)
 
     # preparation of variables
-    mat = propcontrol.material
+    mat = prop_control.material
     c = mat.sound_speed
     c = c / ScaleForSpatialVariablesZ * ScaleForTemporalVariable  # scaling wave-speed
-    dt = propcontrol.dt / ScaleForTemporalVariable  # scale sampling to microsecs
-    dx = propcontrol.dx / ScaleForSpatialVariablesZ  # dx scaled to centimeter
-    dy = propcontrol.dy / ScaleForSpatialVariablesZ  # dy scaled to centimeter
-    dz = propcontrol.dz / ScaleForSpatialVariablesZ  # dz scaled to centimeter
-    num_dimensions = propcontrol.num_dimensions
-    nx = propcontrol.nx
-    ny = propcontrol.ny
-    nt = propcontrol.nt
+    dt = prop_control.dt / ScaleForTemporalVariable  # scale sampling to microsecs
+    dx = prop_control.dx / ScaleForSpatialVariablesZ  # dx scaled to centimeter
+    dy = prop_control.dy / ScaleForSpatialVariablesZ  # dy scaled to centimeter
+    dz = prop_control.dz / ScaleForSpatialVariablesZ  # dz scaled to centimeter
+    num_dimensions = prop_control.num_dimensions
+    nx = prop_control.nx
+    ny = prop_control.ny
+    nt = prop_control.nt
 
-    annular_transducer = propcontrol.config.annular_transducer
-    shockstep = propcontrol.shockstep
-    stepsize = propcontrol.stepsize
-    PMLwidth = propcontrol.PMLwidth
+    annular_transducer = prop_control.config.annular_transducer
+    shockstep = prop_control.shockstep
+    stepsize = prop_control.stepsize
+    PMLwidth = prop_control.PMLwidth
 
     nsubsteps = int(numpy.ceil((stepsize / ScaleForSpatialVariablesZ) / dz))
     dz = (stepsize / ScaleForSpatialVariablesZ) / nsubsteps
@@ -53,9 +53,9 @@ def nonlinearpropagate(u_z,
     tspan = numpy.transpose(numpy.linspace(dt, nt * dt + dt, nt))
 
     # assign flags
-    diffraction_type = propcontrol.config.diffraction_type
-    non_linearity = propcontrol.config.non_linearity
-    attenuation = propcontrol.config.attenuation
+    diffraction_type = prop_control.config.diffraction_type
+    non_linearity = prop_control.config.non_linearity
+    attenuation = prop_control.config.attenuation
 
     # prepare PML and FD matrices
     if PMLwidth > 0:
@@ -79,7 +79,7 @@ def nonlinearpropagate(u_z,
             diffraction_type == ExactDiffraction or \
             diffraction_type == AngularSpectrumDiffraction or \
             diffraction_type == PseudoDifferential:
-        propcontrol.stepsize = dz * ScaleForSpatialVariablesZ
+        prop_control.stepsize = dz * ScaleForSpatialVariablesZ
 
     # Nonlinear propagation
     for ni in range(nsubsteps):
@@ -87,7 +87,7 @@ def nonlinearpropagate(u_z,
         if diffraction_type == ExactDiffraction or \
             diffraction_type == AngularSpectrumDiffraction or \
             diffraction_type == PseudoDifferential:
-            u_z, _ = propagation.propagate.propagate(u_z, 2 * dir, propcontrol, KZ)
+            u_z, _ = propagation.propagate.propagate(u_z, 2 * dir, prop_control, KZ)
         elif diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
                 diffraction_type == FiniteDifferenceTimeDifferenceFull:
             raise NotImplementedError
@@ -104,6 +104,6 @@ def nonlinearpropagate(u_z,
 
     # set stepsize back to normal
     if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
-        propcontrol.stepsize = stepsize
+        prop_control.stepsize = stepsize
 
     return u_z
