@@ -5,7 +5,7 @@ from filter.get_freqs import get_freqs
 
 def timeshift(u,
               delta,
-              method = 'fft'):
+              method='fft'):
     num_dimensions = u.ndim
     (nt, ny, nx) = u.shape
 
@@ -32,4 +32,3 @@ def timeshift(u,
 
     u = u.reshape(nt, ny, nx)
     return u
-

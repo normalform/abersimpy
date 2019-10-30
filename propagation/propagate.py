@@ -97,12 +97,12 @@ def propagate(u_z,
             u_z = u_z.real
             raise NotImplementedError
         elif (diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
-                diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
+              diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
                 (non_linearity or attenuation):
             # Nonlinear propagation in external function
             raise NotImplementedError
     elif (diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
-            diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
+          diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
             (non_linearity or attenuation):
         # Nonlinear propagation in external function
         u_z = nonlinearpropagate(u_z, dir, prop_control, KZ)

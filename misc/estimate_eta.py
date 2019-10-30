@@ -31,7 +31,7 @@ def estimate_eta(t,
         else:
             mstr = '{:2d}'.format(int(etm))
         if eth >= 24:
-            dstr = '+{:2d}'.format(int(numpy.floor(eth/24)))
+            dstr = '+{:2d}'.format(int(numpy.floor(eth / 24)))
             eth = numpy.mod(eth, 24)
         else:
             dstr = ''
@@ -41,11 +41,9 @@ def estimate_eta(t,
             hstr = '{:2d}'.format(int(eth))
         tstr = '{}:{} {}'.format(hstr, mstr, dstr)
 
-        print('Simulation {} is {:2.2f} percent complete (st. {}/{}), ETA {}'.format(fstr, 100 * pcomp, step, nsteps, tstr))
+        print('Simulation {} is {:2.2f} percent complete (st. {}/{}), ETA {}'.format(fstr, 100 * pcomp, step, nsteps,
+                                                                                     tstr))
     else:
         tlap = tlap
 
     return tlap
-
-
-

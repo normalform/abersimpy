@@ -9,11 +9,11 @@ from visualization.makedb import makedb
 
 def plot_pulse(u,
                prop_control=None,
-               axflag = 0,
-               dyn = 40,
-               nrm = None,
-               fh = None,
-               cmap = 'gray'):
+               axflag=0,
+               dyn=40,
+               nrm=None,
+               fh=None,
+               cmap='gray'):
     if prop_control is None:
         prop_control = PropControl.init_prop_control()
 
@@ -88,7 +88,7 @@ def plot_pulse(u,
 
         U = numpy.fft.fftn(u, axes=(0,))
         nrmf = numpy.max(numpy.max(numpy.abs(U)))
-        data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(nt/2)), :])), dyn, nrmf)
+        data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(nt / 2)), :])), dyn, nrmf)
         axs[nh - 1, 1].imshow(data,
                               cmap=cmap,
                               aspect='auto',
@@ -110,7 +110,7 @@ def plot_pulse(u,
             axs[idx, 0].set_ylabel('Depth [mm]')
             axs[idx, 0].set_title('Axial pulse, {}. harmonic'.format(idx))
             U = numpy.fft.fftn(tmp, axes=(0,))
-            data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(nt/2)), :])), dyn, nrmf)
+            data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(nt / 2)), :])), dyn, nrmf)
             axs[idx, 1].imshow(data,
                                cmap=cmap,
                                aspect='auto',

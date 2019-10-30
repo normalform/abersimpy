@@ -7,12 +7,12 @@ from visualization.makedb import makedb
 
 def plot_beamprofile(prof,
                      prop_control=None,
-                     dyn = 40,
-                     harm = 0,
-                     nrm = None,
-                     chan = None,
-                     fh = None,
-                     cmap = 'jet'):
+                     dyn=40,
+                     harm=0,
+                     nrm=None,
+                     chan=None,
+                     fh=None,
+                     cmap='jet'):
     if prop_control is None:
         prop_control = PropControl.init_prop_control()
 
@@ -50,18 +50,18 @@ def plot_beamprofile(prof,
             fig.canvas.set_window_title('Beam profile 3 Dim')
             data = makedb(numpy.squeeze(tmp[int(chan[1]), :, :]), dyn, nrm)
             axs[ii, k].imshow(data,
-                             cmap=cmap,
-                             aspect='auto',
-                             extent=([numpy.min(z), numpy.max(z), numpy.max(x), numpy.min(x)]))
+                              cmap=cmap,
+                              aspect='auto',
+                              extent=([numpy.min(z), numpy.max(z), numpy.max(x), numpy.min(x)]))
             axs[ii, k].set_xlabel('Depth [mm]')
             axs[ii, k].set_ylabel('Azimuth [mm]')
             axs[ii, k].set_title('Az. {}'.format(htstr))
 
             data = makedb(numpy.squeeze(tmp[:, int(chan[0]), :]), dyn, nrm)
             axs[ii, k + 1].imshow(data,
-                             cmap=cmap,
-                             aspect='auto',
-                             extent=([numpy.min(z), numpy.max(z), numpy.max(y), numpy.min(y)]))
+                                  cmap=cmap,
+                                  aspect='auto',
+                                  extent=([numpy.min(z), numpy.max(z), numpy.max(y), numpy.min(y)]))
             axs[ii, k + 1].set_xlabel('Depth [mm]')
             axs[ii, k + 1].set_ylabel('Elevation [mm]')
             axs[ii, k + 1].set_title('El. {}'.format(htstr))

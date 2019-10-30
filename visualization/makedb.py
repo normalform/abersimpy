@@ -2,8 +2,8 @@ import numpy
 
 
 def makedb(u,
-           dyn = None,
-           nrm = None,
+           dyn=None,
+           nrm=None,
            dualflag=0):
     if nrm is None:
         nrm = numpy.max(numpy.abs(u))
@@ -34,5 +34,3 @@ def makedb(u,
         udb[inull] = -dyn
 
     return udb
-
-

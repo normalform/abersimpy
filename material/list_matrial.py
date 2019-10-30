@@ -5,11 +5,12 @@ ABPHANTOM = 10
 
 VDWGAS = 31
 
-tissues  = ['water','muscle','fat','liver','brain','bone','breast','blood']
-phantoms = ['abphantom','std05','std03','surfplf','pipephantom','linmuscle']
-liquids  = ['seawater']
-gases    = ['air','vdwgas']
-solids   = ['rock','sandstone','sand']
+tissues = ['water', 'muscle', 'fat', 'liver', 'brain', 'bone', 'breast', 'blood']
+phantoms = ['abphantom', 'std05', 'std03', 'surfplf', 'pipephantom', 'linmuscle']
+liquids = ['seawater']
+gases = ['air', 'vdwgas']
+solids = ['rock', 'sandstone', 'sand']
+
 
 def list_material(matname):
     mat = []

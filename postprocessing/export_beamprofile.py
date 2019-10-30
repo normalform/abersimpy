@@ -9,11 +9,11 @@ from postprocessing.get_rms import get_rms
 
 def export_beamprofile(u_z,
                        prop_control,
-                       rmpro = None,
-                       mxpro = None,
-                       axpls = None,
-                       zps = None,
-                       step = None):
+                       rmpro=None,
+                       mxpro=None,
+                       axpls=None,
+                       zps=None,
+                       step=None):
     # setting variables
     filename = prop_control.simulation_name
     rmspro = None
@@ -28,7 +28,7 @@ def export_beamprofile(u_z,
     # stores full field or exits
     if history == NoHistory:
         # No history --> Exit
-        raise  NotImplementedError
+        raise NotImplementedError
         return rmspro, maxpro, axplse, zpos
     elif history == FullHistory:
         # Saving pulse for each step, then exit
@@ -88,13 +88,13 @@ def export_beamprofile(u_z,
         max = get_max(tmp, 1)
         rmspro[..., np, 0] = rms.reshape((ny, nx))
         maxpro[..., np, 0] = max.reshape((ny, nx))
-        zpos [np] = pos
+        zpos[np] = pos
 
         # filtering out harmonics
         for ii in range(harmonic):
             idx = ii + 1
             tmp = u_z.reshape((nt, nx * ny))
-            tmp, _ = bandpass(tmp, idx * fc, dt, idx*fc*filterc[ii], 4)
+            tmp, _ = bandpass(tmp, idx * fc, dt, idx * fc * filterc[ii], 4)
             rms = get_rms(tmp, 1)
             max = get_max(tmp, 1)
             rmspro[..., np, ii + 1] = rms.reshape((ny, nx))

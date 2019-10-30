@@ -10,7 +10,7 @@ def burgerssolve(t,
                  dz):
     nt = numpy.max(t.shape)
     dt = t[1] - t[0]
-    npt = (t[nt-1] - t[0]) + dt
+    npt = (t[nt - 1] - t[0]) + dt
 
     # introduce permutation
     t2 = t - epsn * dz * perm
@@ -18,7 +18,7 @@ def burgerssolve(t,
     # extends by periodicity
     idt = int(numpy.floor(nt / 10))
     idxtail = numpy.arange(idt)
-    idxfront = numpy.arange(nt-idt, nt)
+    idxfront = numpy.arange(nt - idt, nt)
 
     ttail = t2[idxtail] + npt
     tfront = t2[idxfront] - npt

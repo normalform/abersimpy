@@ -11,7 +11,7 @@ def attenuationsolve(t,
                      epsb):
     dt = t[1] - t[0]
     ui = numpy.array(ui)
-    nt= numpy.max(ui.shape)
+    nt = numpy.max(ui.shape)
     loss = 2 * numpy.pi * get_freqs(nt, dt)
 
     # prepare attenuation coefficients

@@ -1,9 +1,8 @@
 import numpy
 
 
-def get_diffstencil(numorder = 4,
-                    difforder = 2):
-
+def get_diffstencil(numorder=4,
+                    difforder=2):
     if difforder == 1:
         if numorder == 2:
             d = numpy.array([-1.0, 0.0, 1.0]) / 2.0

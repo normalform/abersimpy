@@ -7,9 +7,9 @@ from transducer.get_xdidx import get_xdidx
 
 def focus_pulse(u_z,
                 prop_control,
-                lensfoc = None,
-                nofocflag = 0,
-                physlens = 0):
+                lensfoc=None,
+                nofocflag=0,
+                physlens=0):
     if lensfoc is None:
         lensfoc = numpy.zeros(2)
         if prop_control.Nex == 1:

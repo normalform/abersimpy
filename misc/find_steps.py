@@ -1,10 +1,11 @@
 import numpy
 
+
 def find_steps(z0,
                z1,
-               stepsize = None,
-               storepos = numpy.array([]),
-               screenpos = numpy.array([])):
+               stepsize=None,
+               storepos=numpy.array([]),
+               screenpos=numpy.array([])):
     if stepsize is None:
         print('Start, stop, and stepsize must be specified')
 
@@ -12,8 +13,8 @@ def find_steps(z0,
     TOL = 1e-14
     specpos = numpy.unique(storepos, screenpos)
     z = z0
-    step = numpy.zeros((int(numpy.ceil(((z1 - z0) / stepsize) + numpy.max(specpos.shape))), ))
-    stepidx = numpy.zeros((int(numpy.ceil(((z1 - z0) / stepsize) + numpy.max(specpos.shape))), ), dtype=int)
+    step = numpy.zeros((int(numpy.ceil(((z1 - z0) / stepsize) + numpy.max(specpos.shape))),))
+    stepidx = numpy.zeros((int(numpy.ceil(((z1 - z0) / stepsize) + numpy.max(specpos.shape))),), dtype=int)
     nsteps = 0
 
     # start loop

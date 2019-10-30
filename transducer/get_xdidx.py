@@ -41,11 +41,11 @@ def get_xdidx(prop_control):
         idxxs = numpy.arange(0, numpy.ceil(ndx / 2)) + cc[0]
         idxys = numpy.array(1)
     else:
-        idxxs = numpy.arange(-numpy.floor(ndx/2), numpy.ceil(ndx/2)) + cc[0]
-        idxys = numpy.arange(-numpy.floor(ndy/2), numpy.ceil(ndy/2)) + cc[1]
+        idxxs = numpy.arange(-numpy.floor(ndx / 2), numpy.ceil(ndx / 2)) + cc[0]
+        idxys = numpy.arange(-numpy.floor(ndy / 2), numpy.ceil(ndy / 2)) + cc[1]
 
-    idxx0 = numpy.setxor1d(idxxs, numpy.arange(1, nx+1))
-    idxy0 = numpy.setxor1d(idxys, numpy.arange(1, ny+1))
+    idxx0 = numpy.setxor1d(idxxs, numpy.arange(1, nx + 1))
+    idxy0 = numpy.setxor1d(idxys, numpy.arange(1, ny + 1))
 
     # set center index for transducer field
     ccs = numpy.zeros((2, 1))
@@ -58,4 +58,5 @@ def get_xdidx(prop_control):
         if cc[1] <= 1:
             cc[1] = 1
 
-    return idxxs.astype(int) - 1, idxys.astype(int) - 1, idxx0.astype(int) - 1, idxy0.astype(int) - 1, ccs.astype(int) - 1
+    return idxxs.astype(int) - 1, idxys.astype(int) - 1, idxx0.astype(int) - 1, idxy0.astype(int) - 1, ccs.astype(
+        int) - 1

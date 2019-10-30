@@ -3,7 +3,7 @@ import numpy
 
 def raised_cos(winlength,
                taplength,
-               totlength = None):
+               totlength=None):
     winlength = int(numpy.floor(winlength))
     if totlength is None:
         totlength = winlength
@@ -15,9 +15,9 @@ def raised_cos(winlength,
 
     # calculate tapering
     if taplength > 1:
-        xtap = numpy.arange(0, taplength) / (taplength-1)
+        xtap = numpy.arange(0, taplength) / (taplength - 1)
         w[:taplength] = (1 - numpy.cos(numpy.pi * xtap)) / 2.0
-        w[winlength-taplength:winlength] = numpy.flipud(w[:taplength])
+        w[winlength - taplength:winlength] = numpy.flipud(w[:taplength])
     else:
         w[0] = 0
         w[-1] = 0

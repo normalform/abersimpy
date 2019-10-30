@@ -7,9 +7,9 @@ from filter.get_freqs import get_freqs
 def bandpass(u,
              fc,
              dt,
-             bwidth = None,
-             par = 4,
-             db = -6):
+             bwidth=None,
+             par=4,
+             db=-6):
     filt = 0
     if bwidth is not None and bwidth == numpy.inf:
         return u, filt
@@ -21,7 +21,7 @@ def bandpass(u,
     num_dimensions = u.ndim
     if num_dimensions == 2:
         nx = u.shape[1]
-        u = u.reshape((nt, nx*ny))
+        u = u.reshape((nt, nx * ny))
 
     # performs filtering in the frequency domain
     U = numpy.fft.fftn(u, axes=(0,))

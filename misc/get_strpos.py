@@ -14,12 +14,12 @@ def get_strpos(pos):
 
     tmp = num[-1]
     cl = 0
-    for ii in range(n-1):
-        if num[n-ii - 1] == 9 and tmp == 9:
+    for ii in range(n - 1):
+        if num[n - ii - 1] == 9 and tmp == 9:
             cl = cl + 1
-            tmp = num[n-ii - 1]
+            tmp = num[n - ii - 1]
         else:
-            tmp = num[n-ii - 1]
+            tmp = num[n - ii - 1]
 
     if cl > 1:
         num[n - 1] = 0
@@ -29,4 +29,3 @@ def get_strpos(pos):
     strpos = '_{:1d}{:1d}{:1d}{:1d}{:1d}'.format(num[0], num[1], num[2], num[3], num[4])
 
     return strpos
-

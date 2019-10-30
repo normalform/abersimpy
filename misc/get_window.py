@@ -3,11 +3,11 @@ import numpy
 from misc.raised_cos import raised_cos
 
 
-def get_window(N = (256, 1),
-               ds = None,
-               Lw = 0.1,
-               L0 = 0.1,
-               annular_transducer = 0):
+def get_window(N=(256, 1),
+               ds=None,
+               Lw=0.1,
+               L0=0.1,
+               annular_transducer=0):
     if ds is None:
         ds = 1 / N[0]
 
@@ -18,7 +18,7 @@ def get_window(N = (256, 1),
 
     # return rectangular window
     if annular_transducer == 2:
-        w = numpy.ones(N[0]*N[1])
+        w = numpy.ones(N[0] * N[1])
         return w
 
     # create two element vectors

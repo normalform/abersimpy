@@ -3,9 +3,9 @@ import scipy.signal
 
 
 def get_apodization(nx,
-                    ny = 1,
-                    type = 'tukey',
-                    s = 0,
+                    ny=1,
+                    type='tukey',
+                    s=0,
                     annular_transducer=False):
     # return apodization based on type
     if ny == 1 and annular_transducer is False and isinstance(s, list) is False:
@@ -47,4 +47,3 @@ def get_apodization(nx,
 
         apod = apody[..., numpy.newaxis] * numpy.transpose(apodx)[numpy.newaxis, ...]
         return apod
-

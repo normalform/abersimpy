@@ -10,6 +10,7 @@ class Muscle(BaseMaterial):
     """
     Muscle
     """
+
     def __init__(self,
                  temperature: float):
         super().__init__(temperature)

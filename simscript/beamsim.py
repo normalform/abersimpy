@@ -8,7 +8,7 @@ from misc.estimate_eta import estimate_eta
 from misc.find_steps import find_steps
 from misc.get_window import get_window
 from postprocessing.export_beamprofile import export_beamprofile
-from prop_control import ExactDiffraction, PseudoDifferential
+from prop_control import PropControl, ExactDiffraction, PseudoDifferential
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.propagate import propagate
 from simscript.body_wall import body_wall
@@ -16,12 +16,12 @@ from transducer.pulsegenerator import pulsegenerator
 
 
 def beamsim(prop_control=None,
-            u_z = None,
-            screen = numpy.array([]),
-            w = None,
-            phantom = None):
+            u_z=None,
+            screen=numpy.array([]),
+            w=None,
+            phantom=None):
     if prop_control is None:
-        prop_control = init_prop_control()
+        prop_control = PropControl.init_prop_control()
 
     if u_z is None:
         u_z = pulsegenerator(prop_control, 'transducer')
