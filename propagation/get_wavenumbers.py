@@ -1,6 +1,6 @@
 from initpropcontrol import initpropcontrol
 from filter.get_freqs import get_freqs
-from consts import TSCALE, ZSCALE
+from consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
 from propcontrol import NoDiffraction,  ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 
@@ -47,10 +47,10 @@ def get_wavenumbers(propcontrol = None,
     # calculate attenuation if propagation is linear
     loss = numpy.zeros((kt.size))
     if propcontrol.config.attenuation and propcontrol.config.non_linearity is False:
-        w = get_freqs(nt, propcontrol.dt / (2.0 * numpy.pi * TSCALE))
+        w = get_freqs(nt, propcontrol.dt / (2.0 * numpy.pi * ScaleForTemporalVariable))
         epsa = mat.eps[1]
         epsb = mat.eps[2]
-        loss = epsa * numpy.conj(hilbert(numpy.abs(w) ** epsb)) / ZSCALE
+        loss = epsa * numpy.conj(hilbert(numpy.abs(w) ** epsb)) / ScaleForSpatialVariablesZ
 
     # assembly of wave-number operator
     if propcontrol.config.diffraction_type == AngularSpectrumDiffraction:

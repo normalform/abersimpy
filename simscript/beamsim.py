@@ -8,7 +8,7 @@ from postprocessing.export_beamprofile import export_beamprofile
 from simscript.body_wall import body_wall
 from propagation.propagate import propagate
 from propcontrol import ExactDiffraction, PseudoDifferential
-from consts import NOHISTORY, PROFHISTORY
+from consts import NoHistory, ProfileHistory
 
 import numpy
 import scipy.sparse
@@ -104,7 +104,7 @@ def beamsim(propcontrol = None,
     print('starting {} simulation of size {}'.format(nstr, dstr))
 
     # calculating beam profiles
-    if history != NOHISTORY:
+    if history != NoHistory:
         rmspro = numpy.zeros((ny, nx, nsteps, propcontrol.harmonic+1))
         maxpro = numpy.zeros((ny, nx, nsteps, propcontrol.harmonic+1))
         axplse = numpy.zeros((nt, nsteps))
@@ -124,7 +124,7 @@ def beamsim(propcontrol = None,
         u_z = propcontrol, rmpro, mxpro, axpls, zps = body_wall(u_z, 1, propcontrol, Kz, w, phantom)
         print('Done with body wall')
 
-        if history != NOHISTORY:
+        if history != NoHistory:
             pnx, pny, pns, pnh = rmpro.shape
             stepnr = pns
             raise NotImplementedError
@@ -175,7 +175,7 @@ def beamsim(propcontrol = None,
           .format(t[-2] / 60.0, numpy.mean(numpy.diff(t[:-2]))))
 
     # saving the last profiles
-    if history == PROFHISTORY:
+    if history == ProfileHistory:
         # TODO Current (removed) json Serialization is not working well.
         print('[DUMMY] Saving the last profiles')
 

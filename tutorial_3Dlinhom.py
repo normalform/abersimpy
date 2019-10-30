@@ -7,7 +7,7 @@ from transducer.pulsegenerator import pulsegenerator
 from simscript.beamsim import beamsim
 from visualization.plot_beamprofile import plot_beamprofile
 from visualization.plot_pulse import plot_pulse
-from consts import PROFHISTORY, NoAberrationAndHomogeneousMedium
+from consts import ProfileHistory, NoAberrationAndHomogeneousMedium
 
 
 if __name__ == '__main__':
@@ -21,7 +21,7 @@ if __name__ == '__main__':
         heterogeneous_medium=NoAberrationAndHomogeneousMedium,
         annular_transducer=False,
         equidistant_steps=False,
-        history=PROFHISTORY
+        history=ProfileHistory
     )
     harm = 1
 

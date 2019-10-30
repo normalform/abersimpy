@@ -1,22 +1,27 @@
-NS = 128
+"""
+const.py
+"""
+# Scale factors
+ScaleForSpatialVariablesZ: float = 1e-2
+ScaleForPressure: float = 1e6
+ScaleForTemporalVariable: float = 1e-6
 
-ZSCALE = 1e-2
-PSCALE = 1e6
-TSCALE = 1e-6
+# Material parameter IDs
+WaveSpeedParamId: int = 1
+MassDensityParamId: int = 2
+NonLinearityCoefficientParamId: int = 3
+ConstantOfAttenuationParamId: int = 4
+ExponentOfAttenuationParamId: int = 5
 
-WAVESPEED = 1
-DENSITY = 2
-BETAN = 3
-ATTCONST = 4
-ATTEXP = 5
+# History types
+NoHistory: int = 0
+PositionHistory: int = 1
+ProfileHistory: int = 2
+FullHistory: int = 3
+PlaneHistory: int = 4
+PlaneByChannelHistory: int = 5
 
-NOHISTORY = 0
-POSHISTORY = 1
-PROFHISTORY = 2
-FULLHISTORY = 3
-PLANEHISTORY = 4
-AXPHISTORY = 5
-
+# Aberration types
 NoAberrationAndHomogeneousMedium: int = 0
 AberrationFromDelayScreenBodyWall: int = 1
 AberrationFromFile: int = 2

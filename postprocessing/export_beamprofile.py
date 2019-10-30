@@ -1,4 +1,4 @@
-from consts import NOHISTORY, POSHISTORY, PROFHISTORY, FULLHISTORY, PLANEHISTORY, AXPHISTORY
+from consts import NoHistory, PositionHistory, ProfileHistory, FullHistory, PlaneHistory, PlaneByChannelHistory
 from misc.get_strpos import get_strpos
 from postprocessing.get_rms import get_rms
 from postprocessing.get_max import get_max
@@ -26,11 +26,11 @@ def export_beamprofile(u_z,
     fn = '{}{}.json'.format(filename, get_strpos(pos * 1e3))
 
     # stores full field or exits
-    if history == NOHISTORY:
+    if history == NoHistory:
         # No history --> Exit
         raise  NotImplementedError
         return rmspro, maxpro, axplse, zpos
-    elif history == FULLHISTORY:
+    elif history == FullHistory:
         # Saving pulse for each step, then exit
         print('save pulse to {}'.format(fn))
         raise NotImplementedError
@@ -70,11 +70,11 @@ def export_beamprofile(u_z,
             # TODO Current (removed) json Serialization is not working well.
             print('[DUMMY] save pulse to {}'.format(fn))
 
-    if history == POSHISTORY:
+    if history == PositionHistory:
         return rmspro, maxpro, axplse, zpos
-    elif history == AXPHISTORY:
+    elif history == PlaneByChannelHistory:
         raise NotImplementedError
-    elif history == PROFHISTORY:
+    elif history == ProfileHistory:
         if num_dimensions == 2:
             axplse[:, np] = u_z[:, cc[0, ...]]
         else:
@@ -99,7 +99,7 @@ def export_beamprofile(u_z,
             max = get_max(tmp, 1)
             rmspro[..., np, ii + 1] = rms.reshape((ny, nx))
             maxpro[..., np, ii + 1] = max.reshape((ny, nx))
-    elif history == PLANEHISTORY:
+    elif history == PlaneHistory:
         raise NotImplementedError
 
     return rmspro, maxpro, axplse, zpos

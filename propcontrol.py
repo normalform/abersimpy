@@ -1,8 +1,6 @@
 """
 PropControl
 """
-from consts import NS
-
 import abc
 from dataclasses import dataclass
 
@@ -125,9 +123,9 @@ class PropControl:
     d = 0.0
     offset = [0.0] * 2
     numscreens = 1
-    abamp = [0.0] * NS
-    ablength = [0.0] * NS * 2
-    abseed = [0] * NS
+    abamp = 0.0
+    ablength = 0.0
+    abseed = 0.0
 
     abfile = ''
 

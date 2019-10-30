@@ -1,4 +1,5 @@
-from consts import WAVESPEED, DENSITY, BETAN, ATTCONST, ATTEXP
+from consts import WaveSpeedParamId, MassDensityParamId, NonLinearityCoefficientParamId, ConstantOfAttenuationParamId, \
+    ExponentOfAttenuationParamId
 
 import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline
@@ -10,13 +11,13 @@ def muscle(param, temp):
     temps = []
     meas = []
 
-    if param == WAVESPEED:
+    if param == WaveSpeedParamId:
         # 18 celsius, cardiac
         c0 = 1529.0
         scale = 1.1
         temps = numpy.array([18, 40])
         meas = numpy.array([c0, c0 + scale * (40 - 18)])
-    elif param == DENSITY:
+    elif param == MassDensityParamId:
         # 37 celsius
         rho0 = 1060.0
         temp0 = 37.0
@@ -24,14 +25,14 @@ def muscle(param, temp):
         alpha0 = 3.75e-4
         temps = numpy.arange(35, 41)
         meas = rho0 * numpy.exp(alpha0 * (temp0 - temps))
-    elif param == BETAN:
+    elif param == NonLinearityCoefficientParamId:
         temps = numpy.array([36, 37])
         meas = 1 + 0.5 * numpy.array([5.8, 5.8])
-    elif param == ATTCONST:
+    elif param == ConstantOfAttenuationParamId:
         temps = numpy.array([36, 37])
         # db / cm
         meas = numpy.array([.52, .52])
-    elif param == ATTEXP:
+    elif param == ExponentOfAttenuationParamId:
         # This is not correct!
         temps = numpy.array([20, 40])
         meas = numpy.array([1.1, 1.1])

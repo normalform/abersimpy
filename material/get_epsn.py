@@ -1,6 +1,6 @@
 from material.material import Material
 from material.list_matrial import VDWGAS
-from consts import ZSCALE, PSCALE, TSCALE
+from consts import ScaleForSpatialVariablesZ, ScaleForPressure, ScaleForTemporalVariable
 from material.get_betan import get_betan
 from material.get_compressibility import get_compressibility
 from material.get_wavespeed import get_wavespeed
@@ -24,6 +24,6 @@ def get_epsn(material, temp = 37.0):
             return epsn
 
     epsn = numpy.divide(numpy.multiply(betan, kappa), c)
-    epsn = (ZSCALE * PSCALE / TSCALE) * epsn
+    epsn = (ScaleForSpatialVariablesZ * ScaleForPressure / ScaleForTemporalVariable) * epsn
 
     return epsn

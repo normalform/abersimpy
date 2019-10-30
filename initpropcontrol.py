@@ -10,7 +10,7 @@ from misc.log2round_off import log2round_off
 from propcontrol import PropControl, Config, \
     NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-from consts import PROFHISTORY, NoAberrationAndHomogeneousMedium, AberrationFromFile, AberrationPhantom
+from consts import ProfileHistory, NoAberrationAndHomogeneousMedium, AberrationFromFile, AberrationPhantom
 
 
 def initpropcontrol(simulation_name='beamsim',
@@ -22,7 +22,7 @@ def initpropcontrol(simulation_name='beamsim',
                         heterogeneous_medium=NoAberrationAndHomogeneousMedium,
                         annular_transducer=False,
                         equidistant_steps=False,
-                        history=PROFHISTORY
+                        history=ProfileHistory
                     ),
                     harm=2,
                     fi=3,
