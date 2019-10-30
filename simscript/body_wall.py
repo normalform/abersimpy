@@ -42,7 +42,7 @@ def body_wall(u_z,
     dx = prop_control.dx
     dy = prop_control.dy
 
-    stepsize = prop_control.stepsize
+    step_size = prop_control.step_size
     ns = prop_control.numscreens
     d = prop_control.d
     endpoint = numpy.min(prop_control.endpoint, d)
@@ -55,9 +55,9 @@ def body_wall(u_z,
             prop_control.config.heterogeneous_medium = heterogeneous_medium
 
     dscreen = d / ns
-    nsubsteps = numpy.ceil(dscreen / stepsize)
+    nsubsteps = numpy.ceil(dscreen / step_size)
     abstepsize = dscreen / nsubsteps
-    prop_control.stepsize = abstepsize
+    prop_control.step_size = abstepsize
 
     # Prepares body wall model
     delta = aberration(prop_control)

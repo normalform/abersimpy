@@ -44,11 +44,11 @@ def nonlinearpropagate(u_z,
 
     annular_transducer = prop_control.config.annular_transducer
     shockstep = prop_control.shockstep
-    stepsize = prop_control.stepsize
+    step_size = prop_control.step_size
     PMLwidth = prop_control.PMLwidth
 
-    nsubsteps = int(numpy.ceil((stepsize / ScaleForSpatialVariablesZ) / dz))
-    dz = (stepsize / ScaleForSpatialVariablesZ) / nsubsteps
+    nsubsteps = int(numpy.ceil((step_size / ScaleForSpatialVariablesZ) / dz))
+    dz = (step_size / ScaleForSpatialVariablesZ) / nsubsteps
     d = (c / 2) * (dt / 2) * dz
     tspan = numpy.transpose(numpy.linspace(dt, nt * dt + dt, nt))
 
@@ -79,7 +79,7 @@ def nonlinearpropagate(u_z,
             diffraction_type == ExactDiffraction or \
             diffraction_type == AngularSpectrumDiffraction or \
             diffraction_type == PseudoDifferential:
-        prop_control.stepsize = dz * ScaleForSpatialVariablesZ
+        prop_control.step_size = dz * ScaleForSpatialVariablesZ
 
     # Nonlinear propagation
     for ni in range(nsubsteps):
@@ -102,8 +102,8 @@ def nonlinearpropagate(u_z,
         if non_linearity or attenuation:
             u_z = nonlinattenuationsplit(tspan, u_z, dz, shockstep, mat, non_linearity, attenuation)
 
-    # set stepsize back to normal
+    # set step_size back to normal
     if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
-        prop_control.stepsize = stepsize
+        prop_control.step_size = step_size
 
     return u_z

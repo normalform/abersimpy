@@ -21,7 +21,7 @@ def propagate(u_z,
     diffraction_type = prop_control.config.diffraction_type
     non_linearity = prop_control.config.non_linearity
     attenuation = prop_control.config.attenuation
-    stepsize = prop_control.stepsize
+    step_size = prop_control.step_size
 
     nx = prop_control.nx
     ny = prop_control.ny
@@ -29,9 +29,9 @@ def propagate(u_z,
 
     # Update position and chose propagation mode
     if dir > 0:
-        prop_control.currentpos = prop_control.currentpos + stepsize
+        prop_control.currentpos = prop_control.currentpos + step_size
     elif dir < 0:
-        prop_control.currentpos = prop_control.currentpos - stepsize
+        prop_control.currentpos = prop_control.currentpos - step_size
 
     if (diffraction_type == ExactDiffraction or
         diffraction_type == AngularSpectrumDiffraction or
@@ -61,7 +61,7 @@ def propagate(u_z,
             if prop_control.config.equidistant_steps:
                 u_z = u_z * numpy.squeeze(KZ[:nt, :nx * ny])
             else:
-                u_z = u_z * numpy.exp((-1j * stepsize) * numpy.squeeze(KZ[:nt, :nx * ny, 0]))
+                u_z = u_z * numpy.exp((-1j * step_size) * numpy.squeeze(KZ[:nt, :nx * ny, 0]))
         elif diffraction_type == AngularSpectrumDiffraction:
             raise NotImplementedError
             kx = KZ[:nx, 0]
@@ -78,7 +78,7 @@ def propagate(u_z,
                     # Dampen evanescent waves
                     kz = numpy.sign(kt) * kz.real - 1j * kz.imag
                     kz = kz - kt - 1j * loss
-                    u_z[:, kk] = u_z[:, kk] * numpy.exp((-1j * stepsize) * kz)
+                    u_z[:, kk] = u_z[:, kk] * numpy.exp((-1j * step_size) * kz)
                     kk = kk + 1
 
         # Backward temporal FFT

@@ -117,7 +117,7 @@ class PropControl:
 
     PMLwidth = 0
 
-    stepsize = 0.0
+    step_size = 0.0
     nwindow = 0.0
     shockstep = 0.0
     endpoint = 0.0
@@ -159,7 +159,7 @@ class PropControl:
     esizey = 0.0
 
     @staticmethod
-    def init_prop_control(simulation_name='beamsim',
+    def init_prop_control(simulation_name='beam_simulation',
                           num_dimensions=2,
                           config: Config = Config(
                               diffraction_type=ExactDiffraction,
@@ -264,7 +264,7 @@ class PropControl:
             _del = nelel * dimelel
 
         idx = numpy.where(abs(fi - fs) == min(abs(fi - fs)))[0][-1]
-        stepsize = ss[idx]
+        step_size = ss[idx]
 
         # calculate domain specific variables
         if not fel:
@@ -327,7 +327,7 @@ class PropControl:
         prop_control.PMLwidth = 0
 
         # simulation parameters
-        prop_control.stepsize = stepsize
+        prop_control.step_size = step_size
         prop_control.nwindow = 2
         prop_control.shockstep = 0.5
         prop_control.endpoint = endpoint

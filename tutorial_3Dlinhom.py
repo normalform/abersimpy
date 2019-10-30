@@ -3,7 +3,7 @@ import numpy
 
 from consts import ProfileHistory, NoAberrationAndHomogeneousMedium
 from prop_control import PropControl, Config, ExactDiffraction
-from simscript.beamsim import beamsim
+from simscript.beam_simulation import beam_simulation
 from transducer.pulsegenerator import pulsegenerator
 from visualization.plot_beamprofile import plot_beamprofile
 from visualization.plot_pulse import plot_pulse
@@ -33,13 +33,13 @@ if __name__ == '__main__':
     plot_pulse(u, prop_control)
 
     # running the simulation
-    u_out, prop_control, rmspro, maxpro, axplse, _ = beamsim(prop_control, u)
+    u_out, prop_control, rmspro, maxpro, axplse, _ = beam_simulation(prop_control, u)
 
     # visualization of results
     plot_beamprofile(rmspro, prop_control)
 
     # find index of focal profile
-    idx = int(numpy.round(prop_control.Fx / prop_control.stepsize))
+    idx = int(numpy.round(prop_control.Fx / prop_control.step_size))
     plot_beamprofile(rmspro[..., idx:idx + 1, :], prop_control)
 
     plot_pulse(axplse, prop_control, 1)

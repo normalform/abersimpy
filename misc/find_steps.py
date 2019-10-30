@@ -3,18 +3,18 @@ import numpy
 
 def find_steps(z0,
                z1,
-               stepsize=None,
+               step_size=None,
                storepos=numpy.array([]),
                screenpos=numpy.array([])):
-    if stepsize is None:
-        print('Start, stop, and stepsize must be specified')
+    if step_size is None:
+        print('Start, stop, and step_size must be specified')
 
     # set tolerance and initiate variables
     TOL = 1e-14
     specpos = numpy.unique(storepos, screenpos)
     z = z0
-    step = numpy.zeros((int(numpy.ceil(((z1 - z0) / stepsize) + numpy.max(specpos.shape))),))
-    stepidx = numpy.zeros((int(numpy.ceil(((z1 - z0) / stepsize) + numpy.max(specpos.shape))),), dtype=int)
+    step = numpy.zeros((int(numpy.ceil(((z1 - z0) / step_size) + numpy.max(specpos.shape))),))
+    stepidx = numpy.zeros((int(numpy.ceil(((z1 - z0) / step_size) + numpy.max(specpos.shape))),), dtype=int)
     nsteps = 0
 
     # start loop
@@ -25,13 +25,13 @@ def find_steps(z0,
             dspec = specpos[q] - z
         else:
             dspec = 100
-        if dspec < stepsize:
+        if dspec < step_size:
             if numpy.abs(dspec) < TOL:
                 q = q + 1
                 continue
             else:
-                if numpy.abs(dspec - stepsize) < TOL:
-                    step[k] = stepsize
+                if numpy.abs(dspec - step_size) < TOL:
+                    step[k] = step_size
                     stepidx[k] = 0
                 else:
                     step[k] = dspec
@@ -39,16 +39,16 @@ def find_steps(z0,
                     q = q + 1
                 k = k + 1
         else:
-            if dspec > stepsize and numpy.abs(dspec - stepsize) > TOL:
-                stepn = numpy.ceil(numpy.sum(step / stepsize))
-                dspec = stepn * stepsize - z
+            if dspec > step_size and numpy.abs(dspec - step_size) > TOL:
+                stepn = numpy.ceil(numpy.sum(step / step_size))
+                dspec = stepn * step_size - z
                 stepidx[k] = 0
                 if dspec < TOL:
-                    dspec = stepsize
+                    dspec = step_size
                     stepidx[k] = 0
                 step[k] = dspec
             else:
-                step[k] = stepsize
+                step[k] = step_size
                 stepidx[k] = 0
             k = k + 1
         if z + step[k] > z1:
@@ -62,7 +62,7 @@ def find_steps(z0,
                 stepidx[k] = 0
                 nsteps = k
                 break
-        z = z0 + numpy.sum(step / stepsize) * stepsize
+        z = z0 + numpy.sum(step / step_size) * step_size
         nsteps = k
 
     # adjust size of vectors

@@ -67,7 +67,7 @@ def plot_pulse(u,
         else:
             raise NotImplementedError
     else:
-        x = numpy.arange(nx) * prop_control.stepsize * 1e3
+        x = numpy.arange(nx) * prop_control.step_size * 1e3
         f = numpy.arange(numpy.floor(nt / 2)) * prop_control.Fs * 1e-6 / nt
 
         nh = prop_control.harmonic

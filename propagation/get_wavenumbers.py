@@ -85,11 +85,11 @@ def get_wavenumbers(prop_control=None,
 
     # convert wave number operator to propagation operator
     if prop_control.config.equidistant_steps:
-        stepsize = prop_control.stepsize
+        step_size = prop_control.step_size
         if prop_control.config.non_linearity:
-            nsubsteps = int(numpy.ceil(stepsize / prop_control.dz))
-            stepsize = stepsize / nsubsteps
-        Kz = numpy.exp(-1j * Kz * stepsize)
+            nsubsteps = int(numpy.ceil(step_size / prop_control.dz))
+            step_size = step_size / nsubsteps
+        Kz = numpy.exp(-1j * Kz * step_size)
 
     if prop_control.config.diffraction_type == PseudoDifferential:
         raise NotImplementedError

@@ -26,7 +26,7 @@ def plot_beamprofile(prof,
 
     x = numpy.arange(-numpy.floor(nx / 2), numpy.ceil(nx / 2)) * prop_control.dx * 1e3
     y = numpy.arange(-numpy.floor(ny / 2), numpy.ceil(ny / 2)) * prop_control.dy * 1e3
-    z = numpy.arange(nz) * prop_control.stepsize * 1e3
+    z = numpy.arange(nz) * prop_control.step_size * 1e3
     if prop_control.config.annular_transducer and prop_control.num_dimensions == 2:
         x = numpy.arange(0, nx) * prop_control.dx * 1e3
 
