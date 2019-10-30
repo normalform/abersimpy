@@ -1,10 +1,10 @@
-from transducer.get_xdidx import get_xdidx
-from filter.bandpass import bandpass
-from transducer.get_apodization import get_apodization
-from transducer.focus_pulse import focus_pulse
-
-from scipy.signal import hilbert
 import numpy
+from scipy.signal import hilbert
+
+from filter.bandpass import bandpass
+from transducer.focus_pulse import focus_pulse
+from transducer.get_apodization import get_apodization
+from transducer.get_xdidx import get_xdidx
 
 
 def pulsegenerator(propcontrol,
@@ -31,7 +31,7 @@ def pulsegenerator(propcontrol,
     dx = propcontrol.dx
     dy = propcontrol.dy
     dt = propcontrol.dt
-    c = propcontrol.material.c0
+    c = propcontrol.material.wave_speed
     annular_transducer = propcontrol.config.annular_transducer
 
     # set length of transducer

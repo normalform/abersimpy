@@ -15,4 +15,4 @@ def get_linear(t,
         dpdt = (u[it2] - u[it1]) / (t[it2] - t[it1])
         ui.append(u[it1] + (ti[ii] - t[it1]) * dpdt)
 
-    return ui
+    return numpy.array(ui)

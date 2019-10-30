@@ -1,23 +1,18 @@
-from material.set_material import set_material
-from material.list_matrial import MUSCLE
-from material.isregular import isregular
-from propagation.nonlinear.get_shockdist import get_shockdist
+import numpy
+
+from material.muscle import Muscle
 from propagation.nonlinear.attenuationsolve import attenuationsolve
 from propagation.nonlinear.burgerssolve import burgerssolve
-
-import numpy
+from propagation.nonlinear.get_shockdist import get_shockdist
 
 
 def nonlinattenuationsplit(t,
                            u,
                            dz,
                            shockstep,
-                           material=None,
+                           material=Muscle(37),
                            non_linearity=True,
                            attenuation=True):
-    if material is None:
-        material = set_material(MUSCLE, 37)
-
     # Initiation of sizes
     num_dimensions = u.ndim
     if num_dimensions == 3:
@@ -28,10 +23,10 @@ def nonlinattenuationsplit(t,
         ny = 1
 
     # Check material
-    isreg = isregular(material)
-    epsn = material.eps[0]
-    epsa = material.eps[1]
-    epsb = material.eps[2]
+    isreg = material.is_regular
+    epsn = material.eps_n
+    epsa = material.eps_a
+    epsb = material.eps_b
 
     for ii in range(nx * ny):
         nstep = 0
@@ -41,7 +36,7 @@ def nonlinattenuationsplit(t,
             zstep = numpy.minimum(dztmp, shockstep * get_shockdist(t, utmp, epsn))
             dztmp = dztmp - zstep
             nstep = nstep + 1
-            if isreg != 0:
+            if isreg:
                 # for regular materials
                 if non_linearity and attenuation is False:
                     utmp = burgerssolve(t, utmp, utmp, epsn, zstep)

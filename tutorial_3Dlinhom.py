@@ -1,14 +1,13 @@
-import numpy
 import matplotlib.pyplot as plt
+import numpy
 
-from initpropcontrol import initpropcontrol
+from consts import ProfileHistory, NoAberrationAndHomogeneousMedium
+from init_prop_control import init_prop_control
 from propcontrol import Config, ExactDiffraction
-from transducer.pulsegenerator import pulsegenerator
 from simscript.beamsim import beamsim
+from transducer.pulsegenerator import pulsegenerator
 from visualization.plot_beamprofile import plot_beamprofile
 from visualization.plot_pulse import plot_pulse
-from consts import ProfileHistory, NoAberrationAndHomogeneousMedium
-
 
 if __name__ == '__main__':
     # input variables for Propcontrol
@@ -26,7 +25,7 @@ if __name__ == '__main__':
     harm = 1
 
     # generate Propcontrol
-    propcontrol = initpropcontrol(name, num_dimensions, config, harm)
+    propcontrol = init_prop_control(name, num_dimensions, config, harm)
 
     # generate a  wave field at the transducer
     u, _, _ = pulsegenerator(propcontrol, 'transducer', [0, 1])

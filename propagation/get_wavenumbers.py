@@ -1,23 +1,23 @@
-from initpropcontrol import initpropcontrol
-from filter.get_freqs import get_freqs
-from consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
-from propcontrol import NoDiffraction,  ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
-    FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-
 import numpy
 from scipy.signal import hilbert
+
+from consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
+from filter.get_freqs import get_freqs
+from init_prop_control import init_prop_control
+from propcontrol import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+    FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 
 
 def get_wavenumbers(propcontrol = None,
                     noret = 0):
     if propcontrol is None:
-        propcontrol = initpropcontrol()
+        propcontrol = init_prop_control()
 
     nx = propcontrol.nx
     ny = propcontrol.ny
     nt = propcontrol.nt
     mat = propcontrol.material
-    c = mat.c0
+    c = mat.wave_speed
     dt = propcontrol.dt
     ft = 1 / dt
     df = ft / nt
@@ -48,8 +48,8 @@ def get_wavenumbers(propcontrol = None,
     loss = numpy.zeros((kt.size))
     if propcontrol.config.attenuation and propcontrol.config.non_linearity is False:
         w = get_freqs(nt, propcontrol.dt / (2.0 * numpy.pi * ScaleForTemporalVariable))
-        epsa = mat.eps[1]
-        epsb = mat.eps[2]
+        epsa = mat.eps_a
+        epsb = mat.eps_b
         loss = epsa * numpy.conj(hilbert(numpy.abs(w) ** epsb)) / ScaleForSpatialVariablesZ
 
     # assembly of wave-number operator

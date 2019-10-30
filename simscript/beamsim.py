@@ -1,19 +1,19 @@
-from transducer.pulsegenerator import pulsegenerator
-from initpropcontrol import initpropcontrol
-from misc.find_steps import find_steps
-from misc.get_window import get_window
-from misc.estimate_eta import estimate_eta
-from propagation.get_wavenumbers import get_wavenumbers
-from postprocessing.export_beamprofile import export_beamprofile
-from simscript.body_wall import body_wall
-from propagation.propagate import propagate
-from propcontrol import ExactDiffraction, PseudoDifferential
-from consts import NoHistory, ProfileHistory
+import time
 
 import numpy
 import scipy.sparse
-import codecs
-import time
+
+from consts import NoHistory, ProfileHistory
+from init_prop_control import init_prop_control
+from misc.estimate_eta import estimate_eta
+from misc.find_steps import find_steps
+from misc.get_window import get_window
+from postprocessing.export_beamprofile import export_beamprofile
+from propagation.get_wavenumbers import get_wavenumbers
+from propagation.propagate import propagate
+from propcontrol import ExactDiffraction, PseudoDifferential
+from simscript.body_wall import body_wall
+from transducer.pulsegenerator import pulsegenerator
 
 
 def beamsim(propcontrol = None,
@@ -23,7 +23,7 @@ def beamsim(propcontrol = None,
             phantom = None):
 
     if propcontrol is None:
-        propcontrol = initpropcontrol()
+        propcontrol = init_prop_control()
 
     if u_z is None:
         u_z = pulsegenerator(propcontrol, 'transducer')

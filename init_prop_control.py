@@ -1,43 +1,41 @@
 """
-initpropcontrol.py
+init_prop_control.py
 """
 import numpy
 
-from material.list_matrial import MUSCLE, ABPHANTOM
-from material.check_material import check_material
-from material.set_material import set_material
+from consts import ProfileHistory, NoAberrationAndHomogeneousMedium, AberrationFromFile, AberrationPhantom
+from material.ab_phantom import AbPhantom
+from material.muscle import Muscle
 from misc.log2round_off import log2round_off
 from propcontrol import PropControl, Config, \
     NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-from consts import ProfileHistory, NoAberrationAndHomogeneousMedium, AberrationFromFile, AberrationPhantom
 
 
-def initpropcontrol(simulation_name='beamsim',
-                    num_dimensions=2,
-                    config: Config = Config(
+def init_prop_control(simulation_name='beamsim',
+                      num_dimensions=2,
+                      config: Config = Config(
                         diffraction_type=ExactDiffraction,
                         non_linearity=True,
                         attenuation=True,
                         heterogeneous_medium=NoAberrationAndHomogeneousMedium,
                         annular_transducer=False,
                         equidistant_steps=False,
-                        history=ProfileHistory
-                    ),
-                    harm=2,
-                    fi=3,
-                    bandwidth=0.5,
-                    np=0,
-                    amp=0.5,
-                    material=MUSCLE,
-                    temp=37.0,
-                    endpoint=0.1,
-                    faz=0.06,
-                    fel=[],
-                    nelaz=None,
-                    dimelaz=None,
-                    nelel=None,
-                    dimelel=None):
+                          history=ProfileHistory),
+                      harm=2,
+                      fi=3,
+                      bandwidth=0.5,
+                      np=0,
+                      amp=0.5,
+                      material=Muscle(37.0),
+                      temperature=37.0,
+                      endpoint=0.1,
+                      faz=0.06,
+                      fel=[],
+                      nelaz=None,
+                      dimelaz=None,
+                      nelel=None,
+                      dimelel=None):
     if np == 0:
         np = 4 * numpy.sqrt(numpy.log(2)) / (numpy.pi * bandwidth)
 
@@ -80,13 +78,10 @@ def initpropcontrol(simulation_name='beamsim',
             dimelel = 0.012
 
     # assign material struct
-    ret = check_material(material)
-    if not ret:
+    if material is None:
         print('Material is not properly specified.')
-        print('MUSCLE at {} degrees is used'.format(temp))
-        material = set_material(MUSCLE, temp)
-    else:
-        material = set_material(material, temp)
+        print(f'MUSCLE at {temperature} degrees is used')
+        material = Muscle(temperature)
 
     # adjust frequency dependent variables
     fs = numpy.array([0.1, 0.5, 1.5, 3.0, 6.0, 12.0]) * 1e6
@@ -94,7 +89,7 @@ def initpropcontrol(simulation_name='beamsim',
     filter = numpy.array([1.0, 1.6, 2.0, 2.0, 2.0, 2.2, 2.2, 2.2, 2.2, 2.2]) / numpy.arange(1, 11) * 0.5
     fi = fi * 1e6
     ft = fi / harm
-    c = material.c0
+    c = material.wave_speed
     lambdai = c / fi
     if num_dimensions == 2:
         scale = 2
@@ -194,7 +189,7 @@ def initpropcontrol(simulation_name='beamsim',
 
     # material parameters
     propcontrol.material = material
-    if material.i == ABPHANTOM:
+    if isinstance(material, AbPhantom):
         propcontrol.d = 0.035
     else:
         propcontrol.d = 0.02

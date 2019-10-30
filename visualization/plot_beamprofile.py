@@ -1,8 +1,8 @@
-from initpropcontrol import initpropcontrol
-from visualization.makedb import makedb
-
-import numpy
 import matplotlib.pyplot as plt
+import numpy
+
+from init_prop_control import init_prop_control
+from visualization.makedb import makedb
 
 
 def plot_beamprofile(prof,
@@ -14,7 +14,7 @@ def plot_beamprofile(prof,
                      fh = None,
                      cmap = 'jet'):
     if propcontrol is None:
-        propcontrol = initpropcontrol()
+        propcontrol = init_prop_control()
 
     if chan is None:
         chan = propcontrol.cchannel

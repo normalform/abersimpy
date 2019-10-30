@@ -1,13 +1,13 @@
-from propagation.get_wavenumbers import get_wavenumbers
-from propagation.get_diffmatrix import get_diffmatrix
-from propagation.nonlinear.nonlinattenuationsplit import nonlinattenuationsplit
+import numpy
+
 import propagation
-from misc.make_banded import make_banded
 from consts import ScaleForSpatialVariablesZ, ScaleForTemporalVariable
+from misc.make_banded import make_banded
+from propagation.get_diffmatrix import get_diffmatrix
+from propagation.get_wavenumbers import get_wavenumbers
+from propagation.nonlinear.nonlinattenuationsplit import nonlinattenuationsplit
 from propcontrol import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-
-import numpy
 
 
 def nonlinearpropagate(u_z,
@@ -31,7 +31,7 @@ def nonlinearpropagate(u_z,
 
     # preparation of variables
     mat = propcontrol.material
-    c = mat.c0
+    c = mat.wave_speed
     c = c / ScaleForSpatialVariablesZ * ScaleForTemporalVariable  # scaling wave-speed
     dt = propcontrol.dt / ScaleForTemporalVariable  # scale sampling to microsecs
     dx = propcontrol.dx / ScaleForSpatialVariablesZ  # dx scaled to centimeter

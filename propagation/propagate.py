@@ -1,10 +1,10 @@
-from initpropcontrol import initpropcontrol
+import numpy
+
+from init_prop_control import init_prop_control
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
 from propcontrol import ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-
-import numpy
 
 
 def propagate(u_z,
@@ -14,7 +14,7 @@ def propagate(u_z,
     global KZ
 
     if propcontrol is None:
-        propcontrol = initpropcontrol();
+        propcontrol = init_prop_control();
     if Kz is not None:
         KZ = Kz
         del Kz

@@ -1,10 +1,10 @@
-from initpropcontrol import initpropcontrol
-from visualization.makedb import makedb
-from filter.bandpass import bandpass
-
+import matplotlib.pyplot as plt
 import numpy
 from scipy.signal import hilbert
-import matplotlib.pyplot as plt
+
+from filter.bandpass import bandpass
+from init_prop_control import init_prop_control
+from visualization.makedb import makedb
 
 
 def plot_pulse(u,
@@ -15,7 +15,7 @@ def plot_pulse(u,
                fh = None,
                cmap = 'gray'):
     if propcontrol is None:
-        propcontrol = initpropcontrol()
+        propcontrol = init_prop_control()
 
     num_dimensions = u.ndim
     nt = u.shape[0]

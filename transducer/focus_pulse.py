@@ -1,8 +1,8 @@
-from transducer.get_xdidx import get_xdidx
-from transducer.get_focal_curvature import get_focal_curvature
-from misc.timeshift import timeshift
-
 import numpy
+
+from misc.timeshift import timeshift
+from transducer.get_focal_curvature import get_focal_curvature
+from transducer.get_xdidx import get_xdidx
 
 
 def focus_pulse(u_z,
@@ -29,7 +29,7 @@ def focus_pulse(u_z,
     dt = propcontrol.dt
     diffraction_type = propcontrol.config.diffraction_type
     annular_transducer = propcontrol.config.annular_transducer
-    c = propcontrol.material.c0
+    c = propcontrol.material.wave_speed
 
     if isinstance(physlens, int) is False:
         raise NotImplementedError

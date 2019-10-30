@@ -3,10 +3,10 @@ body_wall.py
 """
 import numpy
 
-from initpropcontrol import initpropcontrol
-from propagation.get_wavenumbers import get_wavenumbers
-from heterogeneous.aberration import aberration
 from consts import AberrationFromDelayScreenBodyWall
+from heterogeneous.aberration import aberration
+from init_prop_control import init_prop_control
+from propagation.get_wavenumbers import get_wavenumbers
 
 
 def body_wall(u_z,
@@ -16,7 +16,7 @@ def body_wall(u_z,
               w=None,
               phantom=None):
     if propcontrol is None:
-        propcontrol = initpropcontrol()
+        propcontrol = init_prop_control()
 
     global KZ
     if 'Kz' in globals():
