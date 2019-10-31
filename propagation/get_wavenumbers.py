@@ -1,10 +1,10 @@
 import numpy
 from scipy.signal import hilbert
 
-from consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
-from filter.get_freqs import get_freqs
-from prop_control import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+from controls.consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
+from controls.prop_control import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
+from filter.get_freqs import get_freqs
 
 
 def get_wavenumbers(prop_control,

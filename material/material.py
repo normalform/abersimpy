@@ -8,7 +8,7 @@ import numpy
 from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.interpolate import interp1d
 
-from consts import ScaleForSpatialVariablesZ, ScaleForPressure, ScaleForTemporalVariable
+from controls.consts import ScaleForSpatialVariablesZ, ScaleForPressure, ScaleForTemporalVariable
 from material.interfaces import IMaterial
 
 

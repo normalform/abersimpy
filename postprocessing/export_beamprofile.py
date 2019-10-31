@@ -1,6 +1,6 @@
 import numpy
 
-from consts import NoHistory, PositionHistory, ProfileHistory, FullHistory, PlaneHistory, PlaneByChannelHistory
+from controls.consts import NoHistory, PositionHistory, ProfileHistory, FullHistory, PlaneHistory, PlaneByChannelHistory
 from filter.bandpass import bandpass
 from misc.get_strpos import get_strpos
 from postprocessing.get_max import get_max

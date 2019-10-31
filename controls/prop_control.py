@@ -1,72 +1,22 @@
 """
 prop_Control.py
 """
-import abc
-from dataclasses import dataclass
-
 import numpy
 
-import consts
+from controls import consts
+from diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential, \
+    FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
+from diffraction.interfaces import IDiffractionType
 from material.aberration_phantom import AberrationPhantom
 from material.interfaces import IMaterial
 from material.muscle import Muscle
 from misc.log2round_off import log2round_off
 
 
-class IDiffractionType(abc.ABC):
-    """
-    DiffractionType
-    """
-
-
-class NoDiffraction(IDiffractionType):
-    """
-    No diffraction
-    """
-
-
-class ExactDiffraction(IDiffractionType):
-    """
-    Exact diffraction using angular spectrum with Kz as a variable
-    """
-
-
-class AngularSpectrumDiffraction(IDiffractionType):
-    """
-    Angular spectrum with Kz as vectors (saves memory)
-    """
-
-
-class PseudoDifferential(IDiffractionType):
-    """
-    Pseudo differential model using matrix diagonalization for decoupling of equations
-    """
-
-
-class FiniteDifferenceTimeDifferenceReduced(IDiffractionType):
-    """
-    Using a finite difference time
-    difference scheme in time and space with the parabolic
-    approximation. The matrices used for differentiation
-    are banded to improve computation time.
-    """
-
-
-class FiniteDifferenceTimeDifferenceFull(IDiffractionType):
-    """
-    Using a finite difference time
-    difference scheme in time and space with the parabolic
-    approximation. The matrices used for differentiation
-    are full and requires more computation time.
-    """
-
-
-@dataclass
 class Config:
     """
     Config
     """
-
     # pylint: disable=too-many-arguments
     def __init__(self,
                  diffraction_type: IDiffractionType,
@@ -97,7 +47,6 @@ class Config:
         return msg
 
 
-@dataclass
 class PropControl:
     """
     PropControl

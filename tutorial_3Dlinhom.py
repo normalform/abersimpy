@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy
 
-from consts import ProfileHistory, NoAberrationAndHomogeneousMedium
-from prop_control import PropControl, Config, ExactDiffraction
+from controls.consts import ProfileHistory, NoAberrationAndHomogeneousMedium
+from controls.prop_control import PropControl, Config, ExactDiffraction
 from simscript.beam_simulation import beam_simulation
 from transducer.pulsegenerator import pulsegenerator
 from visualization.plot_beamprofile import plot_beamprofile

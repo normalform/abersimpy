@@ -1,10 +1,10 @@
 import numpy
 
 import propagation
-from consts import ScaleForSpatialVariablesZ, ScaleForTemporalVariable
-from misc.make_banded import make_banded
-from prop_control import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+from controls.consts import ScaleForSpatialVariablesZ, ScaleForTemporalVariable
+from controls.prop_control import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
+from misc.make_banded import make_banded
 from propagation.get_diffmatrix import get_diffmatrix
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinattenuationsplit import nonlinattenuationsplit

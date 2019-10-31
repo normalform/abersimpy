@@ -3,8 +3,8 @@ aberration.py
 """
 import numpy
 
-import consts
-from prop_control import PropControl
+from controls import consts
+from controls.prop_control import PropControl
 
 
 def aberration(prop_control: PropControl,

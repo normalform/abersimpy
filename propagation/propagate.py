@@ -1,6 +1,6 @@
 import numpy
 
-from prop_control import ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+from controls.prop_control import ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate

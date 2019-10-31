@@ -3,12 +3,12 @@ import time
 import numpy
 import scipy.sparse
 
-from consts import NoHistory, ProfileHistory
+from controls.consts import NoHistory, ProfileHistory
+from controls.prop_control import ExactDiffraction, PseudoDifferential
 from misc.estimate_eta import estimate_eta
 from misc.find_steps import find_steps
 from misc.get_window import get_window
 from postprocessing.export_beamprofile import export_beamprofile
-from prop_control import ExactDiffraction, PseudoDifferential
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.propagate import propagate
 from simscript.body_wall import body_wall

@@ -3,7 +3,7 @@ body_wall.py
 """
 import numpy
 
-from consts import AberrationFromDelayScreenBodyWall
+from controls.consts import AberrationFromDelayScreenBodyWall
 from heterogeneous.aberration import aberration
 from propagation.get_wavenumbers import get_wavenumbers
 
