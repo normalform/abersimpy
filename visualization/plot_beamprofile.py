@@ -5,7 +5,7 @@ from visualization.makedb import makedb
 
 
 def plot_beamprofile(prof,
-                     prop_control,
+                     main_control,
                      dyn=40,
                      harm=0,
                      nrm=None,
@@ -13,18 +13,18 @@ def plot_beamprofile(prof,
                      fh=None,
                      cmap='jet'):
     if chan is None:
-        chan = prop_control.center_channel
+        chan = main_control.center_channel
 
     num_points_y, num_points_x, nz, nh = prof.shape
     if harm == 0:
         harm = numpy.arange(nh)
     nh = numpy.max(harm.shape)
 
-    x = numpy.arange(-numpy.floor(num_points_x / 2), numpy.ceil(num_points_x / 2)) * prop_control.resolution_x * 1e3
-    y = numpy.arange(-numpy.floor(num_points_y / 2), numpy.ceil(num_points_y / 2)) * prop_control.resolution_y * 1e3
-    z = numpy.arange(nz) * prop_control.step_size * 1e3
-    if prop_control.config.annular_transducer and prop_control.num_dimensions == 2:
-        x = numpy.arange(0, num_points_x) * prop_control.resolution_x * 1e3
+    x = numpy.arange(-numpy.floor(num_points_x / 2), numpy.ceil(num_points_x / 2)) * main_control.resolution_x * 1e3
+    y = numpy.arange(-numpy.floor(num_points_y / 2), numpy.ceil(num_points_y / 2)) * main_control.resolution_y * 1e3
+    z = numpy.arange(nz) * main_control.step_size * 1e3
+    if main_control.config.annular_transducer and main_control.num_dimensions == 2:
+        x = numpy.arange(0, num_points_x) * main_control.resolution_x * 1e3
 
     k = 0
     for ii in range(nh):

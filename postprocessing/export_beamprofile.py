@@ -8,21 +8,21 @@ from postprocessing.get_rms import get_rms
 
 
 def export_beamprofile(u_z,
-                       prop_control,
+                       main_control,
                        rmpro=None,
                        mxpro=None,
                        axpls=None,
                        zps=None,
                        step=None):
     # setting variables
-    filename = prop_control.simulation_name
+    filename = main_control.simulation_name
     rmspro = None
     maxpro = None
     axplse = None
     zpos = None
 
-    history = prop_control.config.history
-    pos = prop_control.current_position
+    history = main_control.config.history
+    pos = main_control.current_position
     fn = '{}{}.json'.format(filename, get_strpos(pos * 1e3))
 
     # stores full field or exits
@@ -36,13 +36,13 @@ def export_beamprofile(u_z,
         raise NotImplementedError
         return rmspro, maxpro, axplse, zpos
 
-    harmonic = prop_control.harmonic
-    store_position = prop_control.store_position
-    cc = prop_control.center_channel.astype(int)
+    harmonic = main_control.harmonic
+    store_position = main_control.store_position
+    cc = main_control.center_channel.astype(int)
 
-    transmit_frequency = prop_control.transmit_frequency
-    resolution_t = prop_control.resolution_t
-    filterc = prop_control.filter
+    transmit_frequency = main_control.transmit_frequency
+    resolution_t = main_control.resolution_t
+    filterc = main_control.filter
 
     # initializing profiles
     rmspro = rmpro
@@ -51,7 +51,7 @@ def export_beamprofile(u_z,
     zpos = zps
 
     # finding dimensions
-    num_dimensions = prop_control.num_dimensions
+    num_dimensions = main_control.num_dimensions
     if num_dimensions == 2:
         num_points_t, num_points_y = u_z.shape
         num_points_x = num_points_y

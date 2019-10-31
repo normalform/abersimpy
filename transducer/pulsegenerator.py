@@ -7,7 +7,7 @@ from transducer.get_apodization import get_apodization
 from transducer.get_xdidx import get_xdidx
 
 
-def pulsegenerator(prop_control,
+def pulsegenerator(main_control,
                    src='transducer',
                    apod=0,
                    sig='gaussian',
@@ -16,26 +16,26 @@ def pulsegenerator(prop_control,
                    nofocflag=0):
     if lensfoc == None:
         lensfoc = numpy.zeros(2)
-        if prop_control.num_elements_azimuth == 1:
-            lensfoc[0] = prop_control.focus_azimuth
-        if prop_control.num_elements_elevation == 1:
-            lensfoc[1] = prop_control.focus_elevation
+        if main_control.num_elements_azimuth == 1:
+            lensfoc[0] = main_control.focus_azimuth
+        if main_control.num_elements_elevation == 1:
+            lensfoc[1] = main_control.focus_elevation
 
-    transmit_frequency = prop_control.transmit_frequency
-    p0 = prop_control.amplitude
-    bandwidth = prop_control.bandwidth
-    num_periods = prop_control.num_periods
-    num_points_x = prop_control.num_points_x
-    num_points_y = prop_control.num_points_y
-    num_points_t = prop_control.num_points_t
-    resolution_x = prop_control.resolution_x
-    resolution_y = prop_control.resolution_y
-    resolution_t = prop_control.resolution_t
-    c = prop_control.material.sound_speed
-    annular_transducer = prop_control.config.annular_transducer
+    transmit_frequency = main_control.transmit_frequency
+    p0 = main_control.amplitude
+    bandwidth = main_control.bandwidth
+    num_periods = main_control.num_periods
+    num_points_x = main_control.num_points_x
+    num_points_y = main_control.num_points_y
+    num_points_t = main_control.num_points_t
+    resolution_x = main_control.resolution_x
+    resolution_y = main_control.resolution_y
+    resolution_t = main_control.resolution_t
+    c = main_control.material.sound_speed
+    annular_transducer = main_control.config.annular_transducer
 
     # set length of transducer
-    (idxx, idxy, _, _, _) = get_xdidx(prop_control)
+    (idxx, idxy, _, _, _) = get_xdidx(main_control)
     xdnx = idxx.size
     xdny = idxy.size
 
@@ -75,7 +75,7 @@ def pulsegenerator(prop_control,
     else:
         nttr = int(numpy.ceil((sig.size - num_points_t) / 2.0))
         sig = sig[nttr:num_points_t + nttr]
-    if prop_control.num_dimensions == 1:
+    if main_control.num_dimensions == 1:
         u = sig
         return u
 
@@ -86,7 +86,7 @@ def pulsegenerator(prop_control,
         raise NotImplementedError
     elif src == 'transducer':
         # generating pulse from transducer
-        prop_control.current_position = 0
+        main_control.current_position = 0
 
         # calculate apodization
         if isinstance(apod, str):
@@ -102,7 +102,7 @@ def pulsegenerator(prop_control,
         # create wave field
         xdsig = sig[..., numpy.newaxis] * A.reshape((xdnx * xdny))
         xdsig = xdsig.reshape((num_points_t, xdny, xdnx))
-        xdsig, deltafoc = focus_pulse(xdsig, prop_control, lensfoc, nofocflag)
+        xdsig, deltafoc = focus_pulse(xdsig, main_control, lensfoc, nofocflag)
 
         # create full domain
         u = numpy.zeros((num_points_t, num_points_y, num_points_x))
@@ -114,7 +114,7 @@ def pulsegenerator(prop_control,
     # squeeze y-direction for 2D sim
     u = numpy.squeeze(u)
 
-    return u, prop_control, deltafoc
+    return u, main_control, deltafoc
 
 
 def gaussian(resolution_t, transmit_frequency, num_periods, num_points_t):

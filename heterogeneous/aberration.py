@@ -4,21 +4,21 @@ aberration.py
 import numpy
 
 from controls import consts
-from controls.prop_control import PropControl
+from controls.main_control import MainControl
 
 
-def aberration(prop_control: PropControl,
+def aberration(main_control: MainControl,
                phantom=None) -> numpy.ndarray:
     """
     Creates a set of time delays based on the body wall model specified by heterogeneity.
 
-    :param prop_control: prop control
+    :param main_control: prop control
     :param phantom:
         Optional. The aberration phantom as an (num spheres x 4) array
         where the columns are sorted as [x y z R].
     :return:  A set of time delays
     """
-    heterogeneous_medium = prop_control.config.heterogeneous_medium
+    heterogeneous_medium = main_control.config.heterogeneous_medium
     if phantom is None:
         heterogeneous_medium = consts.AberrationFromDelayScreenBodyWall
 

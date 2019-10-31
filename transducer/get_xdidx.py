@@ -1,19 +1,19 @@
 import numpy
 
 
-def get_xdidx(prop_control):
+def get_xdidx(main_control):
     # initiation of parameters
-    num_points_x = prop_control.num_points_x
-    num_points_y = prop_control.num_points_y
-    resolution_x = prop_control.resolution_x
-    resolution_y = prop_control.resolution_y
-    nex = prop_control.num_elements_azimuth
-    ney = prop_control.num_elements_elevation
-    elements_size_azimuth = prop_control.elements_size_azimuth
-    elements_size_elevation = prop_control.elements_size_elevation
-    cc = prop_control.center_channel
-    num_dimensions = prop_control.num_dimensions
-    annular_transducer = prop_control.config.annular_transducer
+    num_points_x = main_control.num_points_x
+    num_points_y = main_control.num_points_y
+    resolution_x = main_control.resolution_x
+    resolution_y = main_control.resolution_y
+    nex = main_control.num_elements_azimuth
+    ney = main_control.num_elements_elevation
+    elements_size_azimuth = main_control.elements_size_azimuth
+    elements_size_elevation = main_control.elements_size_elevation
+    cc = main_control.center_channel
+    num_dimensions = main_control.num_dimensions
+    annular_transducer = main_control.config.annular_transducer
 
     # set lengths of transducers
     if num_dimensions == 1:

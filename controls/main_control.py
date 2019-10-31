@@ -17,6 +17,7 @@ class Config:
     """
     Config
     """
+
     # pylint: disable=too-many-arguments
     def __init__(self,
                  diffraction_type: IDiffractionType,
@@ -47,9 +48,9 @@ class Config:
         return msg
 
 
-class PropControl:
+class MainControl:
     """
-    PropControl
+    MainControl
     """
 
     # pylint: disable=too-many-instance-attributes
