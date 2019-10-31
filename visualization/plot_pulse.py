@@ -21,16 +21,19 @@ def plot_pulse(u,
     else:
         num_points_x = u.shape[2]
 
-    cc = main_control.center_channel
-    t = numpy.arange(-numpy.floor(num_points_t / 2), numpy.ceil(num_points_t / 2)) * main_control.resolution_t * 1e6
-    y = numpy.arange(-numpy.floor(num_points_y / 2), numpy.ceil(num_points_y / 2)) * main_control.resolution_y * 1e3
+    cc = main_control.transducer.center_channel
+    t = numpy.arange(-numpy.floor(num_points_t / 2),
+                     numpy.ceil(num_points_t / 2)) * main_control.signal.resolution_t * 1e6
+    y = numpy.arange(-numpy.floor(num_points_y / 2),
+                     numpy.ceil(num_points_y / 2)) * main_control.signal.resolution_y * 1e3
 
     fig, axs = plt.subplots(2, 2)
     fig.canvas.set_window_title('Pulse')
     if axflag == 0:
-        x = numpy.arange(-numpy.floor(num_points_x / 2), numpy.ceil(num_points_x / 2)) * main_control.resolution_x * 1e3
+        x = numpy.arange(-numpy.floor(num_points_x / 2),
+                         numpy.ceil(num_points_x / 2)) * main_control.signal.resolution_x * 1e3
         if main_control.config.annular_transducer and main_control.num_dimensions == 2:
-            x = numpy.arange(num_points_x) * main_control.resolution_x * 1e3
+            x = numpy.arange(num_points_x) * main_control.signal.resolution_x * 1e3
 
         if num_dimensions == 3:
             data = makedb(numpy.transpose(numpy.squeeze(u[:, int(cc[1]), :])), dyn, nrm)
@@ -63,14 +66,14 @@ def plot_pulse(u,
         else:
             raise NotImplementedError
     else:
-        x = numpy.arange(num_points_x) * main_control.step_size * 1e3
-        f = numpy.arange(numpy.floor(num_points_t / 2)) * main_control.sample_frequency * 1e-6 / num_points_t
+        x = numpy.arange(num_points_x) * main_control.simulation.step_size * 1e3
+        f = numpy.arange(numpy.floor(num_points_t / 2)) * main_control.signal.sample_frequency * 1e-6 / num_points_t
 
         nh = main_control.harmonic
-        resolution_t = main_control.resolution_t
-        transmit_frequency = main_control.transmit_frequency
-        bw = main_control.bandwidth
-        filt = main_control.filter
+        resolution_t = main_control.signal.resolution_t
+        transmit_frequency = main_control.signal.transmit_frequency
+        bw = main_control.signal.bandwidth
+        filt = main_control.signal.filter
         nrmp = numpy.max(numpy.max(numpy.abs(hilbert(u))))
 
         data = makedb(numpy.transpose(u), dyn, nrmp)

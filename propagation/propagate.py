@@ -1,6 +1,6 @@
 import numpy
 
-from controls.main_control import ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+from diffraction.diffraction import ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
@@ -19,17 +19,17 @@ def propagate(u_z,
     diffraction_type = main_control.config.diffraction_type
     non_linearity = main_control.config.non_linearity
     attenuation = main_control.config.attenuation
-    step_size = main_control.step_size
+    step_size = main_control.simulation.step_size
 
-    num_points_x = main_control.num_points_x
-    num_points_y = main_control.num_points_y
-    num_points_t = main_control.num_points_t
+    num_points_x = main_control.domain.num_points_x
+    num_points_y = main_control.domain.num_points_y
+    num_points_t = main_control.domain.num_points_t
 
     # Update position and chose propagation mode
     if dir > 0:
-        main_control.current_position = main_control.current_position + step_size
+        main_control.simulation.current_position = main_control.simulation.current_position + step_size
     elif dir < 0:
-        main_control.current_position = main_control.current_position - step_size
+        main_control.simulation.current_position = main_control.simulation.current_position - step_size
 
     if (diffraction_type == ExactDiffraction or
         diffraction_type == AngularSpectrumDiffraction or

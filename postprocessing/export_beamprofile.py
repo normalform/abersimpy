@@ -22,7 +22,7 @@ def export_beamprofile(u_z,
     zpos = None
 
     history = main_control.config.history
-    pos = main_control.current_position
+    pos = main_control.simulation.current_position
     fn = '{}{}.json'.format(filename, get_strpos(pos * 1e3))
 
     # stores full field or exits
@@ -37,12 +37,12 @@ def export_beamprofile(u_z,
         return rmspro, maxpro, axplse, zpos
 
     harmonic = main_control.harmonic
-    store_position = main_control.store_position
-    cc = main_control.center_channel.astype(int)
+    store_position = main_control.simulation.store_position
+    cc = main_control.transducer.center_channel.astype(int)
 
-    transmit_frequency = main_control.transmit_frequency
-    resolution_t = main_control.resolution_t
-    filterc = main_control.filter
+    transmit_frequency = main_control.signal.transmit_frequency
+    resolution_t = main_control.signal.resolution_t
+    filterc = main_control.signal.filter
 
     # initializing profiles
     rmspro = rmpro

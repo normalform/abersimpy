@@ -16,22 +16,22 @@ def pulsegenerator(main_control,
                    nofocflag=0):
     if lensfoc == None:
         lensfoc = numpy.zeros(2)
-        if main_control.num_elements_azimuth == 1:
-            lensfoc[0] = main_control.focus_azimuth
-        if main_control.num_elements_elevation == 1:
-            lensfoc[1] = main_control.focus_elevation
+        if main_control.transducer.num_elements_azimuth == 1:
+            lensfoc[0] = main_control.transducer.focus_azimuth
+        if main_control.transducer.num_elements_elevation == 1:
+            lensfoc[1] = main_control.transducer.focus_elevation
 
-    transmit_frequency = main_control.transmit_frequency
-    p0 = main_control.amplitude
-    bandwidth = main_control.bandwidth
-    num_periods = main_control.num_periods
-    num_points_x = main_control.num_points_x
-    num_points_y = main_control.num_points_y
-    num_points_t = main_control.num_points_t
-    resolution_x = main_control.resolution_x
-    resolution_y = main_control.resolution_y
-    resolution_t = main_control.resolution_t
-    c = main_control.material.sound_speed
+    transmit_frequency = main_control.signal.transmit_frequency
+    p0 = main_control.signal.amplitude
+    bandwidth = main_control.signal.bandwidth
+    num_periods = main_control.signal.num_periods
+    num_points_x = main_control.domain.num_points_x
+    num_points_y = main_control.domain.num_points_y
+    num_points_t = main_control.domain.num_points_t
+    resolution_x = main_control.signal.resolution_x
+    resolution_y = main_control.signal.resolution_y
+    resolution_t = main_control.signal.resolution_t
+    c = main_control.material.material.sound_speed
     annular_transducer = main_control.config.annular_transducer
 
     # set length of transducer
@@ -86,7 +86,7 @@ def pulsegenerator(main_control,
         raise NotImplementedError
     elif src == 'transducer':
         # generating pulse from transducer
-        main_control.current_position = 0
+        main_control.simulation.current_position = 0
 
         # calculate apodization
         if isinstance(apod, str):

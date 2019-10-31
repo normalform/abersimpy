@@ -24,16 +24,16 @@ def beam_simulation(main_control,
         u_z = pulsegenerator(main_control, 'transducer')
 
     # calculate number of propagation steps beyond the body wall
-    current_pos = main_control.current_position
-    end_point = main_control.endpoint
-    step_size = main_control.step_size
-    store_pos = main_control.store_position
+    current_pos = main_control.simulation.current_position
+    end_point = main_control.simulation.endpoint
+    step_size = main_control.simulation.step_size
+    store_pos = main_control.simulation.store_position
 
     if main_control.config.heterogeneous_medium:
-        if main_control.current_position >= main_control.thickness:
+        if main_control.simulation.current_position >= main_control.material.thickness:
             num_steps, step, step_idx = find_steps(current_pos, end_point, step_size, store_pos)
         else:
-            num_steps, step, step_idx = find_steps(main_control.thickness, end_point, step_size, store_pos)
+            num_steps, step, step_idx = find_steps(main_control.material.thickness, end_point, step_size, store_pos)
     else:
         num_steps, step, step_idx = find_steps(current_pos, end_point, step_size, store_pos)
 
@@ -60,15 +60,15 @@ def beam_simulation(main_control,
         recalculate = False
 
     # sets sizes
-    num_points_x = main_control.num_points_x
-    num_points_y = main_control.num_points_y
-    num_points_t = main_control.num_points_t
+    num_points_x = main_control.domain.num_points_x
+    num_points_y = main_control.domain.num_points_y
+    num_points_t = main_control.domain.num_points_t
     non_linearity = main_control.config.non_linearity
     annular_transducer = main_control.config.annular_transducer
     history = main_control.config.history
     num_dimensions = main_control.num_dimensions
-    resolution_x = main_control.resolution_x
-    resolution_y = main_control.resolution_y
+    resolution_x = main_control.signal.resolution_x
+    resolution_y = main_control.signal.resolution_y
 
     # initializing variables
     if screen.size != 0:
@@ -80,7 +80,7 @@ def beam_simulation(main_control,
 
     # calculate spatial window
     if w is None:
-        w = main_control.num_windows
+        w = main_control.simulation.num_windows
     if isinstance(w, int) and w > 0:
         w = get_window((num_points_x, num_points_y), (resolution_x, resolution_y), w * step_size, 2 * step_size,
                        annular_transducer)
@@ -116,7 +116,7 @@ def beam_simulation(main_control,
                                                            step_nr)
 
     # Propagating through body wall
-    if main_control.config.heterogeneous_medium != 0 and current_pos < main_control.thickness:
+    if main_control.config.heterogeneous_medium != 0 and current_pos < main_control.material.thickness:
         print('Entering body wall')
         u_z, main_control, _rms_pro, _max_pro, _ax_pulse, _z_pos = body_wall(u_z, 1, main_control, Kz, w, phantom)
         print('Done with body wall')
@@ -147,7 +147,7 @@ def beam_simulation(main_control,
                 Kz = get_wavenumbers(main_control)
 
         # Propagation
-        main_control.step_size = step[ii]
+        main_control.simulation.step_size = step[ii]
         u_z, main_control = propagate(u_z, 1, main_control, Kz)
 
         # windowing of solution

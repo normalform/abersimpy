@@ -2,7 +2,7 @@ import matplotlib.pyplot as plt
 import numpy
 
 from controls.consts import ProfileHistory, NoAberrationAndHomogeneousMedium
-from controls.main_control import MainControl, Config, ExactDiffraction
+from controls.main_control import MainControl, ConfigControl, ExactDiffraction
 from simscript.beam_simulation import beam_simulation
 from transducer.pulsegenerator import pulsegenerator
 from visualization.plot_beamprofile import plot_beamprofile
@@ -12,7 +12,7 @@ if __name__ == '__main__':
     # input variables for MainControl
     name = 'test_2dNonlinHom'
     num_dimensions = 2
-    config = Config(
+    config = ConfigControl(
         diffraction_type=ExactDiffraction,
         non_linearity=True,
         attenuation=True,
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     plot_beamprofile(rmspro, main_control)
 
     # find index of focal profile
-    idx = int(numpy.round(main_control.focus_azimuth / main_control.step_size))
+    idx = int(numpy.round(main_control.transducer.focus_azimuth / main_control.simulation.step_size))
     plot_beamprofile(rmspro[..., idx:idx + 1, :], main_control)
 
     plot_pulse(axplse, main_control, 1)

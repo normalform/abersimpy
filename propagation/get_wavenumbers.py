@@ -2,19 +2,19 @@ import numpy
 from scipy.signal import hilbert
 
 from controls.consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
-from controls.main_control import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
-    FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
+from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, \
+    PseudoDifferential, FiniteDifferenceTimeDifferenceFull, FiniteDifferenceTimeDifferenceReduced
 from filter.get_freqs import get_freqs
 
 
 def get_wavenumbers(main_control,
                     noret=0):
-    num_points_x = main_control.num_points_x
-    num_points_y = main_control.num_points_y
-    num_points_t = main_control.num_points_t
-    mat = main_control.material
+    num_points_x = main_control.domain.num_points_x
+    num_points_y = main_control.domain.num_points_y
+    num_points_t = main_control.domain.num_points_t
+    mat = main_control.material.material
     c = mat.sound_speed
-    resolution_t = main_control.resolution_t
+    resolution_t = main_control.signal.resolution_t
     ft = 1 / resolution_t
     df = ft / num_points_t
     kt = 2.0 * numpy.pi / c * numpy.arange(-ft / 2, ft / 2, df)
@@ -22,8 +22,8 @@ def get_wavenumbers(main_control,
     if main_control.config.diffraction_type == NoDiffraction or \
             main_control.config.diffraction_type == ExactDiffraction or \
             main_control.config.diffraction_type == AngularSpectrumDiffraction:
-        fx = 1 / main_control.resolution_x
-        fy = 1 / main_control.resolution_y
+        fx = 1 / main_control.signal.resolution_x
+        fy = 1 / main_control.signal.resolution_y
         dkx = fx / num_points_x
         dky = fy / num_points_y
         if num_points_x == 1:
@@ -43,7 +43,7 @@ def get_wavenumbers(main_control,
     # calculate attenuation if propagation is linear
     loss = numpy.zeros((kt.size))
     if main_control.config.attenuation and main_control.config.non_linearity is False:
-        w = get_freqs(num_points_t, main_control.resolution_t / (2.0 * numpy.pi * ScaleForTemporalVariable))
+        w = get_freqs(num_points_t, main_control.signal.resolution_t / (2.0 * numpy.pi * ScaleForTemporalVariable))
         epsa = mat.eps_a
         epsb = mat.eps_b
         loss = epsa * numpy.conj(hilbert(numpy.abs(w) ** epsb)) / ScaleForSpatialVariablesZ
@@ -82,9 +82,9 @@ def get_wavenumbers(main_control,
 
     # convert wave number operator to propagation operator
     if main_control.config.equidistant_steps:
-        step_size = main_control.step_size
+        step_size = main_control.simulation.step_size
         if main_control.config.non_linearity:
-            nsubsteps = int(numpy.ceil(step_size / main_control.resolution_z))
+            nsubsteps = int(numpy.ceil(step_size / main_control.signal.resolution_z))
             step_size = step_size / nsubsteps
         Kz = numpy.exp(-1j * Kz * step_size)
 

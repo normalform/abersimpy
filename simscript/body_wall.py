@@ -30,18 +30,18 @@ def body_wall(u_z,
 
     # Initiate variables
     num_dimensions = main_control.num_dimensions
-    num_points_x = main_control.num_points_x
-    num_points_y = main_control.num_points_y
-    num_points_t = main_control.num_points_t
+    num_points_x = main_control.domain.num_points_x
+    num_points_y = main_control.domain.num_points_y
+    num_points_t = main_control.domain.num_points_t
     heterogeneous_medium = main_control.config.heterogeneous_medium
     annular_transducer = main_control.annular_transducer
-    resolution_x = main_control.resolution_x
-    resolution_y = main_control.resolution_y
+    resolution_x = main_control.signal.resolution_x
+    resolution_y = main_control.signal.resolution_y
 
-    step_size = main_control.step_size
-    ns = main_control.num_screens
-    thickness = main_control.thickness
-    endpoint = numpy.min(main_control.endpoint, thickness)
+    step_size = main_control.simulation.step_size
+    ns = main_control.material.num_screens
+    thickness = main_control.material.thickness
+    endpoint = numpy.min(main_control.simulation.endpoint, thickness)
 
     # adjust step sizes
     if heterogeneous_medium == AberrationFromDelayScreenBodyWall or phantom is None:
@@ -53,7 +53,7 @@ def body_wall(u_z,
     dscreen = thickness / ns
     nsubsteps = numpy.ceil(dscreen / step_size)
     abstepsize = dscreen / nsubsteps
-    main_control.step_size = abstepsize
+    main_control.simulation.step_size = abstepsize
 
     # Prepares body wall model
     delta = aberration(main_control)
