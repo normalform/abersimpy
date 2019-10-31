@@ -9,7 +9,7 @@ from visualization.plot_beamprofile import plot_beamprofile
 from visualization.plot_pulse import plot_pulse
 
 if __name__ == '__main__':
-    # input variables for Propcontrol
+    # input variables for PropControl
     name = 'test_3dLinHom'
     num_dimensions = 3
     config = Config(
@@ -23,8 +23,8 @@ if __name__ == '__main__':
     )
     harm = 1
 
-    # generate Propcontrol
-    prop_control = PropControl.init_prop_control(name, num_dimensions, config, harm)
+    # generate PropControl
+    prop_control = PropControl(name, num_dimensions, config, harm)
 
     # generate a  wave field at the transducer
     u, _, _ = pulsegenerator(prop_control, 'transducer', [0, 1])
@@ -39,7 +39,7 @@ if __name__ == '__main__':
     plot_beamprofile(rmspro, prop_control)
 
     # find index of focal profile
-    idx = int(numpy.round(prop_control.Fx / prop_control.step_size))
+    idx = int(numpy.round(prop_control.focus_azimuth / prop_control.step_size))
     plot_beamprofile(rmspro[..., idx:idx + 1, :], prop_control)
 
     plot_pulse(axplse, prop_control, 1)

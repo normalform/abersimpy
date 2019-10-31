@@ -22,7 +22,7 @@ def export_beamprofile(u_z,
     zpos = None
 
     history = prop_control.config.history
-    pos = prop_control.currentpos
+    pos = prop_control.current_position
     fn = '{}{}.json'.format(filename, get_strpos(pos * 1e3))
 
     # stores full field or exits
@@ -37,11 +37,11 @@ def export_beamprofile(u_z,
         return rmspro, maxpro, axplse, zpos
 
     harmonic = prop_control.harmonic
-    storepos = prop_control.storepos
-    cc = prop_control.cchannel.astype(int)
+    store_position = prop_control.store_position
+    cc = prop_control.center_channel.astype(int)
 
-    fc = prop_control.fc
-    dt = prop_control.dt
+    transmit_frequency = prop_control.transmit_frequency
+    resolution_t = prop_control.resolution_t
     filterc = prop_control.filter
 
     # initializing profiles
@@ -53,20 +53,20 @@ def export_beamprofile(u_z,
     # finding dimensions
     num_dimensions = prop_control.num_dimensions
     if num_dimensions == 2:
-        nt, ny = u_z.shape
-        nx = ny
-        ny = 1
+        num_points_t, num_points_y = u_z.shape
+        num_points_x = num_points_y
+        num_points_y = 1
     else:
-        nt, ny, nx = u_z.shape
+        num_points_t, num_points_y, num_points_x = u_z.shape
     if step is None:
-        np = 0
+        num_periods = 0
         zpos = 0
     else:
-        np = step
+        num_periods = step
 
-    # saving pulse for steps specified in storepos
-    if storepos.size != 0:
-        if numpy.min(numpy.abs(storepos - pos)) < 1e-12:
+    # saving pulse for steps specified in store_position
+    if store_position.size != 0:
+        if numpy.min(numpy.abs(store_position - pos)) < 1e-12:
             # TODO Current (removed) json Serialization is not working well.
             print('[DUMMY] save pulse to {}'.format(fn))
 
@@ -76,29 +76,29 @@ def export_beamprofile(u_z,
         raise NotImplementedError
     elif history == ProfileHistory:
         if num_dimensions == 2:
-            axplse[:, np] = u_z[:, cc[0, ...]]
+            axplse[:, num_periods] = u_z[:, cc[0, ...]]
         else:
-            axplse[:, np] = u_z[:, cc[1], cc[0, ...]]
-        if np == 0:
+            axplse[:, num_periods] = u_z[:, cc[1], cc[0, ...]]
+        if num_periods == 0:
             rmspro = numpy.zeros_like(rmspro)
             maxpro = numpy.zeros_like(maxpro)
 
-        tmp = u_z.reshape((nt, nx * ny))
+        tmp = u_z.reshape((num_points_t, num_points_x * num_points_y))
         rms = get_rms(tmp, 1)
         max = get_max(tmp, 1)
-        rmspro[..., np, 0] = rms.reshape((ny, nx))
-        maxpro[..., np, 0] = max.reshape((ny, nx))
-        zpos[np] = pos
+        rmspro[..., num_periods, 0] = rms.reshape((num_points_y, num_points_x))
+        maxpro[..., num_periods, 0] = max.reshape((num_points_y, num_points_x))
+        zpos[num_periods] = pos
 
         # filtering out harmonics
         for ii in range(harmonic):
             idx = ii + 1
-            tmp = u_z.reshape((nt, nx * ny))
-            tmp, _ = bandpass(tmp, idx * fc, dt, idx * fc * filterc[ii], 4)
+            tmp = u_z.reshape((num_points_t, num_points_x * num_points_y))
+            tmp, _ = bandpass(tmp, idx * transmit_frequency, resolution_t, idx * transmit_frequency * filterc[ii], 4)
             rms = get_rms(tmp, 1)
             max = get_max(tmp, 1)
-            rmspro[..., np, ii + 1] = rms.reshape((ny, nx))
-            maxpro[..., np, ii + 1] = max.reshape((ny, nx))
+            rmspro[..., num_periods, ii + 1] = rms.reshape((num_points_y, num_points_x))
+            maxpro[..., num_periods, ii + 1] = max.reshape((num_points_y, num_points_x))
     elif history == PlaneHistory:
         raise NotImplementedError
 

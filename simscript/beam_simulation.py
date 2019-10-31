@@ -8,35 +8,32 @@ from misc.estimate_eta import estimate_eta
 from misc.find_steps import find_steps
 from misc.get_window import get_window
 from postprocessing.export_beamprofile import export_beamprofile
-from prop_control import PropControl, ExactDiffraction, PseudoDifferential
+from prop_control import ExactDiffraction, PseudoDifferential
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.propagate import propagate
 from simscript.body_wall import body_wall
 from transducer.pulsegenerator import pulsegenerator
 
 
-def beam_simulation(prop_control=None,
+def beam_simulation(prop_control,
                     u_z=None,
                     screen=numpy.array([]),
                     w=None,
                     phantom=None):
-    if prop_control is None:
-        prop_control = PropControl.init_prop_control()
-
     if u_z is None:
         u_z = pulsegenerator(prop_control, 'transducer')
 
     # calculate number of propagation steps beyond the body wall
-    current_pos = prop_control.currentpos
+    current_pos = prop_control.current_position
     end_point = prop_control.endpoint
     step_size = prop_control.step_size
-    store_pos = prop_control.storepos
+    store_pos = prop_control.store_position
 
     if prop_control.config.heterogeneous_medium:
-        if prop_control.currentpos >= prop_control.d:
+        if prop_control.current_position >= prop_control.thickness:
             num_steps, step, step_idx = find_steps(current_pos, end_point, step_size, store_pos)
         else:
-            num_steps, step, step_idx = find_steps(prop_control.d, end_point, step_size, store_pos)
+            num_steps, step, step_idx = find_steps(prop_control.thickness, end_point, step_size, store_pos)
     else:
         num_steps, step, step_idx = find_steps(current_pos, end_point, step_size, store_pos)
 
@@ -63,15 +60,15 @@ def beam_simulation(prop_control=None,
         recalculate = False
 
     # sets sizes
-    nx = prop_control.nx
-    ny = prop_control.ny
-    nt = prop_control.nt
+    num_points_x = prop_control.num_points_x
+    num_points_y = prop_control.num_points_y
+    num_points_t = prop_control.num_points_t
     non_linearity = prop_control.config.non_linearity
     annular_transducer = prop_control.config.annular_transducer
     history = prop_control.config.history
     num_dimensions = prop_control.num_dimensions
-    dx = prop_control.dx
-    dy = prop_control.dy
+    resolution_x = prop_control.resolution_x
+    resolution_y = prop_control.resolution_y
 
     # initializing variables
     if screen.size != 0:
@@ -83,9 +80,10 @@ def beam_simulation(prop_control=None,
 
     # calculate spatial window
     if w is None:
-        w = prop_control.nwindow
+        w = prop_control.num_windows
     if isinstance(w, int) and w > 0:
-        w = get_window((nx, ny), (dx, dy), w * step_size, 2 * step_size, annular_transducer)
+        w = get_window((num_points_x, num_points_y), (resolution_x, resolution_y), w * step_size, 2 * step_size,
+                       annular_transducer)
 
     t = numpy.zeros(num_steps + 1)
     t_lap = 0
@@ -96,16 +94,16 @@ def beam_simulation(prop_control=None,
     else:
         non_linearity_str = 'linear'
     if num_dimensions == 2:
-        dimensions_str = '{} x {}'.format(nx, nt)
+        dimensions_str = '{} x {}'.format(num_points_x, num_points_t)
     else:
-        dimensions_str = '{} x {} x {}'.format(nx, ny, nt)
+        dimensions_str = '{} x {} x {}'.format(num_points_x, num_points_y, num_points_t)
     print('starting {} simulation of size {}'.format(non_linearity_str, dimensions_str))
 
     # calculating beam profiles
     if history != NoHistory:
-        rms_pro = numpy.zeros((ny, nx, num_steps, prop_control.harmonic + 1))
-        max_pro = numpy.zeros((ny, nx, num_steps, prop_control.harmonic + 1))
-        ax_pulse = numpy.zeros((nt, num_steps))
+        rms_pro = numpy.zeros((num_points_y, num_points_x, num_steps, prop_control.harmonic + 1))
+        max_pro = numpy.zeros((num_points_y, num_points_x, num_steps, prop_control.harmonic + 1))
+        ax_pulse = numpy.zeros((num_points_t, num_steps))
         z_pos = numpy.zeros(num_steps)
     else:
         rms_pro = numpy.array([])
@@ -118,7 +116,7 @@ def beam_simulation(prop_control=None,
                                                            step_nr)
 
     # Propagating through body wall
-    if prop_control.config.heterogeneous_medium != 0 and current_pos < prop_control.d:
+    if prop_control.config.heterogeneous_medium != 0 and current_pos < prop_control.thickness:
         print('Entering body wall')
         u_z, prop_control, _rms_pro, _max_pro, _ax_pulse, _z_pos = body_wall(u_z, 1, prop_control, Kz, w, phantom)
         print('Done with body wall')
@@ -155,10 +153,10 @@ def beam_simulation(prop_control=None,
         # windowing of solution
         if w.data[0, 0] != -1:
             if num_dimensions == 3:
-                u_z = u_z.reshape((nt, nx * ny))
+                u_z = u_z.reshape((num_points_t, num_points_x * num_points_y))
             u_z = u_z * w
             if num_dimensions == 3:
-                u_z = u_z.reshape((nt, ny, nx))
+                u_z = u_z.reshape((num_points_t, num_points_y, num_points_x))
 
         # calculate beam profiles
         rms_pro, max_pro, ax_pulse, z_pos = export_beamprofile(u_z, prop_control, rms_pro, max_pro, ax_pulse, z_pos,

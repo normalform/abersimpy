@@ -6,16 +6,16 @@ from filter.get_freqs import get_freqs
 
 def attenuationsolve(t,
                      ui,
-                     dz,
+                     resolution_z,
                      epsa,
                      epsb):
-    dt = t[1] - t[0]
+    resolution_t = t[1] - t[0]
     ui = numpy.array(ui)
-    nt = numpy.max(ui.shape)
-    loss = 2 * numpy.pi * get_freqs(nt, dt)
+    num_points_t = numpy.max(ui.shape)
+    loss = 2 * numpy.pi * get_freqs(num_points_t, resolution_t)
 
     # prepare attenuation coefficients
-    loss = epsa * numpy.conj(hilbert(numpy.abs(loss) ** epsb)) * dz
+    loss = epsa * numpy.conj(hilbert(numpy.abs(loss) ** epsb)) * resolution_z
     loss = numpy.exp(-loss)
 
     U = numpy.fft.fftn(ui, axes=(0,))

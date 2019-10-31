@@ -3,37 +3,34 @@ from scipy.signal import hilbert
 
 from consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
 from filter.get_freqs import get_freqs
-from prop_control import PropControl, NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+from prop_control import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 
 
-def get_wavenumbers(prop_control=None,
+def get_wavenumbers(prop_control,
                     noret=0):
-    if prop_control is None:
-        prop_control = PropControl.init_prop_control()
-
-    nx = prop_control.nx
-    ny = prop_control.ny
-    nt = prop_control.nt
+    num_points_x = prop_control.num_points_x
+    num_points_y = prop_control.num_points_y
+    num_points_t = prop_control.num_points_t
     mat = prop_control.material
     c = mat.sound_speed
-    dt = prop_control.dt
-    ft = 1 / dt
-    df = ft / nt
+    resolution_t = prop_control.resolution_t
+    ft = 1 / resolution_t
+    df = ft / num_points_t
     kt = 2.0 * numpy.pi / c * numpy.arange(-ft / 2, ft / 2, df)
 
     if prop_control.config.diffraction_type == NoDiffraction or \
             prop_control.config.diffraction_type == ExactDiffraction or \
             prop_control.config.diffraction_type == AngularSpectrumDiffraction:
-        fx = 1 / prop_control.dx
-        fy = 1 / prop_control.dy
-        dkx = fx / nx
-        dky = fy / ny
-        if nx == 1:
+        fx = 1 / prop_control.resolution_x
+        fy = 1 / prop_control.resolution_y
+        dkx = fx / num_points_x
+        dky = fy / num_points_y
+        if num_points_x == 1:
             kx = 0
         else:
             kx = 2.0 * numpy.pi * numpy.arange(-fx / 2, fx / 2, dkx)
-        if ny == 1:
+        if num_points_y == 1:
             ky = 0
         else:
             ky = 2.0 * numpy.pi * numpy.arange(-fy / 2, fy / 2, dky)
@@ -46,7 +43,7 @@ def get_wavenumbers(prop_control=None,
     # calculate attenuation if propagation is linear
     loss = numpy.zeros((kt.size))
     if prop_control.config.attenuation and prop_control.config.non_linearity is False:
-        w = get_freqs(nt, prop_control.dt / (2.0 * numpy.pi * ScaleForTemporalVariable))
+        w = get_freqs(num_points_t, prop_control.resolution_t / (2.0 * numpy.pi * ScaleForTemporalVariable))
         epsa = mat.eps_a
         epsb = mat.eps_b
         loss = epsa * numpy.conj(hilbert(numpy.abs(w) ** epsb)) / ScaleForSpatialVariablesZ
@@ -54,18 +51,18 @@ def get_wavenumbers(prop_control=None,
     # assembly of wave-number operator
     if prop_control.config.diffraction_type == AngularSpectrumDiffraction:
         # assign to vectors
-        Kz = numpy.zeros((numpy.max((nx, ny, nt)), 4))
-        Kz[:nx, 0] = numpy.fft.ifftshift(kx)
-        Kz[:ny, 1] = numpy.fft.ifftshift(ky)
-        Kz[:nt, 2] = numpy.fft.ifftshift(kt)
-        Kz[:nt, 3] = loss
+        Kz = numpy.zeros((numpy.max((num_points_x, num_points_y, num_points_t)), 4))
+        Kz[:num_points_x, 0] = numpy.fft.ifftshift(kx)
+        Kz[:num_points_y, 1] = numpy.fft.ifftshift(ky)
+        Kz[:num_points_t, 2] = numpy.fft.ifftshift(kt)
+        Kz[:num_points_t, 3] = loss
         return Kz
     else:
         # building full complex wave number operator
         if prop_control.num_dimensions == 3:
             Ky2, Kx2 = numpy.meshgrid(numpy.fft.ifftshift(ky ** 2), numpy.fft.ifftshift(kx ** 2), indexing='ij')
             Kxy2 = Kx2 + Ky2
-            Kxy2 = Kxy2.reshape((nx * ny, 1))
+            Kxy2 = Kxy2.reshape((num_points_x * num_points_y, 1))
         elif prop_control.num_dimensions == 2:
             Kxy2 = numpy.fft.ifftshift(kx ** 2)
         else:
@@ -80,14 +77,14 @@ def get_wavenumbers(prop_control=None,
 
     # introduces loss in wave number operator
     if prop_control.config.attenuation:
-        for ii in range(0, nt):
+        for ii in range(0, num_points_t):
             Kz[ii, ...] = Kz[ii, ...] - 1j * loss[ii]
 
     # convert wave number operator to propagation operator
     if prop_control.config.equidistant_steps:
         step_size = prop_control.step_size
         if prop_control.config.non_linearity:
-            nsubsteps = int(numpy.ceil(step_size / prop_control.dz))
+            nsubsteps = int(numpy.ceil(step_size / prop_control.resolution_z))
             step_size = step_size / nsubsteps
         Kz = numpy.exp(-1j * Kz * step_size)
 

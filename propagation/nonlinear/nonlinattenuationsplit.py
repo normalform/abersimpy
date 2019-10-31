@@ -8,19 +8,19 @@ from propagation.nonlinear.get_shockdist import get_shockdist
 
 def nonlinattenuationsplit(t,
                            u,
-                           dz,
-                           shockstep,
+                           resolution_z,
+                           shock_step,
                            material=Muscle(37),
                            non_linearity=True,
                            attenuation=True):
     # Initiation of sizes
     num_dimensions = u.ndim
     if num_dimensions == 3:
-        nt, ny, nx = u.shape
-        u = u.reshape((nt, nx * ny))
+        num_points_t, num_points_y, num_points_x = u.shape
+        u = u.reshape((num_points_t, num_points_x * num_points_y))
     else:
-        nt, nx = u.shape
-        ny = 1
+        num_points_t, num_points_x = u.shape
+        num_points_y = 1
 
     # Check material
     isreg = material.is_regular
@@ -28,12 +28,12 @@ def nonlinattenuationsplit(t,
     epsa = material.eps_a
     epsb = material.eps_b
 
-    for ii in range(nx * ny):
+    for ii in range(num_points_x * num_points_y):
         nstep = 0
         utmp = u[:, ii]
-        dztmp = dz
+        dztmp = resolution_z
         while dztmp > 0:
-            zstep = numpy.minimum(dztmp, shockstep * get_shockdist(t, utmp, epsn))
+            zstep = numpy.minimum(dztmp, shock_step * get_shockdist(t, utmp, epsn))
             dztmp = dztmp - zstep
             nstep = nstep + 1
             if isreg:
@@ -51,6 +51,6 @@ def nonlinattenuationsplit(t,
         u[:, ii] = utmp
 
     if num_dimensions == 3:
-        u = u.reshape((nt, ny, nx))
+        u = u.reshape((num_points_t, num_points_y, num_points_x))
 
     return u

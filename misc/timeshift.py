@@ -7,13 +7,13 @@ def timeshift(u,
               delta,
               method='fft'):
     num_dimensions = u.ndim
-    (nt, ny, nx) = u.shape
+    (num_points_t, num_points_y, num_points_x) = u.shape
 
     if num_dimensions == 2:
-        nch = ny
+        nch = num_points_y
     else:
-        nch = nx * ny
-        u = u.reshape((nt, nch))
+        nch = num_points_x * num_points_y
+        u = u.reshape((num_points_t, nch))
 
     delta = delta.reshape((1, delta.size))
     if numpy.max(delta.shape) != nch and numpy.max(delta.shape) > 1:
@@ -21,7 +21,7 @@ def timeshift(u,
 
     if method == 'fft':
         u = numpy.fft.fftn(u, axes=(0,))
-        k = get_freqs(nt, 1)[..., numpy.newaxis]
+        k = get_freqs(num_points_t, 1)[..., numpy.newaxis]
         if numpy.max(delta.shape) == 1:
             delta = numpy.ones(nch) * delta
         sh = numpy.exp(-1j * 2 * numpy.pi * k * delta)
@@ -30,5 +30,5 @@ def timeshift(u,
     else:
         raise NotImplementedError
 
-    u = u.reshape(nt, ny, nx)
+    u = u.reshape(num_points_t, num_points_y, num_points_x)
     return u

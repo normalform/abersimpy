@@ -11,7 +11,7 @@ def estimate_eta(t,
     if bwflag != 0:
         fstr = 'to end of body_wall'
     else:
-        fstr = 'to final endpoint'
+        fstr = 'to final end_point'
     step = step + 1
     if (numpy.mod(step, numpy.ceil(nsteps / 10)) == 0 or t[step] - tlap > 30) and step < nsteps:
         pcomp = step / nsteps

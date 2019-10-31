@@ -7,13 +7,13 @@ from prop_control import NoDiffraction, AngularSpectrumDiffraction, ExactDiffrac
 def get_focal_curvature(F,
                         ndx,
                         Nel,
-                        dx,
+                        resolution_x,
                         elsize=None,
                         lensfoc=numpy.inf,
                         annular_transducer=False,
                         diffraction_type=ExactDiffraction):
     if elsize is None:
-        elsize = ndx * dx / Nel
+        elsize = ndx * resolution_x / Nel
 
     # if number of points ar one
     if ndx <= 1:
@@ -24,7 +24,7 @@ def get_focal_curvature(F,
         if F == numpy.inf:
             Rd = numpy.zeros((ndx, 1))
         else:
-            nsprel = numpy.round(elsize / dx)
+            nsprel = numpy.round(elsize / resolution_x)
             if annular_transducer:
                 ae = numpy.arange(0, Nel) * elsize
             else:
@@ -36,7 +36,7 @@ def get_focal_curvature(F,
                 a[x::int(nsprel)] = ae
             if annular_transducer:
                 if numpy.mod(nsprel, 2) == 0:
-                    a = a[int(numpy.ceil(nsprel / 2)):] + dx / 2
+                    a = a[int(numpy.ceil(nsprel / 2)):] + resolution_x / 2
                 else:
                     a = a[int(numpy.floor(nsprel / 2)):]
             if diffraction_type == NoDiffraction or \
@@ -57,10 +57,10 @@ def get_focal_curvature(F,
     # use evnetual lens focusing
     if lensfoc is not numpy.inf and lensfoc != 0.0:
         if annular_transducer:
-            ac = numpy.arange(0, ndx) * dx + numpy.mod(ndx + 1, 2) * dx / 2
+            ac = numpy.arange(0, ndx) * resolution_x + numpy.mod(ndx + 1, 2) * resolution_x / 2
         else:
-            ac = numpy.arange(-int(numpy.floor(ndx / 2)), int(numpy.ceil(ndx / 2))) * dx + numpy.mod(ndx + 1,
-                                                                                                     2) * dx / 2
+            ac = numpy.arange(-int(numpy.floor(ndx / 2)), int(numpy.ceil(ndx / 2))) * resolution_x + numpy.mod(ndx + 1,
+                                                                                                               2) * resolution_x / 2
         if diffraction_type == NoDiffraction or \
                 diffraction_type == ExactDiffraction or \
                 diffraction_type == AngularSpectrumDiffraction or \

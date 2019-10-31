@@ -33,24 +33,24 @@ def nonlinearpropagate(u_z,
     mat = prop_control.material
     c = mat.sound_speed
     c = c / ScaleForSpatialVariablesZ * ScaleForTemporalVariable  # scaling wave-speed
-    dt = prop_control.dt / ScaleForTemporalVariable  # scale sampling to microsecs
-    dx = prop_control.dx / ScaleForSpatialVariablesZ  # dx scaled to centimeter
-    dy = prop_control.dy / ScaleForSpatialVariablesZ  # dy scaled to centimeter
-    dz = prop_control.dz / ScaleForSpatialVariablesZ  # dz scaled to centimeter
+    resolution_t = prop_control.resolution_t / ScaleForTemporalVariable  # scale sampling to microsecs
+    resolution_x = prop_control.resolution_x / ScaleForSpatialVariablesZ  # resolution_x scaled to centimeter
+    resolution_y = prop_control.resolution_y / ScaleForSpatialVariablesZ  # resolution_y scaled to centimeter
+    resolution_z = prop_control.resolution_z / ScaleForSpatialVariablesZ  # resolution_z scaled to centimeter
     num_dimensions = prop_control.num_dimensions
-    nx = prop_control.nx
-    ny = prop_control.ny
-    nt = prop_control.nt
+    num_points_x = prop_control.num_points_x
+    num_points_y = prop_control.num_points_y
+    num_points_t = prop_control.num_points_t
 
     annular_transducer = prop_control.config.annular_transducer
-    shockstep = prop_control.shockstep
+    shock_step = prop_control.shock_step
     step_size = prop_control.step_size
-    PMLwidth = prop_control.PMLwidth
+    perfect_matching_layer_width = prop_control.perfect_matching_layer_width
 
-    nsubsteps = int(numpy.ceil((step_size / ScaleForSpatialVariablesZ) / dz))
-    dz = (step_size / ScaleForSpatialVariablesZ) / nsubsteps
-    d = (c / 2) * (dt / 2) * dz
-    tspan = numpy.transpose(numpy.linspace(dt, nt * dt + dt, nt))
+    nsubsteps = int(numpy.ceil((step_size / ScaleForSpatialVariablesZ) / resolution_z))
+    resolution_z = (step_size / ScaleForSpatialVariablesZ) / nsubsteps
+    d = (c / 2) * (resolution_t / 2) * resolution_z
+    tspan = numpy.transpose(numpy.linspace(resolution_t, num_points_t * resolution_t + resolution_t, num_points_t))
 
     # assign flags
     diffraction_type = prop_control.config.diffraction_type
@@ -58,15 +58,15 @@ def nonlinearpropagate(u_z,
     attenuation = prop_control.config.attenuation
 
     # prepare PML and FD matrices
-    if PMLwidth > 0:
-        A = d * get_diffmatrix(2 * PMLwidth, dx, 4)
+    if perfect_matching_layer_width > 0:
+        A = d * get_diffmatrix(2 * perfect_matching_layer_width, resolution_x, 4)
     if diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
             diffraction_type == FiniteDifferenceTimeDifferenceFull:
         if numpy.abs(KZ[4] - d) > 1e-12:
             # find difference matrix A
-            Ax = d * get_diffmatrix(nx, dx, 4, annular_transducer)
-            Bx = numpy.eye(nx) + Ax
-            Dx = numpy.eye(nx) - Ax
+            Ax = d * get_diffmatrix(num_points_x, resolution_x, 4, annular_transducer)
+            Bx = numpy.eye(num_points_x) + Ax
+            Dx = numpy.eye(num_points_x) - Ax
             Dxi = numpy.inv(Dx)
 
             if diffraction_type == FiniteDifferenceTimeDifferenceReduced:
@@ -79,7 +79,7 @@ def nonlinearpropagate(u_z,
             diffraction_type == ExactDiffraction or \
             diffraction_type == AngularSpectrumDiffraction or \
             diffraction_type == PseudoDifferential:
-        prop_control.step_size = dz * ScaleForSpatialVariablesZ
+        prop_control.step_size = resolution_z * ScaleForSpatialVariablesZ
 
     # Nonlinear propagation
     for ni in range(nsubsteps):
@@ -93,14 +93,14 @@ def nonlinearpropagate(u_z,
             raise NotImplementedError
 
         # perfectly matching layers, absorbing boundaries
-        if PMLwidth > 0:
+        if perfect_matching_layer_width > 0:
             if propagation.num_dimensions == 2:
-                u_z = u_z.reshape((nx, 1, nt))
+                u_z = u_z.reshape((num_points_x, 1, num_points_t))
                 raise NotImplementedError
 
         # Nonlinear and attenuation
         if non_linearity or attenuation:
-            u_z = nonlinattenuationsplit(tspan, u_z, dz, shockstep, mat, non_linearity, attenuation)
+            u_z = nonlinattenuationsplit(tspan, u_z, resolution_z, shock_step, mat, non_linearity, attenuation)
 
     # set step_size back to normal
     if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:

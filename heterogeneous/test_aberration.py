@@ -5,15 +5,14 @@ from unittest.mock import Mock
 
 import numpy
 
-from consts import NoAberrationAndHomogeneousMedium, \
-    AberrationFromDelayScreenBodyWall, AberrationFromFile, AberrationPhantom
+import consts
 from heterogeneous.aberration import aberration
 
 
 class TestAberration(unittest.TestCase):
     def test_WithPhantomButNoAberration(self):
         prop_control = Mock()
-        prop_control.config.heterogeneous_medium = NoAberrationAndHomogeneousMedium
+        prop_control.config.heterogeneous_medium = consts.NoAberrationAndHomogeneousMedium
         phantom = Mock()
         delta = aberration(prop_control, phantom)
 
@@ -22,23 +21,23 @@ class TestAberration(unittest.TestCase):
     def test_WithPhantomAndAberrationFromDelayScreenBodyWall_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):
             prop_control = Mock()
-            prop_control.config.heterogeneous_medium = AberrationFromDelayScreenBodyWall
+            prop_control.config.heterogeneous_medium = consts.AberrationFromDelayScreenBodyWall
             aberration(prop_control)
 
     def test_WithPhantomAndAberrationFromFile_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):
             prop_control = Mock()
-            prop_control.config.heterogeneous_medium = AberrationFromFile
+            prop_control.config.heterogeneous_medium = consts.AberrationFromFile
             aberration(prop_control)
 
     def test_WithPhantomAndAberrationPhantom_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):
             prop_control = Mock()
-            prop_control.config.heterogeneous_medium = AberrationPhantom
+            prop_control.config.heterogeneous_medium = consts.AberrationPhantom
             aberration(prop_control)
 
     def test_WithoutPhantom_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):
             prop_control = Mock()
-            prop_control.config.heterogeneous_medium = NoAberrationAndHomogeneousMedium
+            prop_control.config.heterogeneous_medium = consts.NoAberrationAndHomogeneousMedium
             aberration(prop_control)

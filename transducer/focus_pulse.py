@@ -12,21 +12,21 @@ def focus_pulse(u_z,
                 physlens=0):
     if lensfoc is None:
         lensfoc = numpy.zeros(2)
-        if prop_control.Nex == 1:
-            lensfoc[0] = prop_control.Fx
-        if prop_control.Ney == 1:
-            lensfoc[1] = prop_control.Fy
+        if prop_control.num_elements_azimuth == 1:
+            lensfoc[0] = prop_control.focus_azimuth
+        if prop_control.num_elements_elevation == 1:
+            lensfoc[1] = prop_control.focus_elevation
 
     # initiate variables
-    Fx = prop_control.Fx
-    Fy = prop_control.Fy
-    Nex = prop_control.Nex
-    Ney = prop_control.Ney
-    esizex = prop_control.esizex
-    esizey = prop_control.esizey
-    dx = prop_control.dx
-    dy = prop_control.dy
-    dt = prop_control.dt
+    focus_azimuth = prop_control.focus_azimuth
+    focus_elevation = prop_control.focus_elevation
+    num_elements_azimuth = prop_control.num_elements_azimuth
+    num_elements_elevation = prop_control.num_elements_elevation
+    elements_size_azimuth = prop_control.elements_size_azimuth
+    elements_size_elevation = prop_control.elements_size_elevation
+    resolution_x = prop_control.resolution_x
+    resolution_y = prop_control.resolution_y
+    resolution_t = prop_control.resolution_t
     diffraction_type = prop_control.config.diffraction_type
     annular_transducer = prop_control.config.annular_transducer
     c = prop_control.material.sound_speed
@@ -38,7 +38,7 @@ def focus_pulse(u_z,
 
     # find sizes and indices
     (idxxs, idxys, _, _, _) = get_xdidx(prop_control)
-    (nt, uny, unx) = u_z.shape
+    (num_points_t, uny, unx) = u_z.shape
     if unx == 1:
         unx = uny
         uny = 1
@@ -56,8 +56,22 @@ def focus_pulse(u_z,
         raise NotImplementedError
     else:
         # straight forward rectangular transducer
-        Rx = get_focal_curvature(Fx, xdnx, Nex, dx, esizex, lensfoc[0], annular_transducer, diffraction_type)
-        Ry = get_focal_curvature(Fy, xdny, Ney, dy, esizey, lensfoc[1], annular_transducer, diffraction_type)
+        Rx = get_focal_curvature(focus_azimuth,
+                                 xdnx,
+                                 num_elements_azimuth,
+                                 resolution_x,
+                                 elements_size_azimuth,
+                                 lensfoc[0],
+                                 annular_transducer,
+                                 diffraction_type)
+        Ry = get_focal_curvature(focus_elevation,
+                                 xdny,
+                                 num_elements_elevation,
+                                 resolution_y,
+                                 elements_size_elevation,
+                                 lensfoc[1],
+                                 annular_transducer,
+                                 diffraction_type)
         if isinstance(Ry, numpy.ndarray) is False:
             Ry = numpy.array([Ry])
         deltafocx = numpy.ones((xdny, 1)) * numpy.transpose(Rx) / c
@@ -73,6 +87,8 @@ def focus_pulse(u_z,
         deltafoc = deltafocx + deltafocy
 
     if nofocflag == 0:
-        u_z[:, slice(idxys[0], idxys[-1] + 1), slice(idxxs[0], idxxs[-1] + 1)] = timeshift(u_foc, -deltafoc / dt, 'fft')
+        u_z[:, slice(idxys[0], idxys[-1] + 1), slice(idxxs[0], idxxs[-1] + 1)] = timeshift(u_foc,
+                                                                                           -deltafoc / resolution_t,
+                                                                                           'fft')
 
     return u_z, deltafoc

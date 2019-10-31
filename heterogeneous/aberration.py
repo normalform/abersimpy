@@ -3,7 +3,7 @@ aberration.py
 """
 import numpy
 
-from consts import AberrationFromDelayScreenBodyWall, AberrationFromFile, AberrationPhantom
+import consts
 from prop_control import PropControl
 
 
@@ -20,13 +20,13 @@ def aberration(prop_control: PropControl,
     """
     heterogeneous_medium = prop_control.config.heterogeneous_medium
     if phantom is None:
-        heterogeneous_medium = AberrationFromDelayScreenBodyWall
+        heterogeneous_medium = consts.AberrationFromDelayScreenBodyWall
 
     # pylint: disable=no-else-raise
-    if heterogeneous_medium in (AberrationFromDelayScreenBodyWall, AberrationFromFile):
+    if heterogeneous_medium in (consts.AberrationFromDelayScreenBodyWall, consts.AberrationFromFile):
         raise NotImplementedError
         # pylint: disable=no-else-raise
-    elif heterogeneous_medium == AberrationPhantom:
+    elif heterogeneous_medium == consts.AberrationPhantom:
         raise NotImplementedError
     else:
         delta = numpy.array(0.0)

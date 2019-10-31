@@ -1,12 +1,12 @@
 """
-ab_phantom.py
+aberration_phantom.py
 """
 from material.material import BaseMaterial
 
 
-class AbPhantom(BaseMaterial):
+class AberrationPhantom(BaseMaterial):
     """
-    AbPhantom
+    AberrationPhantom
     """
 
     def __init__(self,

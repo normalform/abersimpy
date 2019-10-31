@@ -24,7 +24,7 @@ if __name__ == '__main__':
     harm = 1
 
     # generate PropControl
-    prop_control = PropControl.init_prop_control(name, num_dimensions, config, harm)
+    prop_control = PropControl(name, num_dimensions, config, harm)
 
     # generate a  wave field at the transducer
     u, _, _ = pulsegenerator(prop_control, 'transducer')
@@ -36,7 +36,7 @@ if __name__ == '__main__':
     plot_beamprofile(rmspro, prop_control)
 
     # find index of focal profile
-    idx = int(numpy.round(prop_control.Fx / prop_control.step_size))
+    idx = int(numpy.round(prop_control.focus_azimuth / prop_control.step_size))
     plot_beamprofile(rmspro[..., idx:idx + 1, :], prop_control)
 
     plot_pulse(axplse, prop_control, 1)

@@ -4,14 +4,14 @@ import numpy
 def find_steps(z0,
                z1,
                step_size=None,
-               storepos=numpy.array([]),
+               store_position=numpy.array([]),
                screenpos=numpy.array([])):
     if step_size is None:
         print('Start, stop, and step_size must be specified')
 
     # set tolerance and initiate variables
     TOL = 1e-14
-    specpos = numpy.unique(storepos, screenpos)
+    specpos = numpy.unique(store_position, screenpos)
     z = z0
     step = numpy.zeros((int(numpy.ceil(((z1 - z0) / step_size) + numpy.max(specpos.shape))),))
     stepidx = numpy.zeros((int(numpy.ceil(((z1 - z0) / step_size) + numpy.max(specpos.shape))),), dtype=int)

@@ -3,15 +3,15 @@ import numpy
 
 def get_xdidx(prop_control):
     # initiation of parameters
-    nx = prop_control.nx
-    ny = prop_control.ny
-    dx = prop_control.dx
-    dy = prop_control.dy
-    nex = prop_control.Nex
-    ney = prop_control.Ney
-    esizex = prop_control.esizex
-    esizey = prop_control.esizey
-    cc = prop_control.cchannel
+    num_points_x = prop_control.num_points_x
+    num_points_y = prop_control.num_points_y
+    resolution_x = prop_control.resolution_x
+    resolution_y = prop_control.resolution_y
+    nex = prop_control.num_elements_azimuth
+    ney = prop_control.num_elements_elevation
+    elements_size_azimuth = prop_control.elements_size_azimuth
+    elements_size_elevation = prop_control.elements_size_elevation
+    cc = prop_control.center_channel
     num_dimensions = prop_control.num_dimensions
     annular_transducer = prop_control.config.annular_transducer
 
@@ -25,13 +25,13 @@ def get_xdidx(prop_control):
         return idxxs, idxys, idxx0, idxy0, ccs
 
     if annular_transducer and num_dimensions == 2:
-        ndx = numpy.round((2 * nex - 1) * esizex / dx)
+        ndx = numpy.round((2 * nex - 1) * elements_size_azimuth / resolution_x)
     elif annular_transducer:
-        ndx = numpy.round((2 * nex - 1) * esizex / dx)
-        ndy = numpy.round((2 * ney - 1) * esizey / dy)
+        ndx = numpy.round((2 * nex - 1) * elements_size_azimuth / resolution_x)
+        ndy = numpy.round((2 * ney - 1) * elements_size_elevation / resolution_y)
     else:
-        ndx = numpy.round(nex * esizex / dx)
-        ndy = numpy.round(ney * esizey / dy)
+        ndx = numpy.round(nex * elements_size_azimuth / resolution_x)
+        ndy = numpy.round(ney * elements_size_elevation / resolution_y)
 
     if num_dimensions == 2:
         ndy = 1
@@ -44,8 +44,8 @@ def get_xdidx(prop_control):
         idxxs = numpy.arange(-numpy.floor(ndx / 2), numpy.ceil(ndx / 2)) + cc[0]
         idxys = numpy.arange(-numpy.floor(ndy / 2), numpy.ceil(ndy / 2)) + cc[1]
 
-    idxx0 = numpy.setxor1d(idxxs, numpy.arange(1, nx + 1))
-    idxy0 = numpy.setxor1d(idxys, numpy.arange(1, ny + 1))
+    idxx0 = numpy.setxor1d(idxxs, numpy.arange(1, num_points_x + 1))
+    idxy0 = numpy.setxor1d(idxys, numpy.arange(1, num_points_y + 1))
 
     # set center index for transducer field
     ccs = numpy.zeros((2, 1))

@@ -7,18 +7,18 @@ def burgerssolve(t,
                  u,
                  perm,
                  epsn,
-                 dz):
-    nt = numpy.max(t.shape)
-    dt = t[1] - t[0]
-    npt = (t[nt - 1] - t[0]) + dt
+                 resolution_z):
+    num_points_t = numpy.max(t.shape)
+    resolution_t = t[1] - t[0]
+    npt = (t[num_points_t - 1] - t[0]) + resolution_t
 
     # introduce permutation
-    t2 = t - epsn * dz * perm
+    t2 = t - epsn * resolution_z * perm
 
     # extends by periodicity
-    idt = int(numpy.floor(nt / 10))
+    idt = int(numpy.floor(num_points_t / 10))
     idxtail = numpy.arange(idt)
-    idxfront = numpy.arange(nt - idt, nt)
+    idxfront = numpy.arange(num_points_t - idt, num_points_t)
 
     ttail = t2[idxtail] + npt
     tfront = t2[idxfront] - npt

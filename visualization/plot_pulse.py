@@ -3,38 +3,34 @@ import numpy
 from scipy.signal import hilbert
 
 from filter.bandpass import bandpass
-from prop_control import PropControl
 from visualization.makedb import makedb
 
 
 def plot_pulse(u,
-               prop_control=None,
+               prop_control,
                axflag=0,
                dyn=40,
                nrm=None,
                fh=None,
                cmap='gray'):
-    if prop_control is None:
-        prop_control = PropControl.init_prop_control()
-
     num_dimensions = u.ndim
-    nt = u.shape[0]
-    ny = u.shape[1]
+    num_points_t = u.shape[0]
+    num_points_y = u.shape[1]
     if num_dimensions == 2:
-        nx = ny
+        num_points_x = num_points_y
     else:
-        nx = u.shape[2]
+        num_points_x = u.shape[2]
 
-    cc = prop_control.cchannel
-    t = numpy.arange(-numpy.floor(nt / 2), numpy.ceil(nt / 2)) * prop_control.dt * 1e6
-    y = numpy.arange(-numpy.floor(ny / 2), numpy.ceil(ny / 2)) * prop_control.dy * 1e3
+    cc = prop_control.center_channel
+    t = numpy.arange(-numpy.floor(num_points_t / 2), numpy.ceil(num_points_t / 2)) * prop_control.resolution_t * 1e6
+    y = numpy.arange(-numpy.floor(num_points_y / 2), numpy.ceil(num_points_y / 2)) * prop_control.resolution_y * 1e3
 
     fig, axs = plt.subplots(2, 2)
     fig.canvas.set_window_title('Pulse')
     if axflag == 0:
-        x = numpy.arange(-numpy.floor(nx / 2), numpy.ceil(nx / 2)) * prop_control.dx * 1e3
+        x = numpy.arange(-numpy.floor(num_points_x / 2), numpy.ceil(num_points_x / 2)) * prop_control.resolution_x * 1e3
         if prop_control.config.annular_transducer and prop_control.num_dimensions == 2:
-            x = numpy.arange(nx) * prop_control.dx * 1e3
+            x = numpy.arange(num_points_x) * prop_control.resolution_x * 1e3
 
         if num_dimensions == 3:
             data = makedb(numpy.transpose(numpy.squeeze(u[:, int(cc[1]), :])), dyn, nrm)
@@ -67,12 +63,12 @@ def plot_pulse(u,
         else:
             raise NotImplementedError
     else:
-        x = numpy.arange(nx) * prop_control.step_size * 1e3
-        f = numpy.arange(numpy.floor(nt / 2)) * prop_control.Fs * 1e-6 / nt
+        x = numpy.arange(num_points_x) * prop_control.step_size * 1e3
+        f = numpy.arange(numpy.floor(num_points_t / 2)) * prop_control.sample_frequency * 1e-6 / num_points_t
 
         nh = prop_control.harmonic
-        dt = prop_control.dt
-        fc = prop_control.fc
+        resolution_t = prop_control.resolution_t
+        transmit_frequency = prop_control.transmit_frequency
         bw = prop_control.bandwidth
         filt = prop_control.filter
         nrmp = numpy.max(numpy.max(numpy.abs(hilbert(u))))
@@ -88,7 +84,7 @@ def plot_pulse(u,
 
         U = numpy.fft.fftn(u, axes=(0,))
         nrmf = numpy.max(numpy.max(numpy.abs(U)))
-        data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(nt / 2)), :])), dyn, nrmf)
+        data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(num_points_t / 2)), :])), dyn, nrmf)
         axs[nh - 1, 1].imshow(data,
                               cmap=cmap,
                               aspect='auto',
@@ -99,7 +95,7 @@ def plot_pulse(u,
 
         for ii in range(nh):
             idx = ii + 1
-            tmp, _ = bandpass(u, idx * fc, dt, idx * filt * bw, 4)
+            tmp, _ = bandpass(u, idx * transmit_frequency, resolution_t, idx * filt * bw, 4)
             tmp = numpy.squeeze(tmp)
             data = makedb(numpy.transpose(tmp), dyn, nrmp)
             axs[idx, 0].imshow(data,
@@ -110,7 +106,7 @@ def plot_pulse(u,
             axs[idx, 0].set_ylabel('Depth [mm]')
             axs[idx, 0].set_title('Axial pulse, {}. harmonic'.format(idx))
             U = numpy.fft.fftn(tmp, axes=(0,))
-            data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(nt / 2)), :])), dyn, nrmf)
+            data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(num_points_t / 2)), :])), dyn, nrmf)
             axs[idx, 1].imshow(data,
                                cmap=cmap,
                                aspect='auto',

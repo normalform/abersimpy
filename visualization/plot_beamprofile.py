@@ -1,34 +1,30 @@
 import matplotlib.pyplot as plt
 import numpy
 
-from prop_control import PropControl
 from visualization.makedb import makedb
 
 
 def plot_beamprofile(prof,
-                     prop_control=None,
+                     prop_control,
                      dyn=40,
                      harm=0,
                      nrm=None,
                      chan=None,
                      fh=None,
                      cmap='jet'):
-    if prop_control is None:
-        prop_control = PropControl.init_prop_control()
-
     if chan is None:
-        chan = prop_control.cchannel
+        chan = prop_control.center_channel
 
-    ny, nx, nz, nh = prof.shape
+    num_points_y, num_points_x, nz, nh = prof.shape
     if harm == 0:
         harm = numpy.arange(nh)
     nh = numpy.max(harm.shape)
 
-    x = numpy.arange(-numpy.floor(nx / 2), numpy.ceil(nx / 2)) * prop_control.dx * 1e3
-    y = numpy.arange(-numpy.floor(ny / 2), numpy.ceil(ny / 2)) * prop_control.dy * 1e3
+    x = numpy.arange(-numpy.floor(num_points_x / 2), numpy.ceil(num_points_x / 2)) * prop_control.resolution_x * 1e3
+    y = numpy.arange(-numpy.floor(num_points_y / 2), numpy.ceil(num_points_y / 2)) * prop_control.resolution_y * 1e3
     z = numpy.arange(nz) * prop_control.step_size * 1e3
     if prop_control.config.annular_transducer and prop_control.num_dimensions == 2:
-        x = numpy.arange(0, nx) * prop_control.dx * 1e3
+        x = numpy.arange(0, num_points_x) * prop_control.resolution_x * 1e3
 
     k = 0
     for ii in range(nh):

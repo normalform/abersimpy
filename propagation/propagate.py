@@ -1,6 +1,6 @@
 import numpy
 
-from prop_control import PropControl, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+from prop_control import ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
@@ -8,12 +8,10 @@ from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
 
 def propagate(u_z,
               dir,
-              prop_control=None,
+              prop_control,
               Kz=None):
     global KZ
 
-    if prop_control is None:
-        prop_control = PropControl.init_prop_control();
     if Kz is not None:
         KZ = Kz
         del Kz
@@ -23,15 +21,15 @@ def propagate(u_z,
     attenuation = prop_control.config.attenuation
     step_size = prop_control.step_size
 
-    nx = prop_control.nx
-    ny = prop_control.ny
-    nt = prop_control.nt
+    num_points_x = prop_control.num_points_x
+    num_points_y = prop_control.num_points_y
+    num_points_t = prop_control.num_points_t
 
     # Update position and chose propagation mode
     if dir > 0:
-        prop_control.currentpos = prop_control.currentpos + step_size
+        prop_control.current_position = prop_control.current_position + step_size
     elif dir < 0:
-        prop_control.currentpos = prop_control.currentpos - step_size
+        prop_control.current_position = prop_control.current_position - step_size
 
     if (diffraction_type == ExactDiffraction or
         diffraction_type == AngularSpectrumDiffraction or
@@ -46,11 +44,11 @@ def propagate(u_z,
             if prop_control.num_dimensions == 3:
                 u_z = numpy.fft.fftn(u_z, axes=(2,))
                 u_z = numpy.fft.fftn(u_z, axes=(1,))
-                u_z = u_z.reshape((nt, nx * ny))
+                u_z = u_z.reshape((num_points_t, num_points_x * num_points_y))
             else:
                 u_z = numpy.fft.fftn(u_z, axes=(1,))
         elif diffraction_type == PseudoDifferential:
-            tmp = KZ[:, nx:]
+            tmp = KZ[:, num_points_x:]
             raise NotImplementedError
 
         # Forward temporal FFT
@@ -59,19 +57,20 @@ def propagate(u_z,
         # Propagation step
         if diffraction_type == ExactDiffraction or diffraction_type == PseudoDifferential:
             if prop_control.config.equidistant_steps:
-                u_z = u_z * numpy.squeeze(KZ[:nt, :nx * ny])
+                u_z = u_z * numpy.squeeze(KZ[:num_points_t, :num_points_x * num_points_y])
             else:
-                u_z = u_z * numpy.exp((-1j * step_size) * numpy.squeeze(KZ[:nt, :nx * ny, 0]))
+                u_z = u_z * numpy.exp(
+                    (-1j * step_size) * numpy.squeeze(KZ[:num_points_t, :num_points_x * num_points_y, 0]))
         elif diffraction_type == AngularSpectrumDiffraction:
             raise NotImplementedError
-            kx = KZ[:nx, 0]
-            ky = KZ[:ny, 1]
-            kt = KZ[:nt, 2]
-            loss = KZ[:nt, 3]
+            kx = KZ[:num_points_x, 0]
+            ky = KZ[:num_points_y, 1]
+            kt = KZ[:num_points_t, 2]
+            loss = KZ[:num_points_t, 3]
             kk = 1
-            for ii in range(nx):
+            for ii in range(num_points_x):
                 kx2 = kx[ii] ** 2
-                for jj in range(ny):
+                for jj in range(num_points_y):
                     ky2 = ky[jj] ** 2
                     # Calculate propagation wave numbers
                     kz = numpy.sqrt(kt ** 2 - kx2 - ky2)
@@ -87,7 +86,7 @@ def propagate(u_z,
         # Backward spatial transform
         if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
             if prop_control.num_dimensions == 3:
-                u_z = u_z.reshape((nt, ny, nx))
+                u_z = u_z.reshape((num_points_t, num_points_y, num_points_x))
                 u_z = numpy.fft.ifftn(u_z, axes=(1,))
                 u_z = numpy.fft.ifftn(u_z, axes=(2,))
             else:
