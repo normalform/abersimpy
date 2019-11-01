@@ -12,7 +12,7 @@ from postprocessing.export_beamprofile import export_beamprofile
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.propagate import propagate
 from simscript.body_wall import body_wall
-from transducer.pulsegenerator import pulsegenerator
+from transducer.pulse_generator import pulse_generator
 
 
 def beam_simulation(control,
@@ -21,7 +21,7 @@ def beam_simulation(control,
                     w=None,
                     phantom=None):
     if u_z is None:
-        u_z, _ = pulsegenerator(control, 'transducer')
+        u_z, _ = pulse_generator(control, 'transducer')
 
     # calculate number of propagation steps beyond the body wall
     current_pos = control.simulation.current_position
