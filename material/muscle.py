@@ -19,7 +19,6 @@ class Muscle(BaseMaterial):
     def constant_of_attenuation(self) -> float:
         """
         Get the constant of the attenuation
-        :param: the temperature
         :return: The constant of the attenuation
         """
         temperatures = numpy.array([36.0, 37.0])
@@ -32,7 +31,6 @@ class Muscle(BaseMaterial):
     def exponent_of_attenuation(self) -> float:
         """
         Get the exponent of the attenuation
-        :param: the temperature
         :return: The exponent of the attenuation
         """
         # This is not correct!
@@ -45,7 +43,6 @@ class Muscle(BaseMaterial):
     def non_linearity_coefficient(self) -> float:
         """
         Get the exponent of the attenuation
-        :param: the temperature
         :return: The exponent of the attenuation
         """
         temperatures = numpy.array([36.0, 37.0])
@@ -56,7 +53,6 @@ class Muscle(BaseMaterial):
     def mass_density(self) -> float:
         """
         Get the density
-        :param: the temperature
         :return: The density
         """
         # 37 celsius
@@ -73,7 +69,6 @@ class Muscle(BaseMaterial):
     def sound_speed(self) -> float:
         """
         Get the wave speed
-        :param: the temperature
         :return: wave speed
         """
         # 18 celsius, cardiac

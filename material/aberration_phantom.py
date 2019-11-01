@@ -17,7 +17,6 @@ class AberrationPhantom(BaseMaterial):
     def constant_of_attenuation(self) -> float:
         """
         Get the constant of the attenuation
-        :param: the temperature
         :return: The constant of the attenuation
         """
         raise NotImplementedError
@@ -26,7 +25,6 @@ class AberrationPhantom(BaseMaterial):
     def exponent_of_attenuation(self) -> float:
         """
         Get the exponent of the attenuation
-        :param: the temperature
         :return: The exponent of the attenuation
         """
         raise NotImplementedError
@@ -35,7 +33,6 @@ class AberrationPhantom(BaseMaterial):
     def non_linearity_coefficient(self) -> float:
         """
         Get the exponent of the attenuation
-        :param: the temperature
         :return: The exponent of the attenuation
         """
         raise NotImplementedError
@@ -44,7 +41,6 @@ class AberrationPhantom(BaseMaterial):
     def mass_density(self) -> float:
         """
         Get the density
-        :param: the temperature
         :return: The density
         """
         raise NotImplementedError
@@ -52,7 +48,7 @@ class AberrationPhantom(BaseMaterial):
     @property
     def sound_speed(self) -> float:
         """
-
-        :return:
+        Get the wave speed
+        :return: wave speed
         """
         raise NotImplementedError
