@@ -20,22 +20,51 @@ class MaterialControl:
                  heterogeneous_medium: int):
         # material control parameters
         self._material = material
-        if isinstance(material, AberrationPhantom):
-            self._thickness = 0.035
-        else:
-            self._thickness = 0.02
-        self._offset = [0.0, 0.0]
+        self._thickness = self._get_thickness(material)
+        self._offset = self._get_offset()
+
         _num_screens = 8
         self._num_screens = _num_screens
-        self._delay_screens_amplitude = 0.09 * numpy.ones((_num_screens, 1)) * 1e-3
-        self._delay_screens_length = numpy.ones((_num_screens, 1)) * 1e-3 * numpy.array([4, 100])
-        self._delay_screens_seed = numpy.arange(1, _num_screens + 1)
-        if heterogeneous_medium == consts.AberrationFromFile:
-            self._delay_screens_file = 'randseq.mat'
-        elif heterogeneous_medium == consts.AberrationPhantom:
-            self._delay_screens_file = 'phantoml.mat'
+        self._delay_screens_amplitude = self._calc_delay_screens_amplitude(_num_screens)
+        self._delay_screens_length = self._calc_delay_screens_length(_num_screens)
+        self._delay_screens_seed = self._calc_delay_screens_seed(_num_screens)
+        self._delay_screens_file = self._get_num_screen_filename(heterogeneous_medium)
+
+    @staticmethod
+    def _get_thickness(material: IMaterial) -> float:
+        if isinstance(material, AberrationPhantom):
+            _thickness = 0.035
         else:
-            self._delay_screens_file = ''
+            _thickness = 0.02
+
+        return _thickness
+
+    @staticmethod
+    def _get_offset() -> List[float]:
+        return [0.0, 0.0]
+
+    @staticmethod
+    def _calc_delay_screens_amplitude(num_screens: int) -> numpy.ndarray:
+        return 0.09 * numpy.ones((num_screens, 1)) * 1e-3
+
+    @staticmethod
+    def _calc_delay_screens_length(num_screens: int) -> numpy.ndarray:
+        return numpy.ones((num_screens, 1)) * 1e-3 * numpy.array([4, 100])
+
+    @staticmethod
+    def _calc_delay_screens_seed(num_screens: int) -> numpy.ndarray:
+        return numpy.arange(1, num_screens + 1)
+
+    @staticmethod
+    def _get_num_screen_filename(heterogeneous_medium: int) -> str:
+        if heterogeneous_medium == consts.AberrationFromFile:
+            _delay_screens_file = 'randseq.json'
+        elif heterogeneous_medium == consts.AberrationPhantom:
+            _delay_screens_file = 'phantom.json'
+        else:
+            _delay_screens_file = ''
+
+        return _delay_screens_file
 
     @property
     def material(self) -> IMaterial:
@@ -43,7 +72,7 @@ class MaterialControl:
 
     @property
     def thickness(self) -> float:
-        return self.thickness
+        return self._thickness
 
     @property
     def offset(self) -> List[float]:

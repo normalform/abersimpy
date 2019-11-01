@@ -11,7 +11,7 @@ def get_xdidx(control):
     ney = control.transducer.num_elements_elevation
     elements_size_azimuth = control.transducer.elements_size_azimuth
     elements_size_elevation = control.transducer.elements_size_elevation
-    cc = control.transducer.center_channel
+    center_channel = control.transducer.center_channel
     num_dimensions = control.num_dimensions
     annular_transducer = control.annular_transducer
 
@@ -38,11 +38,11 @@ def get_xdidx(control):
 
     # set up indices
     if annular_transducer and num_dimensions == 2:
-        idxxs = numpy.arange(0, numpy.ceil(ndx / 2)) + cc[0]
+        idxxs = numpy.arange(0, numpy.ceil(ndx / 2)) + center_channel[0]
         idxys = numpy.array(1)
     else:
-        idxxs = numpy.arange(-numpy.floor(ndx / 2), numpy.ceil(ndx / 2)) + cc[0]
-        idxys = numpy.arange(-numpy.floor(ndy / 2), numpy.ceil(ndy / 2)) + cc[1]
+        idxxs = numpy.arange(-numpy.floor(ndx / 2), numpy.ceil(ndx / 2)) + center_channel[0]
+        idxys = numpy.arange(-numpy.floor(ndy / 2), numpy.ceil(ndy / 2)) + center_channel[1]
 
     idxx0 = numpy.setxor1d(idxxs, numpy.arange(1, num_points_x + 1))
     idxy0 = numpy.setxor1d(idxys, numpy.arange(1, num_points_y + 1))
@@ -55,8 +55,8 @@ def get_xdidx(control):
     else:
         ccs[0] = numpy.floor(ndx / 2) + 1
         ccs[1] = numpy.floor(ndy / 2) + 1
-        if cc[1] <= 1:
-            cc[1] = 1
+        if center_channel[1] <= 1:
+            center_channel[1] = 1
 
     return idxxs.astype(int) - 1, idxys.astype(int) - 1, idxx0.astype(int) - 1, idxy0.astype(int) - 1, ccs.astype(
         int) - 1

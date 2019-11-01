@@ -21,7 +21,7 @@ def plot_pulse(u,
     else:
         num_points_x = u.shape[2]
 
-    cc = control.transducer.center_channel
+    center_channel = control.transducer.center_channel
     t = numpy.arange(-numpy.floor(num_points_t / 2),
                      numpy.ceil(num_points_t / 2)) * control.signal.resolution_t * 1e6
     y = numpy.arange(-numpy.floor(num_points_y / 2),
@@ -36,7 +36,7 @@ def plot_pulse(u,
             x = numpy.arange(num_points_x) * control.signal.resolution_x * 1e3
 
         if num_dimensions == 3:
-            data = makedb(numpy.transpose(numpy.squeeze(u[:, int(cc[1]), :])), dyn, nrm)
+            data = makedb(numpy.transpose(numpy.squeeze(u[:, int(center_channel[1]), :])), dyn, nrm)
             axs[0, 0].imshow(data,
                              cmap=cmap,
                              aspect='auto',
@@ -44,11 +44,11 @@ def plot_pulse(u,
             axs[0, 0].set_xlabel('Time [us]')
             axs[0, 0].set_ylabel('Azimuth [mm]')
 
-            axs[0, 1].plot(numpy.squeeze(u[:, int(cc[1]), int(cc[0])]))
+            axs[0, 1].plot(numpy.squeeze(u[:, int(center_channel[1]), int(center_channel[0])]))
             axs[0, 1].set_xlabel('Time [us]')
             axs[0, 1].set_ylabel('Pressure [MPa]')
 
-            data = makedb(numpy.transpose(numpy.squeeze(u[:, :, int(cc[0])])), dyn, nrm)
+            data = makedb(numpy.transpose(numpy.squeeze(u[:, :, int(center_channel[0])])), dyn, nrm)
             axs[1, 0].imshow(data,
                              cmap=cmap,
                              aspect='auto',

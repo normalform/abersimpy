@@ -9,11 +9,11 @@ def plot_beamprofile(prof,
                      dyn=40,
                      harm=0,
                      nrm=None,
-                     chan=None,
+                     center_channel=None,
                      fh=None,
                      cmap='jet'):
-    if chan is None:
-        chan = control.transducer.center_channel
+    if center_channel is None:
+        center_channel = control.transducer.center_channel
 
     num_points_y, num_points_x, nz, nh = prof.shape
     if harm == 0:
@@ -46,7 +46,7 @@ def plot_beamprofile(prof,
 
         if tmp_num_dimensions == 3:
             fig.canvas.set_window_title('Beam profile 3 Dim')
-            data = makedb(numpy.squeeze(tmp[int(chan[1]), :, :]), dyn, nrm)
+            data = makedb(numpy.squeeze(tmp[int(center_channel[1]), :, :]), dyn, nrm)
             axs[ii, k].imshow(data,
                               cmap=cmap,
                               aspect='auto',
@@ -55,7 +55,7 @@ def plot_beamprofile(prof,
             axs[ii, k].set_ylabel('Azimuth [mm]')
             axs[ii, k].set_title('Az. {}'.format(htstr))
 
-            data = makedb(numpy.squeeze(tmp[:, int(chan[0]), :]), dyn, nrm)
+            data = makedb(numpy.squeeze(tmp[:, int(center_channel[0]), :]), dyn, nrm)
             axs[ii, k + 1].imshow(data,
                                   cmap=cmap,
                                   aspect='auto',

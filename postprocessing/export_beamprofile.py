@@ -38,7 +38,7 @@ def export_beamprofile(u_z,
 
     harmonic = control.harmonic
     store_position = control.simulation.store_position
-    cc = control.transducer.center_channel.astype(int)
+    center_channel = control.transducer.center_channel.astype(int)
 
     transmit_frequency = control.signal.transmit_frequency
     resolution_t = control.signal.resolution_t
@@ -75,9 +75,9 @@ def export_beamprofile(u_z,
         raise NotImplementedError
     elif history == ProfileHistory:
         if num_dimensions == 2:
-            axplse[:, num_periods] = u_z[:, cc[0, ...]]
+            axplse[:, num_periods] = u_z[:, center_channel[0, ...]]
         else:
-            axplse[:, num_periods] = u_z[:, cc[1], cc[0, ...]]
+            axplse[:, num_periods] = u_z[:, center_channel[1], center_channel[0, ...]]
         if num_periods == 0:
             rmspro = numpy.zeros_like(rmspro)
             maxpro = numpy.zeros_like(maxpro)
