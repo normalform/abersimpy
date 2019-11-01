@@ -20,7 +20,7 @@ if __name__ == '__main__':
                           harmonic=1)
 
     # generate a  wave field at the transducer
-    u, _, _ = pulsegenerator(control, 'transducer')
+    u, _ = pulsegenerator(control, 'transducer')
 
     # running the simulation
     u_out, rms_pro, max_pro, ax_pulse, _ = beam_simulation(control, u)

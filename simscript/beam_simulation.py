@@ -21,7 +21,7 @@ def beam_simulation(control,
                     w=None,
                     phantom=None):
     if u_z is None:
-        u_z = pulsegenerator(control, 'transducer')
+        u_z, _ = pulsegenerator(control, 'transducer')
 
     # calculate number of propagation steps beyond the body wall
     current_pos = control.simulation.current_position

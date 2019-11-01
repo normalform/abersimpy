@@ -30,3 +30,9 @@ class DiffractionComparison(unittest.TestCase):
                         PseudoDifferential !=
                         FiniteDifferenceTimeDifferenceReduced !=
                         FiniteDifferenceTimeDifferenceFull)
+
+    def test_membership_true(self):
+        self.assertTrue(NoDiffraction in (NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction))
+
+    def test_membership_false(self):
+        self.assertFalse(NoDiffraction in (ExactDiffraction, AngularSpectrumDiffraction))

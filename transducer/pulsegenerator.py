@@ -114,7 +114,7 @@ def pulsegenerator(control,
     # squeeze y-direction for 2D sim
     u = numpy.squeeze(u)
 
-    return u, control, deltafoc
+    return u, deltafoc
 
 
 def gaussian(resolution_t, transmit_frequency, num_periods, num_points_t):

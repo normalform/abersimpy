@@ -20,7 +20,7 @@ if __name__ == '__main__':
                           harmonic=1)
 
     # generate a  wave field at the transducer
-    u, _, _ = pulsegenerator(control, 'transducer', [0, 1])
+    u, _ = pulsegenerator(control, 'transducer', [0, 1])
 
     # 3D pulses may also be plotted
     plot_pulse(u, control)
