@@ -1,7 +1,7 @@
 import numpy
 import scipy.interpolate
 
-from controls.main_control import NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential
+from diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential
 
 
 def get_focal_curvature(F,

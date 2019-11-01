@@ -7,23 +7,24 @@ from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpec
 from filter.get_freqs import get_freqs
 
 
-def get_wavenumbers(main_control,
+def get_wavenumbers(control,
+                    equidistant_steps,
                     noret=0):
-    num_points_x = main_control.domain.num_points_x
-    num_points_y = main_control.domain.num_points_y
-    num_points_t = main_control.domain.num_points_t
-    mat = main_control.material.material
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    num_points_t = control.domain.num_points_t
+    mat = control.material.material
     c = mat.sound_speed
-    resolution_t = main_control.signal.resolution_t
+    resolution_t = control.signal.resolution_t
     ft = 1 / resolution_t
     df = ft / num_points_t
     kt = 2.0 * numpy.pi / c * numpy.arange(-ft / 2, ft / 2, df)
 
-    if main_control.config.diffraction_type == NoDiffraction or \
-            main_control.config.diffraction_type == ExactDiffraction or \
-            main_control.config.diffraction_type == AngularSpectrumDiffraction:
-        fx = 1 / main_control.signal.resolution_x
-        fy = 1 / main_control.signal.resolution_y
+    if control.diffraction_type == NoDiffraction or \
+            control.diffraction_type == ExactDiffraction or \
+            control.diffraction_type == AngularSpectrumDiffraction:
+        fx = 1 / control.signal.resolution_x
+        fy = 1 / control.signal.resolution_y
         dkx = fx / num_points_x
         dky = fy / num_points_y
         if num_points_x == 1:
@@ -34,22 +35,22 @@ def get_wavenumbers(main_control,
             ky = 0
         else:
             ky = 2.0 * numpy.pi * numpy.arange(-fy / 2, fy / 2, dky)
-    elif main_control.config.diffraction_type == PseudoDifferential:
+    elif control.diffraction_type == PseudoDifferential:
         raise NotImplementedError
-    elif main_control.config.diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
-            main_control.config.diffraction_type == FiniteDifferenceTimeDifferenceFull:
+    elif control.diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
+            control.diffraction_type == FiniteDifferenceTimeDifferenceFull:
         raise NotImplementedError
 
     # calculate attenuation if propagation is linear
     loss = numpy.zeros((kt.size))
-    if main_control.config.attenuation and main_control.config.non_linearity is False:
-        w = get_freqs(num_points_t, main_control.signal.resolution_t / (2.0 * numpy.pi * ScaleForTemporalVariable))
+    if control.attenuation and control.non_linearity is False:
+        w = get_freqs(num_points_t, control.signal.resolution_t / (2.0 * numpy.pi * ScaleForTemporalVariable))
         epsa = mat.eps_a
         epsb = mat.eps_b
         loss = epsa * numpy.conj(hilbert(numpy.abs(w) ** epsb)) / ScaleForSpatialVariablesZ
 
     # assembly of wave-number operator
-    if main_control.config.diffraction_type == AngularSpectrumDiffraction:
+    if control.diffraction_type == AngularSpectrumDiffraction:
         # assign to vectors
         Kz = numpy.zeros((numpy.max((num_points_x, num_points_y, num_points_t)), 4))
         Kz[:num_points_x, 0] = numpy.fft.ifftshift(kx)
@@ -59,11 +60,11 @@ def get_wavenumbers(main_control,
         return Kz
     else:
         # building full complex wave number operator
-        if main_control.num_dimensions == 3:
+        if control.num_dimensions == 3:
             Ky2, Kx2 = numpy.meshgrid(numpy.fft.ifftshift(ky ** 2), numpy.fft.ifftshift(kx ** 2), indexing='ij')
             Kxy2 = Kx2 + Ky2
             Kxy2 = Kxy2.reshape((num_points_x * num_points_y, 1))
-        elif main_control.num_dimensions == 2:
+        elif control.num_dimensions == 2:
             Kxy2 = numpy.fft.ifftshift(kx ** 2)
         else:
             Kxy2 = 0
@@ -76,19 +77,19 @@ def get_wavenumbers(main_control,
         Kz = Kz - Kt
 
     # introduces loss in wave number operator
-    if main_control.config.attenuation:
+    if control.attenuation:
         for ii in range(0, num_points_t):
             Kz[ii, ...] = Kz[ii, ...] - 1j * loss[ii]
 
     # convert wave number operator to propagation operator
-    if main_control.config.equidistant_steps:
-        step_size = main_control.simulation.step_size
-        if main_control.config.non_linearity:
-            nsubsteps = int(numpy.ceil(step_size / main_control.signal.resolution_z))
+    if equidistant_steps:
+        step_size = control.simulation.step_size
+        if control.non_linearity:
+            nsubsteps = int(numpy.ceil(step_size / control.signal.resolution_z))
             step_size = step_size / nsubsteps
         Kz = numpy.exp(-1j * Kz * step_size)
 
-    if main_control.config.diffraction_type == PseudoDifferential:
+    if control.diffraction_type == PseudoDifferential:
         raise NotImplementedError
 
     return Kz

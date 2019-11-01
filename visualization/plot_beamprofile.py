@@ -5,7 +5,7 @@ from visualization.makedb import makedb
 
 
 def plot_beamprofile(prof,
-                     main_control,
+                     control,
                      dyn=40,
                      harm=0,
                      nrm=None,
@@ -13,7 +13,7 @@ def plot_beamprofile(prof,
                      fh=None,
                      cmap='jet'):
     if chan is None:
-        chan = main_control.transducer.center_channel
+        chan = control.transducer.center_channel
 
     num_points_y, num_points_x, nz, nh = prof.shape
     if harm == 0:
@@ -21,12 +21,12 @@ def plot_beamprofile(prof,
     nh = numpy.max(harm.shape)
 
     x = numpy.arange(-numpy.floor(num_points_x / 2),
-                     numpy.ceil(num_points_x / 2)) * main_control.signal.resolution_x * 1e3
+                     numpy.ceil(num_points_x / 2)) * control.signal.resolution_x * 1e3
     y = numpy.arange(-numpy.floor(num_points_y / 2),
-                     numpy.ceil(num_points_y / 2)) * main_control.signal.resolution_y * 1e3
-    z = numpy.arange(nz) * main_control.simulation.step_size * 1e3
-    if main_control.config.annular_transducer and main_control.num_dimensions == 2:
-        x = numpy.arange(0, num_points_x) * main_control.signal.resolution_x * 1e3
+                     numpy.ceil(num_points_y / 2)) * control.signal.resolution_y * 1e3
+    z = numpy.arange(nz) * control.simulation.step_size * 1e3
+    if control.annular_transducer and control.num_dimensions == 2:
+        x = numpy.arange(0, num_points_x) * control.signal.resolution_x * 1e3
 
     k = 0
     for ii in range(nh):

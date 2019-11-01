@@ -8,21 +8,21 @@ from postprocessing.get_rms import get_rms
 
 
 def export_beamprofile(u_z,
-                       main_control,
+                       control,
                        rmpro=None,
                        mxpro=None,
                        axpls=None,
                        zps=None,
                        step=None):
     # setting variables
-    filename = main_control.simulation_name
+    filename = control.simulation_name
     rmspro = None
     maxpro = None
     axplse = None
     zpos = None
 
-    history = main_control.config.history
-    pos = main_control.simulation.current_position
+    history = control.history
+    pos = control.simulation.current_position
     fn = '{}{}.json'.format(filename, get_strpos(pos * 1e3))
 
     # stores full field or exits
@@ -36,13 +36,13 @@ def export_beamprofile(u_z,
         raise NotImplementedError
         return rmspro, maxpro, axplse, zpos
 
-    harmonic = main_control.harmonic
-    store_position = main_control.simulation.store_position
-    cc = main_control.transducer.center_channel.astype(int)
+    harmonic = control.harmonic
+    store_position = control.simulation.store_position
+    cc = control.transducer.center_channel.astype(int)
 
-    transmit_frequency = main_control.signal.transmit_frequency
-    resolution_t = main_control.signal.resolution_t
-    filterc = main_control.signal.filter
+    transmit_frequency = control.signal.transmit_frequency
+    resolution_t = control.signal.resolution_t
+    filterc = control.signal.filter
 
     # initializing profiles
     rmspro = rmpro
@@ -51,7 +51,7 @@ def export_beamprofile(u_z,
     zpos = zps
 
     # finding dimensions
-    num_dimensions = main_control.num_dimensions
+    num_dimensions = control.num_dimensions
     if num_dimensions == 2:
         num_points_t, num_points_y = u_z.shape
         num_points_x = num_points_y
@@ -67,7 +67,6 @@ def export_beamprofile(u_z,
     # saving pulse for steps specified in store_position
     if store_position.size != 0:
         if numpy.min(numpy.abs(store_position - pos)) < 1e-12:
-            # TODO Current (removed) json Serialization is not working well.
             print('[DUMMY] save pulse to {}'.format(fn))
 
     if history == PositionHistory:

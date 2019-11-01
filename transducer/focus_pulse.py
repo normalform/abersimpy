@@ -6,30 +6,30 @@ from transducer.get_xdidx import get_xdidx
 
 
 def focus_pulse(u_z,
-                main_control,
+                control,
                 lensfoc=None,
                 nofocflag=0,
                 physlens=0):
     if lensfoc is None:
         lensfoc = numpy.zeros(2)
-        if main_control.transducer.num_elements_azimuth == 1:
-            lensfoc[0] = main_control.transducer.focus_azimuth
-        if main_control.transducer.num_elements_elevation == 1:
-            lensfoc[1] = main_control.transducer.focus_elevation
+        if control.transducer.num_elements_azimuth == 1:
+            lensfoc[0] = control.transducer.focus_azimuth
+        if control.transducer.num_elements_elevation == 1:
+            lensfoc[1] = control.transducer.focus_elevation
 
     # initiate variables
-    focus_azimuth = main_control.transducer.focus_azimuth
-    focus_elevation = main_control.transducer.focus_elevation
-    num_elements_azimuth = main_control.transducer.num_elements_azimuth
-    num_elements_elevation = main_control.transducer.num_elements_elevation
-    elements_size_azimuth = main_control.transducer.elements_size_azimuth
-    elements_size_elevation = main_control.transducer.elements_size_elevation
-    resolution_x = main_control.signal.resolution_x
-    resolution_y = main_control.signal.resolution_y
-    resolution_t = main_control.signal.resolution_t
-    diffraction_type = main_control.config.diffraction_type
-    annular_transducer = main_control.config.annular_transducer
-    c = main_control.material.material.sound_speed
+    focus_azimuth = control.transducer.focus_azimuth
+    focus_elevation = control.transducer.focus_elevation
+    num_elements_azimuth = control.transducer.num_elements_azimuth
+    num_elements_elevation = control.transducer.num_elements_elevation
+    elements_size_azimuth = control.transducer.elements_size_azimuth
+    elements_size_elevation = control.transducer.elements_size_elevation
+    resolution_x = control.signal.resolution_x
+    resolution_y = control.signal.resolution_y
+    resolution_t = control.signal.resolution_t
+    diffraction_type = control.diffraction_type
+    annular_transducer = control.annular_transducer
+    c = control.material.material.sound_speed
 
     if isinstance(physlens, int) is False:
         raise NotImplementedError
@@ -37,7 +37,7 @@ def focus_pulse(u_z,
     physlensy = physlens
 
     # find sizes and indices
-    (idxxs, idxys, _, _, _) = get_xdidx(main_control)
+    (idxxs, idxys, _, _, _) = get_xdidx(control)
     (num_points_t, uny, unx) = u_z.shape
     if unx == 1:
         unx = uny

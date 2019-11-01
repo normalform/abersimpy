@@ -4,7 +4,7 @@ import numpy
 import scipy.sparse
 
 from controls.consts import NoHistory, ProfileHistory
-from controls.main_control import ExactDiffraction, PseudoDifferential
+from diffraction.diffraction import ExactDiffraction, PseudoDifferential
 from misc.estimate_eta import estimate_eta
 from misc.find_steps import find_steps
 from misc.get_window import get_window
@@ -15,25 +15,26 @@ from simscript.body_wall import body_wall
 from transducer.pulsegenerator import pulsegenerator
 
 
-def beam_simulation(main_control,
+def beam_simulation(control,
                     u_z=None,
                     screen=numpy.array([]),
                     w=None,
                     phantom=None):
     if u_z is None:
-        u_z = pulsegenerator(main_control, 'transducer')
+        u_z = pulsegenerator(control, 'transducer')
 
     # calculate number of propagation steps beyond the body wall
-    current_pos = main_control.simulation.current_position
-    end_point = main_control.simulation.endpoint
-    step_size = main_control.simulation.step_size
-    store_pos = main_control.simulation.store_position
+    current_pos = control.simulation.current_position
+    end_point = control.simulation.endpoint
+    step_size = control.simulation.step_size
+    store_pos = control.simulation.store_position
+    _equidistant_steps = control.equidistant_steps
 
-    if main_control.config.heterogeneous_medium:
-        if main_control.simulation.current_position >= main_control.material.thickness:
+    if control.heterogeneous_medium:
+        if control.simulation.current_position >= control.material.thickness:
             num_steps, step, step_idx = find_steps(current_pos, end_point, step_size, store_pos)
         else:
-            num_steps, step, step_idx = find_steps(main_control.material.thickness, end_point, step_size, store_pos)
+            num_steps, step, step_idx = find_steps(control.material.thickness, end_point, step_size, store_pos)
     else:
         num_steps, step, step_idx = find_steps(current_pos, end_point, step_size, store_pos)
 
@@ -41,46 +42,44 @@ def beam_simulation(main_control,
     diff_step_idx = numpy.concatenate((numpy.array([0], dtype=int), numpy.diff(step_idx)))
     num_recalculate = len(numpy.where(diff_step_idx)[0])
 
-    if main_control.config.diffraction_type == ExactDiffraction or \
-            main_control.config.diffraction_type == PseudoDifferential:
-        if main_control.config.diffraction_type == ExactDiffraction:
+    if control.diffraction_type == ExactDiffraction or \
+            control.diffraction_type == PseudoDifferential:
+        if control.diffraction_type == ExactDiffraction:
             diffraction_factor = 1
         else:
             diffraction_factor = 3
         if num_recalculate / num_steps < 0.5 / diffraction_factor:
             recalculate = True
             if step_idx[0] == 0:
-                # TODO do not change the member directly
-                main_control.config.equidistant_steps = True
+                _equidistant_steps = True
         else:
-            # TODO do not change the member directly
-            main_control.config.equidistant_steps = False
+            _equidistant_steps = False
             recalculate = False
     else:
         recalculate = False
 
     # sets sizes
-    num_points_x = main_control.domain.num_points_x
-    num_points_y = main_control.domain.num_points_y
-    num_points_t = main_control.domain.num_points_t
-    non_linearity = main_control.config.non_linearity
-    annular_transducer = main_control.config.annular_transducer
-    history = main_control.config.history
-    num_dimensions = main_control.num_dimensions
-    resolution_x = main_control.signal.resolution_x
-    resolution_y = main_control.signal.resolution_y
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    num_points_t = control.domain.num_points_t
+    non_linearity = control.non_linearity
+    annular_transducer = control.annular_transducer
+    history = control.history
+    num_dimensions = control.num_dimensions
+    resolution_x = control.signal.resolution_x
+    resolution_y = control.signal.resolution_y
 
     # initializing variables
     if screen.size != 0:
         raise NotImplementedError
-    file_name = main_control.simulation_name
+    file_name = control.simulation_name
 
     global Kz
-    Kz = get_wavenumbers(main_control)
+    Kz = get_wavenumbers(control, _equidistant_steps)
 
     # calculate spatial window
     if w is None:
-        w = main_control.simulation.num_windows
+        w = control.simulation.num_windows
     if isinstance(w, int) and w > 0:
         w = get_window((num_points_x, num_points_y), (resolution_x, resolution_y), w * step_size, 2 * step_size,
                        annular_transducer)
@@ -101,8 +100,8 @@ def beam_simulation(main_control,
 
     # calculating beam profiles
     if history != NoHistory:
-        rms_pro = numpy.zeros((num_points_y, num_points_x, num_steps, main_control.harmonic + 1))
-        max_pro = numpy.zeros((num_points_y, num_points_x, num_steps, main_control.harmonic + 1))
+        rms_pro = numpy.zeros((num_points_y, num_points_x, num_steps, control.harmonic + 1))
+        max_pro = numpy.zeros((num_points_y, num_points_x, num_steps, control.harmonic + 1))
         ax_pulse = numpy.zeros((num_points_t, num_steps))
         z_pos = numpy.zeros(num_steps)
     else:
@@ -112,13 +111,19 @@ def beam_simulation(main_control,
         z_pos = numpy.array([])
     step_nr = 0
 
-    rms_pro, max_pro, ax_pulse, z_pos = export_beamprofile(u_z, main_control, rms_pro, max_pro, ax_pulse, z_pos,
+    rms_pro, max_pro, ax_pulse, z_pos = export_beamprofile(u_z, control, rms_pro, max_pro, ax_pulse, z_pos,
                                                            step_nr)
 
     # Propagating through body wall
-    if main_control.config.heterogeneous_medium != 0 and current_pos < main_control.material.thickness:
+    if control.heterogeneous_medium != 0 and current_pos < control.material.thickness:
         print('Entering body wall')
-        u_z, main_control, _rms_pro, _max_pro, _ax_pulse, _z_pos = body_wall(u_z, 1, main_control, Kz, w, phantom)
+        u_z, control, _rms_pro, _max_pro, _ax_pulse, _z_pos = body_wall(u_z,
+                                                                        1,
+                                                                        control,
+                                                                        _equidistant_steps,
+                                                                        Kz,
+                                                                        w,
+                                                                        phantom)
         print('Done with body wall')
 
         if history != NoHistory:
@@ -139,16 +144,19 @@ def beam_simulation(main_control,
         # recalculate wave number operator
         if recalculate:
             if diff_step_idx[ii] != 0:
-                # TODO do not change directly
                 if step_idx[ii] == 0:
-                    main_control.config.equidistant_steps = False
+                    _equidistant_steps = False
                 else:
-                    main_control.config.equidistant_steps = True
-                Kz = get_wavenumbers(main_control)
+                    _equidistant_steps = True
+                Kz = get_wavenumbers(control, _equidistant_steps)
 
         # Propagation
-        main_control.simulation.step_size = step[ii]
-        u_z, main_control = propagate(u_z, 1, main_control, Kz)
+        control.simulation.step_size = step[ii]
+        u_z = propagate(u_z,
+                        direction=1,
+                        control=control,
+                        equidistant_steps=_equidistant_steps,
+                        Kz=Kz)
 
         # windowing of solution
         if w.data[0, 0] != -1:
@@ -159,7 +167,7 @@ def beam_simulation(main_control,
                 u_z = u_z.reshape((num_points_t, num_points_y, num_points_x))
 
         # calculate beam profiles
-        rms_pro, max_pro, ax_pulse, z_pos = export_beamprofile(u_z, main_control, rms_pro, max_pro, ax_pulse, z_pos,
+        rms_pro, max_pro, ax_pulse, z_pos = export_beamprofile(u_z, control, rms_pro, max_pro, ax_pulse, z_pos,
                                                                step_nr)
 
         toc = time.time() - start_time
@@ -170,7 +178,6 @@ def beam_simulation(main_control,
 
     # saving the last profiles
     if history == ProfileHistory:
-        # TODO Current (removed) json Serialization is not working well.
-        print('[DUMMY] Saving the last profiles')
+        print(f'[DUMMY] Saving the last profiles to {file_name}.json')
 
-    return u_z, main_control, rms_pro, max_pro, ax_pulse, z_pos
+    return u_z, rms_pro, max_pro, ax_pulse, z_pos

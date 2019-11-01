@@ -7,8 +7,9 @@ from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
 
 
 def propagate(u_z,
-              dir,
-              main_control,
+              direction: int,
+              control,
+              equidistant_steps,
               Kz=None):
     global KZ
 
@@ -16,32 +17,32 @@ def propagate(u_z,
         KZ = Kz
         del Kz
 
-    diffraction_type = main_control.config.diffraction_type
-    non_linearity = main_control.config.non_linearity
-    attenuation = main_control.config.attenuation
-    step_size = main_control.simulation.step_size
+    diffraction_type = control.diffraction_type
+    non_linearity = control.non_linearity
+    attenuation = control.attenuation
+    step_size = control.simulation.step_size
 
-    num_points_x = main_control.domain.num_points_x
-    num_points_y = main_control.domain.num_points_y
-    num_points_t = main_control.domain.num_points_t
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    num_points_t = control.domain.num_points_t
 
     # Update position and chose propagation mode
-    if dir > 0:
-        main_control.simulation.current_position = main_control.simulation.current_position + step_size
-    elif dir < 0:
-        main_control.simulation.current_position = main_control.simulation.current_position - step_size
+    if direction > 0:
+        control.simulation.current_position = control.simulation.current_position + step_size
+    elif direction < 0:
+        control.simulation.current_position = control.simulation.current_position - step_size
 
     if (diffraction_type == ExactDiffraction or
         diffraction_type == AngularSpectrumDiffraction or
         diffraction_type == PseudoDifferential) and \
-            (non_linearity is False or abs(dir) == 2):
+            (non_linearity is False or abs(direction) == 2):
         # Linear propagation and exact diffraction
         if KZ.size == 0:
-            KZ = get_wavenumbers(main_control)
+            KZ = get_wavenumbers(control, equidistant_steps)
 
         # Forward spatial transform
         if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
-            if main_control.num_dimensions == 3:
+            if control.num_dimensions == 3:
                 u_z = numpy.fft.fftn(u_z, axes=(2,))
                 u_z = numpy.fft.fftn(u_z, axes=(1,))
                 u_z = u_z.reshape((num_points_t, num_points_x * num_points_y))
@@ -56,7 +57,7 @@ def propagate(u_z,
 
         # Propagation step
         if diffraction_type == ExactDiffraction or diffraction_type == PseudoDifferential:
-            if main_control.config.equidistant_steps:
+            if equidistant_steps:
                 u_z = u_z * numpy.squeeze(KZ[:num_points_t, :num_points_x * num_points_y])
             else:
                 u_z = u_z * numpy.exp(
@@ -85,7 +86,7 @@ def propagate(u_z,
 
         # Backward spatial transform
         if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
-            if main_control.num_dimensions == 3:
+            if control.num_dimensions == 3:
                 u_z = u_z.reshape((num_points_t, num_points_y, num_points_x))
                 u_z = numpy.fft.ifftn(u_z, axes=(1,))
                 u_z = numpy.fft.ifftn(u_z, axes=(2,))
@@ -104,9 +105,9 @@ def propagate(u_z,
           diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
             (non_linearity or attenuation):
         # Nonlinear propagation in external function
-        u_z = nonlinearpropagate(u_z, dir, main_control, KZ)
+        u_z = nonlinearpropagate(u_z, direction, control, equidistant_steps, KZ)
     else:
         print('Propagation type must be specified')
         exit(-1)
 
-    return u_z, main_control
+    return u_z

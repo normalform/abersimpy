@@ -1,51 +1,49 @@
 import numpy
 
-import propagation
 from controls.consts import ScaleForSpatialVariablesZ, ScaleForTemporalVariable
 from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from misc.make_banded import make_banded
+from propagation import propagate
 from propagation.get_diffmatrix import get_diffmatrix
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinattenuationsplit import nonlinattenuationsplit
 
 
 def nonlinearpropagate(u_z,
-                       dir,
-                       main_control=None,
+                       direction: int,
+                       control,
+                       equidistant_steps,
                        kz=None,
                        eps_n=None,
                        eps_a=None,
                        eps_b=None):
     global KZ
-    if main_control is None:
-        print('Wave field, direction and main_control must be specified')
-        exit(-1)
     if kz is not None:
         KZ = kz
         del kz
 
     # initialization
     if KZ.size == 0:
-        KZ = get_wavenumbers(main_control)
+        KZ = get_wavenumbers(control)
 
     # preparation of variables
-    mat = main_control.material.material
+    mat = control.material.material
     c = mat.sound_speed
     c = c / ScaleForSpatialVariablesZ * ScaleForTemporalVariable  # scaling wave-speed
-    resolution_t = main_control.signal.resolution_t / ScaleForTemporalVariable  # scale sampling to microsecs
-    resolution_x = main_control.signal.resolution_x / ScaleForSpatialVariablesZ  # resolution_x scaled to centimeter
-    resolution_y = main_control.signal.resolution_y / ScaleForSpatialVariablesZ  # resolution_y scaled to centimeter
-    resolution_z = main_control.signal.resolution_z / ScaleForSpatialVariablesZ  # resolution_z scaled to centimeter
-    num_dimensions = main_control.num_dimensions
-    num_points_x = main_control.domain.num_points_x
-    num_points_y = main_control.domain.num_points_y
-    num_points_t = main_control.domain.num_points_t
+    resolution_t = control.signal.resolution_t / ScaleForTemporalVariable  # scale sampling to microsecs
+    resolution_x = control.signal.resolution_x / ScaleForSpatialVariablesZ  # resolution_x scaled to centimeter
+    resolution_y = control.signal.resolution_y / ScaleForSpatialVariablesZ  # resolution_y scaled to centimeter
+    resolution_z = control.signal.resolution_z / ScaleForSpatialVariablesZ  # resolution_z scaled to centimeter
+    num_dimensions = control.num_dimensions
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    num_points_t = control.domain.num_points_t
 
-    annular_transducer = main_control.config.annular_transducer
-    shock_step = main_control.simulation.shock_step
-    step_size = main_control.simulation.step_size
-    perfect_matching_layer_width = main_control.domain.perfect_matching_layer_width
+    annular_transducer = control.annular_transducer
+    shock_step = control.simulation.shock_step
+    step_size = control.simulation.step_size
+    perfect_matching_layer_width = control.domain.perfect_matching_layer_width
 
     nsubsteps = int(numpy.ceil((step_size / ScaleForSpatialVariablesZ) / resolution_z))
     resolution_z = (step_size / ScaleForSpatialVariablesZ) / nsubsteps
@@ -53,9 +51,9 @@ def nonlinearpropagate(u_z,
     tspan = numpy.transpose(numpy.linspace(resolution_t, num_points_t * resolution_t + resolution_t, num_points_t))
 
     # assign flags
-    diffraction_type = main_control.config.diffraction_type
-    non_linearity = main_control.config.non_linearity
-    attenuation = main_control.config.attenuation
+    diffraction_type = control.diffraction_type
+    non_linearity = control.non_linearity
+    attenuation = control.attenuation
 
     # prepare PML and FD matrices
     if perfect_matching_layer_width > 0:
@@ -79,7 +77,7 @@ def nonlinearpropagate(u_z,
             diffraction_type == ExactDiffraction or \
             diffraction_type == AngularSpectrumDiffraction or \
             diffraction_type == PseudoDifferential:
-        main_control.simulation.step_size = resolution_z * ScaleForSpatialVariablesZ
+        control.simulation.step_size = resolution_z * ScaleForSpatialVariablesZ
 
     # Nonlinear propagation
     for ni in range(nsubsteps):
@@ -87,14 +85,14 @@ def nonlinearpropagate(u_z,
         if diffraction_type == ExactDiffraction or \
                 diffraction_type == AngularSpectrumDiffraction or \
                 diffraction_type == PseudoDifferential:
-            u_z, _ = propagation.propagate.propagate(u_z, 2 * dir, main_control, KZ)
+            u_z = propagate.propagate(u_z, 2 * direction, control, equidistant_steps, KZ)
         elif diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
                 diffraction_type == FiniteDifferenceTimeDifferenceFull:
             raise NotImplementedError
 
         # perfectly matching layers, absorbing boundaries
         if perfect_matching_layer_width > 0:
-            if propagation.num_dimensions == 2:
+            if control.num_dimensions == 2:
                 u_z = u_z.reshape((num_points_x, 1, num_points_t))
                 raise NotImplementedError
 
@@ -104,6 +102,6 @@ def nonlinearpropagate(u_z,
 
     # set step_size back to normal
     if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
-        main_control.simulation.step_size = step_size
+        control.simulation.step_size = step_size
 
     return u_z

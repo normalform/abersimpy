@@ -2,7 +2,7 @@
 
 import unittest
 
-from controls.main_control import NoDiffraction, \
+from diffraction.diffraction import NoDiffraction, \
     ExactDiffraction, \
     AngularSpectrumDiffraction, \
     PseudoDifferential, \
