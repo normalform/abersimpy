@@ -1,11 +1,11 @@
 import numpy
 
-from filter.get_freqs import get_freqs
+from filter.get_frequencies import get_frequencies
 
 
-def timeshift(u,
-              delta,
-              method='fft'):
+def time_shift(u,
+               delta,
+               method='fft'):
     num_dimensions = u.ndim
     (num_points_t, num_points_y, num_points_x) = u.shape
 
@@ -21,7 +21,7 @@ def timeshift(u,
 
     if method == 'fft':
         u = numpy.fft.fftn(u, axes=(0,))
-        k = get_freqs(num_points_t, 1)[..., numpy.newaxis]
+        k = get_frequencies(num_points_t, 1)[..., numpy.newaxis]
         if numpy.max(delta.shape) == 1:
             delta = numpy.ones(nch) * delta
         sh = numpy.exp(-1j * 2 * numpy.pi * k * delta)

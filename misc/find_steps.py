@@ -14,7 +14,8 @@ def find_steps(z0,
     specpos = numpy.unique(store_position, screenpos)
     z = z0
     step = numpy.zeros((int(numpy.ceil(((z1 - z0) / step_size) + numpy.max(specpos.shape))),))
-    stepidx = numpy.zeros((int(numpy.ceil(((z1 - z0) / step_size) + numpy.max(specpos.shape))),), dtype=int)
+    stepidx = numpy.zeros((int(numpy.ceil(((z1 - z0) / step_size) + numpy.max(specpos.shape))),),
+                          dtype=int)
     nsteps = 0
 
     # start loop

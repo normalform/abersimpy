@@ -1,7 +1,8 @@
 import numpy
 import scipy.interpolate
 
-from diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, PseudoDifferential
+from diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, \
+    PseudoDifferential
 
 
 def get_focal_curvature(F,
@@ -28,8 +29,8 @@ def get_focal_curvature(F,
             if annular_transducer:
                 ae = numpy.arange(0, Nel) * elsize
             else:
-                ae = numpy.arange(-int(numpy.floor(Nel / 2)), int(numpy.ceil(Nel / 2))) * elsize + numpy.mod(Nel + 1,
-                                                                                                             2) * elsize / 2
+                ae = numpy.arange(-int(numpy.floor(Nel / 2)), int(numpy.ceil(Nel / 2))) * \
+                     elsize + numpy.mod(Nel + 1, 2) * elsize / 2
 
             a = numpy.zeros((ae.size * int(nsprel)))
             for x in range(int(nsprel)):
@@ -59,8 +60,8 @@ def get_focal_curvature(F,
         if annular_transducer:
             ac = numpy.arange(0, ndx) * resolution_x + numpy.mod(ndx + 1, 2) * resolution_x / 2
         else:
-            ac = numpy.arange(-int(numpy.floor(ndx / 2)), int(numpy.ceil(ndx / 2))) * resolution_x + numpy.mod(ndx + 1,
-                                                                                                               2) * resolution_x / 2
+            ac = numpy.arange(-int(numpy.floor(ndx / 2)), int(numpy.ceil(ndx / 2))) * \
+                 resolution_x + numpy.mod(ndx + 1, 2) * resolution_x / 2
         if diffraction_type == NoDiffraction or \
                 diffraction_type == ExactDiffraction or \
                 diffraction_type == AngularSpectrumDiffraction or \

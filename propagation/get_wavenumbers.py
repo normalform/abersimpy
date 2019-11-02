@@ -4,7 +4,7 @@ from scipy.signal import hilbert
 from controls.consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
 from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, \
     PseudoDifferential, FiniteDifferenceTimeDifferenceFull, FiniteDifferenceTimeDifferenceReduced
-from filter.get_freqs import get_freqs
+from filter.get_frequencies import get_frequencies
 
 
 def get_wavenumbers(control,
@@ -44,7 +44,8 @@ def get_wavenumbers(control,
     # calculate attenuation if propagation is linear
     loss = numpy.zeros((kt.size))
     if control.attenuation and control.non_linearity is False:
-        w = get_freqs(num_points_t, control.signal.resolution_t / (2.0 * numpy.pi * ScaleForTemporalVariable))
+        w = get_frequencies(num_points_t, control.signal.resolution_t / (
+                2.0 * numpy.pi * ScaleForTemporalVariable))
         epsa = mat.eps_a
         epsb = mat.eps_b
         loss = epsa * numpy.conj(hilbert(numpy.abs(w) ** epsb)) / ScaleForSpatialVariablesZ
@@ -61,7 +62,8 @@ def get_wavenumbers(control,
     else:
         # building full complex wave number operator
         if control.num_dimensions == 3:
-            Ky2, Kx2 = numpy.meshgrid(numpy.fft.ifftshift(ky ** 2), numpy.fft.ifftshift(kx ** 2), indexing='ij')
+            Ky2, Kx2 = numpy.meshgrid(numpy.fft.ifftshift(ky ** 2), numpy.fft.ifftshift(kx ** 2),
+                                      indexing='ij')
             Kxy2 = Kx2 + Ky2
             Kxy2 = Kxy2.reshape((num_points_x * num_points_y, 1))
         elif control.num_dimensions == 2:

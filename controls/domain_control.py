@@ -3,7 +3,8 @@ domain_control.py
 """
 import numpy
 
-from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, \
+    PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from diffraction.interfaces import IDiffractionType
 from material.interfaces import IMaterial
@@ -18,19 +19,20 @@ class DomainControl:
     def __init__(self,
                  annular_transducer: bool,
                  num_dimensions: int,
-                 harmonic,
+                 harmonic: int,
                  material: IMaterial,
-                 num_elements_azimuth,
-                 elements_size_azimuth,
-                 num_elements_elevation,
-                 elements_size_elevation,
+                 num_elements_azimuth: int,
+                 elements_size_azimuth: float,
+                 num_elements_elevation: int,
+                 elements_size_elevation: float,
                  image_frequency: float,
-                 num_periods,
+                 num_periods: float,
                  diffraction_type: IDiffractionType):
         # adjust frequency dependent variables
         _frequency_steps = numpy.array([0.1, 0.5, 1.5, 3.0, 6.0, 12.0]) * 1e6
         _step_sizes = numpy.array([10, 5, 2.5, 1.25, 0.5, 0.25]) * 1e-3
-        _filters = numpy.array([1.0, 1.6, 2.0, 2.0, 2.0, 2.2, 2.2, 2.2, 2.2, 2.2]) / numpy.arange(1, 11) * 0.5
+        _filters = numpy.array(
+            [1.0, 1.6, 2.0, 2.0, 2.0, 2.2, 2.2, 2.2, 2.2, 2.2]) / numpy.arange(1, 11) * 0.5
         _transmit_frequency = image_frequency / harmonic
         _sound_speed = material.sound_speed
         _lambda = _sound_speed / image_frequency
@@ -96,7 +98,8 @@ class DomainControl:
             _num_points_x = 1
             _num_points_y = 1
 
-        _num_points_t = log2round_off(_num_periods * (num_periods / _transmit_frequency) / _resolution_t)
+        _num_points_t = log2round_off(
+            _num_periods * (num_periods / _transmit_frequency) / _resolution_t)
 
         # domain and grid specifications
         self._step_size = _step_size

@@ -12,17 +12,13 @@ from postprocessing.export_beamprofile import export_beamprofile
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.propagate import propagate
 from simscript.body_wall import body_wall
-from transducer.pulse_generator import pulse_generator
 
 
 def beam_simulation(control,
-                    u_z=None,
+                    u_z,
                     screen=numpy.array([]),
                     w=None,
                     phantom=None):
-    if u_z is None:
-        u_z, _ = pulse_generator(control, 'transducer')
-
     # calculate number of propagation steps beyond the body wall
     current_pos = control.simulation.current_position
     end_point = control.simulation.endpoint
@@ -34,7 +30,8 @@ def beam_simulation(control,
         if control.simulation.current_position >= control.material.thickness:
             num_steps, step, step_idx = find_steps(current_pos, end_point, step_size, store_pos)
         else:
-            num_steps, step, step_idx = find_steps(control.material.thickness, end_point, step_size, store_pos)
+            num_steps, step, step_idx = find_steps(control.material.thickness, end_point, step_size,
+                                                   store_pos)
     else:
         num_steps, step, step_idx = find_steps(current_pos, end_point, step_size, store_pos)
 
@@ -81,7 +78,8 @@ def beam_simulation(control,
     if w is None:
         w = control.simulation.num_windows
     if isinstance(w, int) and w > 0:
-        w = get_window((num_points_x, num_points_y), (resolution_x, resolution_y), w * step_size, 2 * step_size,
+        w = get_window((num_points_x, num_points_y), (resolution_x, resolution_y), w * step_size,
+                       2 * step_size,
                        annular_transducer)
 
     t = numpy.zeros(num_steps + 1)
@@ -111,7 +109,8 @@ def beam_simulation(control,
         z_pos = numpy.array([])
     step_nr = 0
 
-    rms_pro, max_pro, ax_pulse, z_pos = export_beamprofile(u_z, control, rms_pro, max_pro, ax_pulse, z_pos,
+    rms_pro, max_pro, ax_pulse, z_pos = export_beamprofile(u_z, control, rms_pro, max_pro, ax_pulse,
+                                                           z_pos,
                                                            step_nr)
 
     # Propagating through body wall
@@ -167,7 +166,8 @@ def beam_simulation(control,
                 u_z = u_z.reshape((num_points_t, num_points_y, num_points_x))
 
         # calculate beam profiles
-        rms_pro, max_pro, ax_pulse, z_pos = export_beamprofile(u_z, control, rms_pro, max_pro, ax_pulse, z_pos,
+        rms_pro, max_pro, ax_pulse, z_pos = export_beamprofile(u_z, control, rms_pro, max_pro,
+                                                               ax_pulse, z_pos,
                                                                step_nr)
 
         toc = time.time() - start_time

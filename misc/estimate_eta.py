@@ -41,7 +41,9 @@ def estimate_eta(t,
             hstr = '{:2d}'.format(int(eth))
         tstr = '{}:{} {}'.format(hstr, mstr, dstr)
 
-        print('Simulation {} is {:2.2f} percent complete (st. {}/{}), ETA {}'.format(fstr, 100 * pcomp, step, nsteps,
+        print('Simulation {} is {:2.2f} percent complete (st. {}/{}), ETA {}'.format(fstr,
+                                                                                     100 * pcomp,
+                                                                                     step, nsteps,
                                                                                      tstr))
     else:
         tlap = tlap

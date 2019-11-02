@@ -5,7 +5,6 @@ import math
 from abc import abstractmethod
 
 import numpy
-from scipy.interpolate import InterpolatedUnivariateSpline
 from scipy.interpolate import interp1d
 
 from controls.consts import ScaleForSpatialVariablesZ, ScaleForPressure, ScaleForTemporalVariable
@@ -118,8 +117,13 @@ class BaseMaterial(IMaterial):
                        temperatures: numpy.ndarray,
                        measures: numpy.ndarray) -> float:
         if len(measures) > 2:
-            interp_func = InterpolatedUnivariateSpline(temperatures, measures, ext='extrapolate')
+            kind = 'slinear'
         else:
-            interp_func = interp1d(temperatures, measures, fill_value='extrapolate')
+            kind = 'linear'
+
+        interp_func = interp1d(temperatures,
+                               measures,
+                               kind=kind,
+                               fill_value='extrapolate')
 
         return interp_func(self._temperature).item()

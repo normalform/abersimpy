@@ -58,5 +58,6 @@ def get_xdidx(control):
         if cc[1] <= 1:
             cc[1] = 1
 
-    return idxxs.astype(int) - 1, idxys.astype(int) - 1, idxx0.astype(int) - 1, idxy0.astype(int) - 1, ccs.astype(
+    return idxxs.astype(int) - 1, idxys.astype(int) - 1, idxx0.astype(int) - 1, idxy0.astype(
+        int) - 1, ccs.astype(
         int) - 1

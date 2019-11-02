@@ -67,7 +67,8 @@ def plot_pulse(u,
             raise NotImplementedError
     else:
         x = numpy.arange(num_points_x) * control.simulation.step_size * 1e3
-        f = numpy.arange(numpy.floor(num_points_t / 2)) * control.signal.sample_frequency * 1e-6 / num_points_t
+        f = numpy.arange(
+            numpy.floor(num_points_t / 2)) * control.signal.sample_frequency * 1e-6 / num_points_t
 
         nh = control.harmonic
         resolution_t = control.signal.resolution_t
@@ -87,7 +88,8 @@ def plot_pulse(u,
 
         U = numpy.fft.fftn(u, axes=(0,))
         nrmf = numpy.max(numpy.max(numpy.abs(U)))
-        data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(num_points_t / 2)), :])), dyn, nrmf)
+        data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(num_points_t / 2)), :])), dyn,
+                      nrmf)
         axs[nh - 1, 1].imshow(data,
                               cmap=cmap,
                               aspect='auto',
@@ -98,7 +100,11 @@ def plot_pulse(u,
 
         for ii in range(nh):
             idx = ii + 1
-            tmp, _ = bandpass(u, idx * transmit_frequency, resolution_t, idx * filt * bw, 4)
+            tmp, _ = bandpass(u,
+                              numpy.array([idx * transmit_frequency]),
+                              resolution_t,
+                              idx * filt * bw,
+                              4)
             tmp = numpy.squeeze(tmp)
             data = makedb(numpy.transpose(tmp), dyn, nrmp)
             axs[idx, 0].imshow(data,
@@ -109,7 +115,8 @@ def plot_pulse(u,
             axs[idx, 0].set_ylabel('Depth [mm]')
             axs[idx, 0].set_title('Axial pulse, {}. harmonic'.format(idx))
             U = numpy.fft.fftn(tmp, axes=(0,))
-            data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(num_points_t / 2)), :])), dyn, nrmf)
+            data = makedb(numpy.transpose(numpy.abs(U[:int(numpy.floor(num_points_t / 2)), :])),
+                          dyn, nrmf)
             axs[idx, 1].imshow(data,
                                cmap=cmap,
                                aspect='auto',

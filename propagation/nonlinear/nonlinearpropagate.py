@@ -1,7 +1,8 @@
 import numpy
 
 from controls.consts import ScaleForSpatialVariablesZ, ScaleForTemporalVariable
-from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, \
+    PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from misc.make_banded import make_banded
 from propagation import propagate
@@ -48,7 +49,8 @@ def nonlinearpropagate(u_z,
     nsubsteps = int(numpy.ceil((step_size / ScaleForSpatialVariablesZ) / resolution_z))
     resolution_z = (step_size / ScaleForSpatialVariablesZ) / nsubsteps
     d = (c / 2) * (resolution_t / 2) * resolution_z
-    tspan = numpy.transpose(numpy.linspace(resolution_t, num_points_t * resolution_t + resolution_t, num_points_t))
+    tspan = numpy.transpose(
+        numpy.linspace(resolution_t, num_points_t * resolution_t + resolution_t, num_points_t))
 
     # assign flags
     diffraction_type = control.diffraction_type
@@ -98,7 +100,8 @@ def nonlinearpropagate(u_z,
 
         # Nonlinear and attenuation
         if non_linearity or attenuation:
-            u_z = nonlinattenuationsplit(tspan, u_z, resolution_z, shock_step, mat, non_linearity, attenuation)
+            u_z = nonlinattenuationsplit(tspan, u_z, resolution_z, shock_step, mat, non_linearity,
+                                         attenuation)
 
     # set step_size back to normal
     if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:

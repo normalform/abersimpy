@@ -1,6 +1,7 @@
 import numpy
 
-from diffraction.diffraction import ExactDiffraction, AngularSpectrumDiffraction, PseudoDifferential, \
+from diffraction.diffraction import ExactDiffraction, AngularSpectrumDiffraction, \
+    PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from propagation.get_wavenumbers import get_wavenumbers
 from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
@@ -61,7 +62,8 @@ def propagate(u_z,
                 u_z = u_z * numpy.squeeze(KZ[:num_points_t, :num_points_x * num_points_y])
             else:
                 u_z = u_z * numpy.exp(
-                    (-1j * step_size) * numpy.squeeze(KZ[:num_points_t, :num_points_x * num_points_y, 0]))
+                    (-1j * step_size) * numpy.squeeze(
+                        KZ[:num_points_t, :num_points_x * num_points_y, 0]))
         elif diffraction_type == AngularSpectrumDiffraction:
             raise NotImplementedError
             kx = KZ[:num_points_x, 0]

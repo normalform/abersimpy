@@ -23,7 +23,8 @@ def aberration(control: MainControl,
         heterogeneous_medium = consts.AberrationFromDelayScreenBodyWall
 
     # pylint: disable=no-else-raise
-    if heterogeneous_medium in (consts.AberrationFromDelayScreenBodyWall, consts.AberrationFromFile):
+    if heterogeneous_medium in (consts.AberrationFromDelayScreenBodyWall,
+                                consts.AberrationFromFile):
         raise NotImplementedError
         # pylint: disable=no-else-raise
     elif heterogeneous_medium == consts.AberrationPhantom:
