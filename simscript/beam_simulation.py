@@ -78,7 +78,9 @@ def beam_simulation(control,
     if w is None:
         w = control.simulation.num_windows
     if isinstance(w, int) and w > 0:
-        w = get_window((num_points_x, num_points_y), (resolution_x, resolution_y), w * step_size,
+        w = get_window((num_points_x, num_points_y),
+                       (resolution_x, resolution_y),
+                       w * step_size,
                        2 * step_size,
                        annular_transducer)
 

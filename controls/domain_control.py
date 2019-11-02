@@ -8,7 +8,7 @@ from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpec
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from diffraction.interfaces import IDiffractionType
 from material.interfaces import IMaterial
-from misc.log2round_off import log2round_off
+from misc.log2_round_off import log2_round_off
 
 
 class DomainControl:
@@ -82,7 +82,7 @@ class DomainControl:
             raise ValueError(f'Unknown dimensions: {num_dimensions}')
 
         _omega_x = _probe_span_azimuth + 2 * _num_lambda_pad * _lambda
-        _num_points_x = log2round_off(_omega_x / _resolution_x)
+        _num_points_x = log2_round_off(_omega_x / _resolution_x)
         if annular_transducer and diffraction_type in (PseudoDifferential,
                                                        FiniteDifferenceTimeDifferenceReduced,
                                                        FiniteDifferenceTimeDifferenceFull):
@@ -91,14 +91,14 @@ class DomainControl:
                                                         ExactDiffraction,
                                                         AngularSpectrumDiffraction):
             _omega_y = _probe_span_elevation + 2 * _num_lambda_pad * _lambda
-            _num_points_y = log2round_off(_omega_y / _resolution_y)
+            _num_points_y = log2_round_off(_omega_y / _resolution_y)
         else:
             _num_points_y = 1
         if num_dimensions == 1:
             _num_points_x = 1
             _num_points_y = 1
 
-        _num_points_t = log2round_off(
+        _num_points_t = log2_round_off(
             _num_periods * (num_periods / _transmit_frequency) / _resolution_t)
 
         # domain and grid specifications

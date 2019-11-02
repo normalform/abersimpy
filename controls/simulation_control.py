@@ -34,19 +34,19 @@ class SimulationControl:
         self._current_position: float = 0.0
 
     @property
-    def step_size(self):
+    def step_size(self) -> float:
         return self._step_size
 
     @step_size.setter
-    def step_size(self, value):
+    def step_size(self, value: float):
         self._step_size = value
 
     @property
-    def current_position(self):
+    def current_position(self) -> float:
         return self._current_position
 
     @current_position.setter
-    def current_position(self, value):
+    def current_position(self, value: float):
         self._current_position = value
 
     @property

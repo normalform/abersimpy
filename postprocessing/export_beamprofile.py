@@ -3,7 +3,7 @@ import numpy
 from controls.consts import NoHistory, PositionHistory, ProfileHistory, FullHistory, PlaneHistory, \
     PlaneByChannelHistory
 from filter.bandpass import bandpass
-from misc.get_strpos import get_strpos
+from misc.get_string_position import get_string_position
 from postprocessing.get_max import get_max
 from postprocessing.get_rms import get_rms
 
@@ -24,7 +24,7 @@ def export_beamprofile(u_z,
 
     history = control.history
     pos = control.simulation.current_position
-    fn = '{}{}.json'.format(filename, get_strpos(pos * 1e3))
+    fn = '{}{}.json'.format(filename, get_string_position(pos * 1e3))
 
     # stores full field or exits
     if history == NoHistory:

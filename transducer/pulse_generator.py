@@ -129,7 +129,7 @@ def pulse_generator(control,
         raise NotImplementedError
     elif source == 'transducer':
         # generating pulse from transducer
-        control.simulation.current_position = 0
+        control.simulation.current_position = 0.0
 
         # calculate apodization
         if isinstance(apodization, str):
