@@ -2,6 +2,8 @@
 
 import unittest
 
+import numpy
+
 from material.material import BaseMaterial
 
 
@@ -53,10 +55,12 @@ class TestBaseMaterial(unittest.TestCase):
 
     def test_interpolate(self):
         stub = StubMaterial(37.0)
-        self.assertAlmostEqual(3.5, stub._interpolation([36.0, 38.0], [3.0, 4.0]))
-        self.assertAlmostEqual(3.0, stub._interpolation([36.0, 37.0, 38.0],
-                                                        [2.0, 3.0, 4.0]))
-        # extrapolations
-        self.assertAlmostEqual(5.0, stub._interpolation([35.0, 36.0], [3.0, 4.0]))
-        self.assertAlmostEqual(6.0, stub._interpolation([33.0, 34.0, 35.0],
-                                                        [2.0, 3.0, 4.0]))
+        self.assertAlmostEqual(3.5, stub._interpolation(numpy.array([36.0, 38.0]),
+                                                        numpy.array([3.0, 4.0])))
+        self.assertAlmostEqual(3.0, stub._interpolation(numpy.array([36.0, 37.0, 38.0]),
+                                                        numpy.array([2.0, 3.0, 4.0])))
+        # extrapolation cases
+        self.assertAlmostEqual(5.0, stub._interpolation(numpy.array([35.0, 36.0]),
+                                                        numpy.array([3.0, 4.0])))
+        self.assertAlmostEqual(6.0, stub._interpolation(numpy.array([33.0, 34.0, 35.0]),
+                                                        numpy.array([2.0, 3.0, 4.0])))
