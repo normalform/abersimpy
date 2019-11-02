@@ -5,7 +5,7 @@ from controls.consts import NoAberrationAndHomogeneousMedium
 from controls.main_control import MainControl
 from diffraction.diffraction import ExactDiffraction
 from simscript.beam_simulation import beam_simulation
-from transducer.pulsegenerator import pulsegenerator
+from transducer.pulse_generator import pulse_generator
 from visualization.plot_beamprofile import plot_beamprofile
 from visualization.plot_pulse import plot_pulse
 
@@ -20,7 +20,7 @@ if __name__ == '__main__':
                           harmonic=1)
 
     # generate a  wave field at the transducer
-    u, _ = pulsegenerator(control, 'transducer')
+    u, _ = pulse_generator(control, 'transducer')
 
     # running the simulation
     u_out, rms_pro, max_pro, ax_pulse, _ = beam_simulation(control, u)
