@@ -19,7 +19,7 @@ from simscript.body_wall import body_wall
 
 
 def beam_simulation(control: MainControl,
-                    wave_field,
+                    wave_field: numpy.ndarray,
                     screen=numpy.array([]),
                     window=None,
                     phantom=None):

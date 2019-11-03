@@ -15,7 +15,7 @@ def get_wave_numbers(control: MainControl,
     Define wave number arrays in Fourier domain used for linear propagation and diffraction
     using the Angular Spectrum method.
     :param control:
-    :param equidistant_steps:
+    :param equidistant_steps: The flag specifying beam simulation with equidistant steps.
     :param noret: Specifies the wave number operator for the classical Angular Spectrum Method
         of Zemp and Cobbold in regular coordinates (as opposed to retarded time coordinates).
     :return: Full complex wave number operator.
