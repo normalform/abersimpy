@@ -1,7 +1,7 @@
 import numpy
 
 from material.muscle import Muscle
-from propagation.nonlinear.attenuationsolve import attenuationsolve
+from propagation.nonlinear.attenuation_solve import attenuation_solve
 from propagation.nonlinear.burgerssolve import burgerssolve
 from propagation.nonlinear.get_shockdist import get_shockdist
 
@@ -42,10 +42,10 @@ def nonlinattenuationsplit(t,
                     utmp = burgerssolve(t, utmp, utmp, epsn, zstep)
                 elif non_linearity and attenuation:
                     utmp = burgerssolve(t, utmp, utmp, epsn, zstep / 2)
-                    utmp = attenuationsolve(t, utmp, zstep, epsa, epsb)
+                    utmp = attenuation_solve(t, utmp, zstep, epsa, epsb)
                     utmp = burgerssolve(t, utmp, utmp, epsn, zstep / 2)
                 elif non_linearity is False and attenuation:
-                    utmp = attenuationsolve(t, utmp, zstep, epsa, epsb)
+                    utmp = attenuation_solve(t, utmp, zstep, epsa, epsb)
             else:
                 raise NotImplementedError
         u[:, ii] = utmp

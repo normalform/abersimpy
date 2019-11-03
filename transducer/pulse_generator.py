@@ -73,8 +73,10 @@ def pulse_generator(control,
     # generate signal
     if isinstance(signal, str):
         if str.lower(signal) == 'gaussian':
-            (t, tp, signal, nrm) = gaussian(resolution_t, transmit_frequency,
-                                            num_periods, num_points_t)
+            t, tp, signal, nrm = _gaussian(resolution_t,
+                                           transmit_frequency,
+                                           num_periods,
+                                           num_points_t)
         elif str.lower(signal) == 'cosine':
             t = numpy.arange(-num_points_t / 2, num_points_t / 2) * resolution_t
             Tp = num_periods / transmit_frequency
@@ -87,13 +89,18 @@ def pulse_generator(control,
             signal = numpy.zeros(t.size)
             idx = numpy.where(t < tp[0])[0]
             signal[idx[-1]: idx[-1] + ntp + 1] = sigp
-            (signal, _) = bandpass(signal, transmit_frequency, resolution_t,
-                                   bandwidth, 4)
+            signal, _ = bandpass(signal,
+                                 transmit_frequency,
+                                 resolution_t,
+                                 bandwidth,
+                                 4)
             nrm = numpy.max(numpy.abs(hilbert(signal)))
         else:
             print('pulse not specified - uses gaussian')
-            (t, tp, signal, nrm) = gaussian(resolution_t, transmit_frequency,
-                                            num_periods, num_points_t)
+            t, tp, signal, nrm = _gaussian(resolution_t, transmit_frequency,
+                                           num_periods, num_points_t)
+    else:
+        nrm = numpy.max(numpy.abs(hilbert(signal)))
 
     signal = signal / nrm * p0
 
@@ -122,7 +129,7 @@ def pulse_generator(control,
         raise NotImplementedError
     elif source == 'transducer':
         # generating pulse from transducer
-        control.simulation.current_position = 0
+        control.simulation.current_position = 0.0
 
         # calculate apodization
         if isinstance(apodization, str):
@@ -153,7 +160,7 @@ def pulse_generator(control,
     return u, deltafoc
 
 
-def gaussian(resolution_t, transmit_frequency, num_periods, num_points_t):
+def _gaussian(resolution_t, transmit_frequency, num_periods, num_points_t):
     t = numpy.arange(-num_points_t / 2, num_points_t / 2) * resolution_t
     tp = num_periods / transmit_frequency
     sig = numpy.sin(2.0 * numpy.pi * transmit_frequency * t) * numpy.exp(

@@ -1,6 +1,6 @@
 import numpy
 
-from misc.timeshift import timeshift
+from misc.time_shift import time_shift
 from transducer.get_focal_curvature import get_focal_curvature
 from transducer.get_xdidx import get_xdidx
 
@@ -87,8 +87,7 @@ def focus_pulse(u_z,
         deltafoc = deltafocx + deltafocy
 
     if nofocflag == 0:
-        u_z[:, slice(idxys[0], idxys[-1] + 1), slice(idxxs[0], idxxs[-1] + 1)] = timeshift(u_foc,
-                                                                                           -deltafoc / resolution_t,
-                                                                                           'fft')
+        u_z[:, slice(idxys[0], idxys[-1] + 1), slice(idxxs[0], idxxs[-1] + 1)] = \
+            time_shift(u_foc, -deltafoc / resolution_t, 'fft')
 
     return u_z, deltafoc

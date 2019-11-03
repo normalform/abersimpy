@@ -1,67 +1,82 @@
+"""
+get_window.py
+"""
 import numpy
 
 from misc.raised_cos import raised_cos
 
 
-def get_window(N=(256, 1),
-               ds=None,
-               Lw=0.1,
-               L0=0.1,
-               annular_transducer=0):
-    if ds is None:
-        ds = 1 / N[0]
-
-    if isinstance(N, int):
-        N = (N, 1)
-    if N[0] == 1 and N[1] == 1:
-        return -1
-
-    # return rectangular window
-    if annular_transducer == 2:
-        w = numpy.ones(N[0] * N[1])
-        return w
+def get_window(num_points,
+               resolution,
+               _window_length,
+               _window_length0,
+               annular_transducer: bool) -> numpy.ndarray:
+    """
+    Function returning spatial window to avoid boundary reflections.
+    :param num_points: One- or two-element vector with the number of points in
+            (x,y)-direction. If length(N)=1, then N(2), or ny, is assumed
+            to be 1. Default [256 1].
+    :param resolution: One- or two-element vector with the resolution in the
+            (x,y)-direction. If length(ds)=1, the equal resolution in x
+            and y is assumed. Default 1/N(1).
+    :param _window_length: One- or two-element vector with the physical length of the
+            fall-off region of the window in the (x,y)-direction. If
+            length(L)=1, then the same length in x and y is assumed.
+            Default is 0.1.
+    :param _window_length0: One- or two-element vector with the physical length of the
+            zero part region of the window in the (x,y)-direction. If
+            length(L)=1, then the same length in x and y is assumed.
+            Default is 0.1.
+    :param annular_transducer: Flag for annular transducer. Returns half-window for 2D
+            axi-symmetric simulations.
+    :return: Window in a vector ready to be multiplied by ones(1,nt) and applied to wave field
+    """
+    if isinstance(num_points, int):
+        num_points = (num_points, 1)
+    if num_points[0] == 1 and num_points[1] == 1:
+        raise ValueError('Unsupported Window')
 
     # create two element vectors
-    if isinstance(ds, float):
-        ds = (ds, ds)
-    if isinstance(Lw, float):
-        Lw = (Lw, Lw)
-    if isinstance(L0, float):
-        L0 = (L0, L0)
+    if isinstance(resolution, float):
+        resolution = (resolution, resolution)
+    if isinstance(_window_length, float):
+        _window_length = (_window_length, _window_length)
+    if isinstance(_window_length0, float):
+        _window_length0 = (_window_length0, _window_length0)
 
     # calculate number of points of fall-off and zero part
-    nLwx = int(numpy.ceil(Lw[0] / ds[0]))
-    nL0x = int(numpy.ceil(L0[0] / ds[0]))
+    _num_points_of_fall_off_x = int(numpy.ceil(_window_length[0] / resolution[0]))
+    _num_points_of_zero_x = int(numpy.ceil(_window_length0[0] / resolution[0]))
 
-    # adjust Nx for annular_transducer = 1
-    Ny = N[1]
-    if Ny == 1 and annular_transducer:
-        Nx = 2 * N[0]
-        nLwy = 0
-        nL0y = 0
+    # adjust _total_num_x for annular_transducer = 1
+    _total_num_y = num_points[1]
+    if _total_num_y == 1 and annular_transducer:
+        _total_num_x = 2 * num_points[0]
+        _num_points_of_fall_off_y = 0
+        _num_points_of_zero_y = 0
     else:
-        Nx = N[0]
-        nLwy = int(numpy.ceil(Lw[1] / ds[1]))
-        nL0y = int(numpy.ceil(L0[1] / ds[1]))
+        _total_num_x = num_points[0]
+        _num_points_of_fall_off_y = int(numpy.ceil(_window_length[1] / resolution[1]))
+        _num_points_of_zero_y = int(numpy.ceil(_window_length0[1] / resolution[1]))
 
     # find length of window
-    nwx = Nx - 2 * nL0x
-    nwy = Ny - 2 * nL0y
+    _window_length_x = _total_num_x - 2 * _num_points_of_zero_x
+    _window_length_y = _total_num_y - 2 * _num_points_of_zero_y
 
     # create window in x
-    wx = raised_cos(nwx, nLwx, Nx)
-    if Ny == 1 and annular_transducer:
-        wx = wx[N[0]:]
-        Nx = Nx / 2
+    _wx = raised_cos(_window_length_x, _num_points_of_fall_off_x, _total_num_x)
+    if _total_num_y == 1 and annular_transducer:
+        _wx = _wx[num_points[0]:]
+        _total_num_x = _total_num_x / 2
 
     # create window in y
-    if Ny == 1:
-        wy = numpy.array([1])
+    if _total_num_y == 1:
+        _wy = numpy.array([1])
     else:
-        wy = raised_cos(nwy, nLwy, Ny)
+        _wy = raised_cos(_window_length_y, _num_points_of_fall_off_y, _total_num_y)
 
     # reshape window
-    w = wy[..., numpy.newaxis] * numpy.transpose(wx)
-    w = w.reshape(Nx * Ny)
+    _window = _wy[..., numpy.newaxis] * numpy.transpose(_wx)
+    _window = _window.reshape(_total_num_x * _total_num_y)
 
-    return w
+    return _window

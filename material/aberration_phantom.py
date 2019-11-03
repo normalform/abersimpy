@@ -1,12 +1,15 @@
 """
 aberration_phantom.py
 """
+import numpy
+
 from material.material import BaseMaterial
 
 
 class AberrationPhantom(BaseMaterial):
     """
     AberrationPhantom
+    TODO Need unit tests
     """
 
     def __init__(self,
@@ -19,7 +22,10 @@ class AberrationPhantom(BaseMaterial):
         Get the constant of the attenuation
         :return: The constant of the attenuation
         """
-        raise NotImplementedError
+        temperatures = numpy.array([20.0, 30.0])
+        measurements = numpy.array([0.5, 0.5])
+
+        return self._interpolation(temperatures, measurements)
 
     @property
     def exponent_of_attenuation(self) -> float:
@@ -27,7 +33,10 @@ class AberrationPhantom(BaseMaterial):
         Get the exponent of the attenuation
         :return: The exponent of the attenuation
         """
-        raise NotImplementedError
+        temperatures = numpy.array([20.0, 30.0])
+        measurements = numpy.array([1.0, 1.0])
+
+        return self._interpolation(temperatures, measurements)
 
     @property
     def non_linearity_coefficient(self) -> float:
@@ -35,7 +44,10 @@ class AberrationPhantom(BaseMaterial):
         Get the exponent of the attenuation
         :return: The exponent of the attenuation
         """
-        raise NotImplementedError
+        temperatures = numpy.array([20.0, 30.0])
+        measurements = numpy.array([0.0, 0.0])
+
+        return self._interpolation(temperatures, measurements)
 
     @property
     def mass_density(self) -> float:
@@ -43,7 +55,10 @@ class AberrationPhantom(BaseMaterial):
         Get the density
         :return: The density
         """
-        raise NotImplementedError
+        temperatures = numpy.array([20.0, 30.0])
+        measurements = numpy.array([1250.0, 1250.0])
+
+        return self._interpolation(temperatures, measurements)
 
     @property
     def sound_speed(self) -> float:
@@ -51,4 +66,7 @@ class AberrationPhantom(BaseMaterial):
         Get the wave speed
         :return: wave speed
         """
-        raise NotImplementedError
+        temperatures = numpy.array([20.0, 30.0])
+        measurements = numpy.array([1640.0, 1640.0])
+
+        return self._interpolation(temperatures, measurements)

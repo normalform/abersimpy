@@ -8,11 +8,10 @@ from material.material import BaseMaterial
 
 class Muscle(BaseMaterial):
     """
-    Muscle
+    The Muscle material
     """
 
-    def __init__(self,
-                 temperature: float):
+    def __init__(self, temperature: float):
         super().__init__(temperature)
 
     @property
@@ -33,7 +32,6 @@ class Muscle(BaseMaterial):
         Get the exponent of the attenuation
         :return: The exponent of the attenuation
         """
-        # This is not correct!
         temperatures = numpy.array([20.0, 40.0])
         measurements = numpy.array([1.1, 1.1])
 
@@ -47,6 +45,7 @@ class Muscle(BaseMaterial):
         """
         temperatures = numpy.array([36.0, 37.0])
         measurements = 1.0 + 0.5 * numpy.array([5.8, 5.8])
+
         return self._interpolation(temperatures, measurements)
 
     @property

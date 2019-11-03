@@ -1,14 +1,15 @@
 import numpy
 
-from controls.consts import NoHistory, PositionHistory, ProfileHistory, FullHistory, PlaneHistory, PlaneByChannelHistory
+from controls.consts import NoHistory, PositionHistory, ProfileHistory, FullHistory, PlaneHistory, \
+    PlaneByChannelHistory
 from filter.bandpass import bandpass
-from misc.get_strpos import get_strpos
+from misc.get_string_position import get_string_position
 from postprocessing.get_max import get_max
 from postprocessing.get_rms import get_rms
 
 
-def export_beamprofile(u_z,
-                       control,
+def export_beamprofile(control,
+                       u_z,
                        rmpro=None,
                        mxpro=None,
                        axpls=None,
@@ -23,7 +24,7 @@ def export_beamprofile(u_z,
 
     history = control.history
     pos = control.simulation.current_position
-    fn = '{}{}.json'.format(filename, get_strpos(pos * 1e3))
+    fn = '{}{}.json'.format(filename, get_string_position(pos * 1e3))
 
     # stores full field or exits
     if history == NoHistory:
@@ -93,7 +94,11 @@ def export_beamprofile(u_z,
         for ii in range(harmonic):
             idx = ii + 1
             tmp = u_z.reshape((num_points_t, num_points_x * num_points_y))
-            tmp, _ = bandpass(tmp, idx * transmit_frequency, resolution_t, idx * transmit_frequency * filterc[ii], 4)
+            tmp, _ = bandpass(tmp,
+                              numpy.array([idx * transmit_frequency]),
+                              resolution_t,
+                              idx * transmit_frequency * filterc[ii],
+                              4)
             rms = get_rms(tmp, 1)
             max = get_max(tmp, 1)
             rmspro[..., num_periods, ii + 1] = rms.reshape((num_points_y, num_points_x))
