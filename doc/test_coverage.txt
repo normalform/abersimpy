@@ -1,0 +1,10 @@
+Install 'coverage' package.
+
+# Execute
+coverage run --source=./ --branch -m unittest discover -s ./
+coverage report -m
+
+# Creates coverage_html directory that includes report in HTML format
+coverage html -d coverage_html
+
+
