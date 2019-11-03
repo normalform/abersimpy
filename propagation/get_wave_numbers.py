@@ -2,14 +2,27 @@ import numpy
 from scipy.signal import hilbert
 
 from controls.consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
+from controls.main_control import MainControl
 from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, \
     PseudoDifferential, FiniteDifferenceTimeDifferenceFull, FiniteDifferenceTimeDifferenceReduced
 from filter.get_frequencies import get_frequencies
 
 
-def get_wavenumbers(control,
-                    equidistant_steps,
-                    noret=0):
+def get_wave_numbers(control: MainControl,
+                     equidistant_steps: bool,
+                     noret=0):
+    """
+    Define wave number arrays in Fourier domain used for linear propagation and diffraction
+    using the Angular Spectrum method.
+    :param control:
+    :param equidistant_steps:
+    :param noret: Specifies the wave number operator for the classical Angular Spectrum Method
+        of Zemp and Cobbold in regular coordinates (as opposed to retarded time coordinates).
+    :return: Full complex wave number operator.
+        If control.diffraction_type is set to PseudoDifferential, the wave numbers operator contains
+        three layers, the first is the wave numbers in time and eigenvalues of difference matrix A.
+        The second layer is the inverse eigenvector matrix Q, and the third the matrix Q.
+    """
     num_points_x = control.domain.num_points_x
     num_points_y = control.domain.num_points_y
     num_points_t = control.domain.num_points_t
@@ -53,12 +66,12 @@ def get_wavenumbers(control,
     # assembly of wave-number operator
     if control.diffraction_type == AngularSpectrumDiffraction:
         # assign to vectors
-        Kz = numpy.zeros((numpy.max((num_points_x, num_points_y, num_points_t)), 4))
-        Kz[:num_points_x, 0] = numpy.fft.ifftshift(kx)
-        Kz[:num_points_y, 1] = numpy.fft.ifftshift(ky)
-        Kz[:num_points_t, 2] = numpy.fft.ifftshift(kt)
-        Kz[:num_points_t, 3] = loss
-        return Kz
+        _wave_numbers = numpy.zeros((numpy.max((num_points_x, num_points_y, num_points_t)), 4))
+        _wave_numbers[:num_points_x, 0] = numpy.fft.ifftshift(kx)
+        _wave_numbers[:num_points_y, 1] = numpy.fft.ifftshift(ky)
+        _wave_numbers[:num_points_t, 2] = numpy.fft.ifftshift(kt)
+        _wave_numbers[:num_points_t, 3] = loss
+        return _wave_numbers
     else:
         # building full complex wave number operator
         if control.num_dimensions == 3:
@@ -71,17 +84,17 @@ def get_wavenumbers(control,
         else:
             Kxy2 = 0
     Kt, KXY = numpy.meshgrid(numpy.fft.ifftshift(kt), Kxy2, indexing='ij')
-    Kz = numpy.sqrt((Kt ** 2 - KXY).astype(complex))
-    Kz = numpy.sign(Kt) * Kz.real - 1j * Kz.imag
+    _wave_numbers = numpy.sqrt((Kt ** 2 - KXY).astype(complex))
+    _wave_numbers = numpy.sign(Kt) * _wave_numbers.real - 1j * _wave_numbers.imag
 
     # introduces retarded time
     if noret == 0:
-        Kz = Kz - Kt
+        _wave_numbers = _wave_numbers - Kt
 
     # introduces loss in wave number operator
     if control.attenuation:
         for ii in range(0, num_points_t):
-            Kz[ii, ...] = Kz[ii, ...] - 1j * loss[ii]
+            _wave_numbers[ii, ...] = _wave_numbers[ii, ...] - 1j * loss[ii]
 
     # convert wave number operator to propagation operator
     if equidistant_steps:
@@ -89,9 +102,9 @@ def get_wavenumbers(control,
         if control.non_linearity:
             nsubsteps = int(numpy.ceil(step_size / control.signal.resolution_z))
             step_size = step_size / nsubsteps
-        Kz = numpy.exp(-1j * Kz * step_size)
+        _wave_numbers = numpy.exp(-1j * _wave_numbers * step_size)
 
     if control.diffraction_type == PseudoDifferential:
         raise NotImplementedError
 
-    return Kz
+    return _wave_numbers

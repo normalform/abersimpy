@@ -21,6 +21,8 @@ def bandpass(signal: numpy.ndarray,
     The filter which is used is
     exp( -alpha * (| f - center_frequency | / 0.5 * bandwidth) ^ steepness) where alpha is
     computed to give a -dB bandwidth.
+    TODO Need unit tests
+    TODO consider signal's data shape for fft operations
     :param signal: The signal to bandpass.
     :param center_frequency: The center frequency.
     :param sampling_interval: The sampling interval.
@@ -69,16 +71,13 @@ def bandpass(signal: numpy.ndarray,
     return _output_signal, _frequency_components_of_filter
 
 
-def _find_center_frequency(center_frequency,
-                           frequencies,
-                           signal_frequency_domain):
-    _center_frequencies = center_frequency
-    if _center_frequencies.ndim == 2:
+def _find_center_frequency(center_frequency, frequencies, signal_frequency_domain):
+    if center_frequency.ndim == 2:
         _frequency_indices = numpy.where(
-            _center_frequencies[0] <= frequencies <= _center_frequencies[1])[0]
+            center_frequency[0] <= frequencies <= center_frequency[1])[0]
 
         if _frequency_indices.size == 0:
-            _center_frequency0 = numpy.mean(_center_frequencies)
+            _center_frequency0 = numpy.mean(center_frequency)
         else:
             _temp_signal_frequency_domain = numpy.mean(
                 numpy.abs(signal_frequency_domain[_frequency_indices, :]), axis=1)
@@ -86,13 +85,12 @@ def _find_center_frequency(center_frequency,
             _center_frequency0 = numpy.mean(
                 frequencies[_frequency_indices[_max_frequency_index]])
     else:
-        _center_frequency0 = _center_frequencies[0]
+        _center_frequency0 = center_frequency[0]
 
     return _center_frequency0
 
 
-def _calculate_bandwidth(bandwidth,
-                         center_frequency):
+def _calculate_bandwidth(bandwidth, center_frequency):
     if bandwidth == 0.0:
         _bandwidth = 0.5 * center_frequency
     elif bandwidth < 2.0:

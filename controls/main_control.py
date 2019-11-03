@@ -19,6 +19,10 @@ from material.muscle import Muscle
 class MainControl:
     """
     MainControl
+    TODO Need unit tests
+    TODO Might need better name.
+    TODO Might need better structure with other sub controls.
+    TODO Need Json serialization & deserialization
     """
 
     def __init__(self,
@@ -55,10 +59,12 @@ class MainControl:
             coordinates and num_dimensions automatically set to 3.
         :param diffraction_type: The type of diffraction.
             NoDiffraction. No diffraction
-            ExactDiffraction. Exact diffraction using angular spectrum with Kz as a variable
-            AngularSpectrumDiffraction. Angular spectrum with Kz as vectors (saves memory)
-            PseudoDifferential. Pseudo differential model using matrix diagonalization
-                for decoupling of equations
+            ExactDiffraction. Exact diffraction using angular spectrum with wave number
+                operator(Kz) as a variable.
+            AngularSpectrumDiffraction. Angular spectrum with wave number operator(Kz)
+                as vectors (saves memory).
+            PseudoDifferential. Pseudo differential model using matrix
+                diagonalization for decoupling of equations.
             FiniteDifferenceTimeDifferenceReduced. Using a finite difference time difference scheme
                 in time and space with the parabolic approximation. The matrices used for
                 differentiation are banded to improve computation time.
@@ -233,8 +239,10 @@ class MainControl:
         """
         The type of diffraction
             NoDiffraction. No diffraction
-            ExactDiffraction. Exact diffraction using angular spectrum with Kz as a variable
-            AngularSpectrumDiffraction. Angular spectrum with Kz as vectors (saves memory)
+            ExactDiffraction. Exact diffraction using angular spectrum
+                with wave number operator(Kz) as a variable
+            AngularSpectrumDiffraction. Angular spectrum with wave number operator(Kz)
+                as vectors (saves memory)
             PseudoDifferential. Pseudo differential model using matrix diagonalization for
                 decoupling of equations
             FiniteDifferenceTimeDifferenceReduced. Using a finite difference time difference scheme

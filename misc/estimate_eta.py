@@ -1,51 +1,72 @@
+"""
+estimate_eta.py
+"""
+import math
 import time
+from typing import List
 
-import numpy
+_TEN_PERCENT = 10
+_TIME_TO_SHOW = 10
+_MINUTE = 60
+_HOUR = _MINUTE * 60
+_DECIMAL = 10
+_DAY_HOUR = 24
+_PERCENT = 100
 
 
-def estimate_eta(t,
-                 nsteps,
-                 step,
-                 tlap,
-                 bwflag=0):
-    if bwflag != 0:
-        fstr = 'to end of body_wall'
+def estimate_eta(times: List[float],
+                 num_steps: int,
+                 step_index: int,
+                 lap_time: float,
+                 body_wall: bool = False):
+    """
+    TODO Might need better design
+    :param times:
+    :param num_steps:
+    :param step_index:
+    :param lap_time:
+    :param body_wall:
+    :return:
+    """
+    if body_wall:
+        _type = 'to end of body wall'
     else:
-        fstr = 'to final end_point'
-    step = step + 1
-    if (numpy.mod(step, numpy.ceil(nsteps / 10)) == 0 or t[step] - tlap > 30) and step < nsteps:
-        pcomp = step / nsteps
-        prestime = time.localtime()
-        tlap = t[step]
-        ttot = t[step] / pcomp
-        eta = t[step] - ttot
-        eth = prestime.tm_hour + numpy.floor(-eta / 3600.0)
-        eta = eta + numpy.floor(-eta / 3600.0) * 3600.0
-        etm = prestime.tm_min + numpy.floor(-eta / 60.0)
+        _type = 'to final end point'
+    step_index = step_index + 1
+    _ten_percent = (step_index % math.ceil(num_steps / _TEN_PERCENT)) == 0
+    if _ten_percent or times[step_index] - lap_time > _TIME_TO_SHOW:
+        _progress = float(step_index) / float(num_steps)
+        _current_time = time.localtime()
+        _lap_time = times[step_index]
+        _estimated_total_time = times[step_index] / _progress
+        _eta = times[step_index] - _estimated_total_time
+        _eth = _current_time.tm_hour + math.floor(-_eta / _HOUR)
+        _eta = _eta + math.floor(-_eta / _HOUR) * _HOUR
+        _etm = _current_time.tm_min + math.floor(-_eta / _MINUTE)
 
-        if etm >= 60:
-            eeth = eth + 1
-            etm = numpy.mod(etm, 60)
-        if etm < 10:
-            mstr = '{:1d}'.format(int(etm))
+        if _etm >= _MINUTE:
+            _etm = _etm % _MINUTE
+        if _etm < _DECIMAL:
+            _minutes_str = '{:1d}'.format(int(_etm))
         else:
-            mstr = '{:2d}'.format(int(etm))
-        if eth >= 24:
-            dstr = '+{:2d}'.format(int(numpy.floor(eth / 24)))
-            eth = numpy.mod(eth, 24)
+            _minutes_str = '{:2d}'.format(int(_etm))
+        if _eth >= _DAY_HOUR:
+            _day_str = '+{:2d}'.format(int(math.floor(_eth / _DAY_HOUR)))
+            _eth = _eth % _DAY_HOUR
         else:
-            dstr = ''
-        if eth < 10:
-            hstr = '{:1d}'.format(int(eth))
+            _day_str = ''
+        if _eth < _DECIMAL:
+            _hours_str = '{:1d}'.format(int(_eth))
         else:
-            hstr = '{:2d}'.format(int(eth))
-        tstr = '{}:{} {}'.format(hstr, mstr, dstr)
+            _hours_str = '{:2d}'.format(int(_eth))
+        _time_str = '{}:{} {}'.format(_hours_str, _minutes_str, _day_str)
 
-        print('Simulation {} is {:2.2f} percent complete (st. {}/{}), ETA {}'.format(fstr,
-                                                                                     100 * pcomp,
-                                                                                     step, nsteps,
-                                                                                     tstr))
+        print('Simulation {} {:2.2f} % progress ({}/{}), ETA {}'.format(_type,
+                                                                        _PERCENT * _progress,
+                                                                        step_index,
+                                                                        num_steps,
+                                                                        _time_str))
     else:
-        tlap = tlap
+        _lap_time = lap_time
 
-    return tlap
+    return _lap_time

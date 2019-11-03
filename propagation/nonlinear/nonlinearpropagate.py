@@ -7,7 +7,7 @@ from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpec
 from misc.make_banded import make_banded
 from propagation import propagate
 from propagation.get_diffmatrix import get_diffmatrix
-from propagation.get_wavenumbers import get_wavenumbers
+from propagation.get_wave_numbers import get_wave_numbers
 from propagation.nonlinear.nonlinattenuationsplit import nonlinattenuationsplit
 
 
@@ -15,18 +15,19 @@ def nonlinearpropagate(u_z,
                        direction: int,
                        control,
                        equidistant_steps,
-                       kz=None,
+                       wave_numbers=None,
                        eps_n=None,
                        eps_a=None,
                        eps_b=None):
-    global KZ
-    if kz is not None:
-        KZ = kz
-        del kz
+    # TODO Remove global variables
+    if wave_numbers is not None:
+        _wave_numbers = wave_numbers
+    else:
+        _wave_numbers = wave_numbers
 
     # initialization
-    if KZ.size == 0:
-        KZ = get_wavenumbers(control)
+    if _wave_numbers.size == 0:
+        _wave_numbers = get_wave_numbers(control, equidistant_steps)
 
     # preparation of variables
     mat = control.material.material
@@ -62,7 +63,7 @@ def nonlinearpropagate(u_z,
         A = d * get_diffmatrix(2 * perfect_matching_layer_width, resolution_x, 4)
     if diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
             diffraction_type == FiniteDifferenceTimeDifferenceFull:
-        if numpy.abs(KZ[4] - d) > 1e-12:
+        if numpy.abs(_wave_numbers[4] - d) > 1e-12:
             # find difference matrix A
             Ax = d * get_diffmatrix(num_points_x, resolution_x, 4, annular_transducer)
             Bx = numpy.eye(num_points_x) + Ax
@@ -87,7 +88,7 @@ def nonlinearpropagate(u_z,
         if diffraction_type == ExactDiffraction or \
                 diffraction_type == AngularSpectrumDiffraction or \
                 diffraction_type == PseudoDifferential:
-            u_z = propagate.propagate(u_z, 2 * direction, control, equidistant_steps, KZ)
+            u_z = propagate.propagate(control, u_z, 2 * direction, equidistant_steps, _wave_numbers)
         elif diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
                 diffraction_type == FiniteDifferenceTimeDifferenceFull:
             raise NotImplementedError

@@ -13,13 +13,13 @@ class NoDiffraction(IDiffractionType):
 
 class ExactDiffraction(IDiffractionType):
     """
-    Exact diffraction using angular spectrum with Kz as a variable
+    Exact diffraction using angular spectrum with wave number operator(Kz) as a variable
     """
 
 
 class AngularSpectrumDiffraction(IDiffractionType):
     """
-    Angular spectrum with Kz as vectors (saves memory)
+    Angular spectrum with wave number operator(Kz) as vectors (saves memory)
     """
 
 

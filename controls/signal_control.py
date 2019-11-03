@@ -9,6 +9,7 @@ from controls.domain_control import DomainControl
 class SignalControl:
     """
     SignalControl
+    TODO Need unit tests
     """
 
     def __init__(self,

@@ -12,6 +12,7 @@ from diffraction.interfaces import IDiffractionType
 class TransducerControl:
     """
     TransducerControl
+    TODO Need unit tests
     """
 
     def __init__(self,

@@ -1,22 +1,24 @@
+"""
+propagate.py
+"""
 import numpy
 
 from diffraction.diffraction import ExactDiffraction, AngularSpectrumDiffraction, \
     PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-from propagation.get_wavenumbers import get_wavenumbers
+from propagation.get_wave_numbers import get_wave_numbers
 from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
 
 
-def propagate(u_z,
+def propagate(control,
+              u_z,
               direction: int,
-              control,
               equidistant_steps,
-              Kz=None):
-    global KZ
-
-    if Kz is not None:
-        KZ = Kz
-        del Kz
+              wave_numbers=None):
+    if wave_numbers is not None:
+        _wave_numbers = wave_numbers
+    else:
+        _wave_numbers = wave_numbers
 
     diffraction_type = control.diffraction_type
     non_linearity = control.non_linearity
@@ -38,8 +40,8 @@ def propagate(u_z,
         diffraction_type == PseudoDifferential) and \
             (non_linearity is False or abs(direction) == 2):
         # Linear propagation and exact diffraction
-        if KZ.size == 0:
-            KZ = get_wavenumbers(control, equidistant_steps)
+        if _wave_numbers.size == 0:
+            _wave_numbers = get_wave_numbers(control, equidistant_steps)
 
         # Forward spatial transform
         if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
@@ -50,7 +52,7 @@ def propagate(u_z,
             else:
                 u_z = numpy.fft.fftn(u_z, axes=(1,))
         elif diffraction_type == PseudoDifferential:
-            tmp = KZ[:, num_points_x:]
+            tmp = _wave_numbers[:, num_points_x:]
             raise NotImplementedError
 
         # Forward temporal FFT
@@ -59,17 +61,18 @@ def propagate(u_z,
         # Propagation step
         if diffraction_type == ExactDiffraction or diffraction_type == PseudoDifferential:
             if equidistant_steps:
-                u_z = u_z * numpy.squeeze(KZ[:num_points_t, :num_points_x * num_points_y])
+                u_z = u_z * numpy.squeeze(
+                    _wave_numbers[:num_points_t, :num_points_x * num_points_y])
             else:
                 u_z = u_z * numpy.exp(
                     (-1j * step_size) * numpy.squeeze(
-                        KZ[:num_points_t, :num_points_x * num_points_y, 0]))
+                        _wave_numbers[:num_points_t, :num_points_x * num_points_y, 0]))
         elif diffraction_type == AngularSpectrumDiffraction:
             raise NotImplementedError
-            kx = KZ[:num_points_x, 0]
-            ky = KZ[:num_points_y, 1]
-            kt = KZ[:num_points_t, 2]
-            loss = KZ[:num_points_t, 3]
+            kx = _wave_numbers[:num_points_x, 0]
+            ky = _wave_numbers[:num_points_y, 1]
+            kt = _wave_numbers[:num_points_t, 2]
+            loss = _wave_numbers[:num_points_t, 3]
             kk = 1
             for ii in range(num_points_x):
                 kx2 = kx[ii] ** 2
@@ -107,7 +110,7 @@ def propagate(u_z,
           diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
             (non_linearity or attenuation):
         # Nonlinear propagation in external function
-        u_z = nonlinearpropagate(u_z, direction, control, equidistant_steps, KZ)
+        u_z = nonlinearpropagate(u_z, direction, control, equidistant_steps, _wave_numbers)
     else:
         print('Propagation type must be specified')
         exit(-1)

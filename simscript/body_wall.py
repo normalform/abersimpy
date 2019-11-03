@@ -5,23 +5,20 @@ import numpy
 
 from controls.consts import AberrationFromDelayScreenBodyWall
 from heterogeneous.aberration import aberration
-from propagation.get_wavenumbers import get_wavenumbers
+from propagation.get_wave_numbers import get_wave_numbers
 
 
-def body_wall(u_z,
+def body_wall(control,
+              u_z,
               dir,
-              control,
               equidistant_steps,
-              Kz=None,
+              wave_numbers=None,
               w=None,
               phantom=None):
-    global KZ
-    if 'Kz' in globals():
-        KZ = Kz
-        del Kz
-
-    if KZ is not None:
-        KZ = get_wavenumbers(control, equidistant_steps)
+    if wave_numbers is not None:
+        _wave_numbers = get_wave_numbers(control, equidistant_steps)
+    else:
+        _wave_numbers = wave_numbers
 
     # Initiates profiles
     rmspro = None

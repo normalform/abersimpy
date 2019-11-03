@@ -8,8 +8,8 @@ from postprocessing.get_max import get_max
 from postprocessing.get_rms import get_rms
 
 
-def export_beamprofile(u_z,
-                       control,
+def export_beamprofile(control,
+                       u_z,
                        rmpro=None,
                        mxpro=None,
                        axpls=None,
