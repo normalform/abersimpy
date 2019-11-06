@@ -5,7 +5,7 @@ import numpy
 
 from misc.time_shift import time_shift
 from transducer.get_focal_curvature import get_focal_curvature
-from transducer.get_xdidx import get_xdidx
+from transducer.get_transducer_indexes import get_transducer_indexes
 
 
 def focus_pulse(control,
@@ -56,57 +56,62 @@ def focus_pulse(control,
     _physical_lens_y = physical_lens
 
     # find sizes and indices
-    idxxs, idxys, _, _, _ = get_xdidx(control)
-    (num_points_t, uny, unx) = wave_field.shape
-    if unx == 1:
-        unx = uny
-        uny = 1
-    if unx >= numpy.max(idxxs) and uny >= numpy.max(idxys):
+    _surface_indexes_x, _surface_indexes_y, _, _, _ = get_transducer_indexes(control)
+    _num_points_t, _num_wave_field_y, _num_wave_field_x = wave_field.shape
+    if _num_wave_field_x == 1:
+        _num_wave_field_x = _num_wave_field_y
+        _num_wave_field_y = 1
+    if _num_wave_field_x >= numpy.max(_surface_indexes_x) \
+            and _num_wave_field_y >= numpy.max(_surface_indexes_y):
         raise NotImplementedError
     else:
-        idxxs = range(unx)
-        idxys = range(0, uny)
-        u_foc = wave_field
-    xdnx = len(idxxs)
-    xdny = len(idxys)
+        _surface_indexes_x = range(_num_wave_field_x)
+        _surface_indexes_y = range(0, _num_wave_field_y)
+        _focused_wave_field = wave_field
+    _num_surface_x = len(_surface_indexes_x)
+    _num_surface_y = len(_surface_indexes_y)
 
     # calculate focusing
     if _annular_transducer:
         raise NotImplementedError
     else:
         # straight forward rectangular transducer
-        Rx = get_focal_curvature(_focus_azimuth,
-                                 xdnx,
-                                 _num_elements_azimuth,
-                                 _resolution_x,
-                                 _elements_size_azimuth,
-                                 _lens_focusing[0],
-                                 _annular_transducer,
-                                 _diffraction_type)
-        Ry = get_focal_curvature(_focus_elevation,
-                                 xdny,
-                                 _num_elements_elevation,
-                                 _resolution_y,
-                                 _elements_size_elevation,
-                                 _lens_focusing[1],
-                                 _annular_transducer,
-                                 _diffraction_type)
-        if isinstance(Ry, numpy.ndarray) is False:
-            Ry = numpy.array([Ry])
-        deltafocx = numpy.ones((xdny, 1)) * numpy.transpose(Rx) / _sound_speed
-        deltafocy = Ry[..., numpy.newaxis] / _sound_speed * numpy.ones(xdnx)
+        _focal_curvature_x = get_focal_curvature(_focus_azimuth,
+                                                 _num_surface_x,
+                                                 _num_elements_azimuth,
+                                                 _resolution_x,
+                                                 _elements_size_azimuth,
+                                                 _lens_focusing[0],
+                                                 _annular_transducer,
+                                                 _diffraction_type)
+        _focal_curvature_y = get_focal_curvature(_focus_elevation,
+                                                 _num_surface_y,
+                                                 _num_elements_elevation,
+                                                 _resolution_y,
+                                                 _elements_size_elevation,
+                                                 _lens_focusing[1],
+                                                 _annular_transducer,
+                                                 _diffraction_type)
+        if isinstance(_focal_curvature_y, numpy.ndarray) is False:
+            _focal_curvature_y = numpy.array([_focal_curvature_y])
+        _delta_focus_x = numpy.ones((_num_surface_y, 1)) * numpy.transpose(
+            _focal_curvature_x) / _sound_speed
+        _delta_focus_y = _focal_curvature_y[..., numpy.newaxis] / _sound_speed * numpy.ones(
+            _num_surface_x)
         if _physical_lens_x != 0:
-            deltafocx = deltafocx - numpy.max(deltafocx)
+            _delta_focus_x = _delta_focus_x - numpy.max(_delta_focus_x)
         else:
-            deltafocx = deltafocx - numpy.min(deltafocx)
+            _delta_focus_x = _delta_focus_x - numpy.min(_delta_focus_x)
         if _physical_lens_y != 0:
-            deltafocy = deltafocy - numpy.max(deltafocy)
+            _delta_focus_y = _delta_focus_y - numpy.max(_delta_focus_y)
         else:
-            deltafocy = deltafocy - numpy.min(deltafocy)
-        deltafoc = deltafocx + deltafocy
+            _delta_focus_y = _delta_focus_y - numpy.min(_delta_focus_y)
+        _delta_focus = _delta_focus_x + _delta_focus_y
 
+    _wave_field = wave_field
     if no_focusing is False:
-        wave_field[:, slice(idxys[0], idxys[-1] + 1), slice(idxxs[0], idxxs[-1] + 1)] = \
-            time_shift(u_foc, -deltafoc / _resolution_t, 'fft')
+        _wave_field[:, slice(_surface_indexes_y[0], _surface_indexes_y[-1] + 1),
+        slice(_surface_indexes_x[0], _surface_indexes_x[-1] + 1)] = \
+            time_shift(_focused_wave_field, -_delta_focus / _resolution_t, 'fft')
 
-    return wave_field, deltafoc
+    return _wave_field, _delta_focus

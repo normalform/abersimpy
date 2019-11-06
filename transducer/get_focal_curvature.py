@@ -1,3 +1,6 @@
+"""
+get_focal_curvature.py
+"""
 import numpy
 import scipy.interpolate
 
@@ -5,36 +8,55 @@ from diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction, E
     PseudoDifferential
 
 
-def get_focal_curvature(F,
-                        ndx,
-                        Nel,
+def get_focal_curvature(focal_depth,
+                        num_points,
+                        num_elements,
                         resolution_x,
-                        elsize=None,
-                        lensfoc=numpy.inf,
+                        element_size=None,
+                        lens_focal_depth=numpy.inf,
                         annular_transducer=False,
                         diffraction_type=ExactDiffraction):
-    if elsize is None:
-        elsize = ndx * resolution_x / Nel
+    """
+    Calculates focal curvature.
+    :param focal_depth: Focal depth for delay focusing.
+    :param num_points: Number of points across transducer.
+    :param num_elements: Number of elements.
+    :param resolution_x: Resolution across transducer.
+    :param element_size: Element size of transducer.
+    :param lens_focal_depth: Focal depth for lens focusing. Default is Inf;
+    :param annular_transducer: Flag for annular transducer.
+    :param diffraction_type: Flag specifying diffraction model. If diffraction_type is one of
+        NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction or, PseudoDifferential,
+        a full wave equation and spherical focal curvature is assumed.
+        For diffraction_type is one of FiniteDifferenceTimeDifferenceReduced or
+        FiniteDifferenceTimeDifferenceFull, a parabolic approximation is assumed.
+    :return:
+    """
+    if element_size is None:
+        _element_size = num_points * resolution_x / num_elements
+    else:
+        _element_size = element_size
 
-    # if number of points ar one
-    if ndx <= 1:
+    # if number of points is one
+    if num_points <= 1:
         return 0
 
     # use delay focusing for more than one element
-    if Nel > 1:
-        if F == numpy.inf:
-            Rd = numpy.zeros((ndx, 1))
+    if num_elements > 1:
+        if focal_depth == numpy.inf:
+            _rd = numpy.zeros((num_points, 1))
         else:
-            nsprel = numpy.round(elsize / resolution_x)
+            nsprel = numpy.round(element_size / resolution_x)
             if annular_transducer:
-                ae = numpy.arange(0, Nel) * elsize
+                ae = numpy.arange(0, num_elements) * element_size
             else:
-                ae = numpy.arange(-int(numpy.floor(Nel / 2)), int(numpy.ceil(Nel / 2))) * \
-                     elsize + numpy.mod(Nel + 1, 2) * elsize / 2
-
+                ae = numpy.arange(-int(numpy.floor(num_elements / 2)),
+                                  int(numpy.ceil(num_elements / 2))) * \
+                     element_size + numpy.mod(num_elements + 1, 2) * element_size / 2
             a = numpy.zeros((ae.size * int(nsprel)))
             for x in range(int(nsprel)):
                 a[x::int(nsprel)] = ae
+
             if annular_transducer:
                 if numpy.mod(nsprel, 2) == 0:
                     a = a[int(numpy.ceil(nsprel / 2)):] + resolution_x / 2
@@ -44,35 +66,35 @@ def get_focal_curvature(F,
                     diffraction_type == ExactDiffraction or \
                     diffraction_type == AngularSpectrumDiffraction or \
                     diffraction_type == PseudoDifferential:
-                Rd = numpy.sqrt(a ** 2 + F ** 2) - F
+                _rd = numpy.sqrt(a ** 2 + focal_depth ** 2) - focal_depth
             else:
-                Rd = a ** 2 / (2 * F)
+                _rd = a ** 2 / (2 * focal_depth)
     else:
-        Rd = numpy.zeros(ndx)
+        _rd = numpy.zeros(num_points)
 
-    x = numpy.arange(numpy.max(Rd.shape))
-    xi = numpy.linspace(0, numpy.max(Rd.shape) - 1, ndx)
-    intpf = scipy.interpolate.interp1d(numpy.transpose(x), Rd, kind='nearest')
-    Rd = intpf(numpy.transpose(xi))
+    x = numpy.arange(numpy.max(_rd.shape))
+    xi = numpy.linspace(0, numpy.max(_rd.shape) - 1, num_points)
+    intpf = scipy.interpolate.interp1d(numpy.transpose(x), _rd, kind='nearest')
+    _rd = intpf(numpy.transpose(xi))
 
     # use evnetual lens focusing
-    if lensfoc is not numpy.inf and lensfoc != 0.0:
+    if lens_focal_depth is not numpy.inf and lens_focal_depth != 0.0:
         if annular_transducer:
-            ac = numpy.arange(0, ndx) * resolution_x + numpy.mod(ndx + 1, 2) * resolution_x / 2
+            ac = numpy.arange(0, num_points) * resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
         else:
-            ac = numpy.arange(-int(numpy.floor(ndx / 2)), int(numpy.ceil(ndx / 2))) * \
-                 resolution_x + numpy.mod(ndx + 1, 2) * resolution_x / 2
+            ac = numpy.arange(-int(numpy.floor(num_points / 2)), int(numpy.ceil(num_points / 2))) * \
+                 resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
         if diffraction_type == NoDiffraction or \
                 diffraction_type == ExactDiffraction or \
                 diffraction_type == AngularSpectrumDiffraction or \
                 diffraction_type == PseudoDifferential:
-            R1 = numpy.sqrt(ac ** 2 + lensfoc ** 2) - lensfoc
+            R1 = numpy.sqrt(ac ** 2 + lens_focal_depth ** 2) - lens_focal_depth
         else:
-            R1 = ac ** 2 / (2 * lensfoc)
+            R1 = ac ** 2 / (2 * lens_focal_depth)
     else:
         R1 = 0
 
-    R = Rd + R1
+    R = _rd + R1
     R = R - numpy.min(R)
 
     return R

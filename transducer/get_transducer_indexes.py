@@ -1,7 +1,16 @@
 import numpy
 
 
-def get_xdidx(control):
+def get_transducer_indexes(control):
+    """
+    Function that returns the indices in x and y covered by the transducer surface.
+    :param control: The control.
+    :return: Indices for the transducer surface in the x-direction.
+             Indices for the transducer surface in the y-direction.
+             The indices for the area outside the transducer in x.
+             The indices for the area outside the transducer in y.
+             The center channel for the transducer field.
+    """
     # initiation of parameters
     num_points_x = control.domain.num_points_x
     num_points_y = control.domain.num_points_y

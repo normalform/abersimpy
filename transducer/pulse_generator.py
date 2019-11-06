@@ -4,7 +4,7 @@ from scipy.signal import hilbert
 from filter.bandpass import bandpass
 from transducer.focus_pulse import focus_pulse
 from transducer.get_apodization import get_apodization
-from transducer.get_xdidx import get_xdidx
+from transducer.get_transducer_indexes import get_transducer_indexes
 
 
 def pulse_generator(control,
@@ -13,7 +13,7 @@ def pulse_generator(control,
                     signal: str = 'gaussian',
                     lensfoc=None,
                     pos=[0, 0],
-                    nofocflag=0):
+                    nofocflag: bool = False):
     """
     Generates a pulse with a given frequency, given number of periods,
     and with the specified the resolution.
@@ -63,7 +63,7 @@ def pulse_generator(control,
     annular_transducer = control.annular_transducer
 
     # set length of transducer
-    (idxx, idxy, _, _, _) = get_xdidx(control)
+    (idxx, idxy, _, _, _) = get_transducer_indexes(control)
     xdnx = idxx.size
     xdny = idxy.size
 
