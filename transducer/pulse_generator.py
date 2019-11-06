@@ -145,7 +145,7 @@ def pulse_generator(control,
         # create wave field
         xdsig = signal[..., numpy.newaxis] * A.reshape((xdnx * xdny))
         xdsig = xdsig.reshape((num_points_t, xdny, xdnx))
-        xdsig, deltafoc = focus_pulse(xdsig, control, lensfoc, nofocflag)
+        xdsig, deltafoc = focus_pulse(control, xdsig, lensfoc, nofocflag)
 
         # create full domain
         u = numpy.zeros((num_points_t, num_points_y, num_points_x))
