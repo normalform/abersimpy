@@ -1,0 +1,19 @@
+# Disable plotting loop (i.e., comment 'plt.show()')
+
+# Run the simulation with the profiler
+python -m cProfile -o tutorial_2Dlinhom.prof tutorial_2Dlinhom.py
+
+# Using built-in pstats
+python -m pstats tutorial_2Dlinhom.prof
+
+## Some examples with the pstats
+ - sort tottime
+ - stats 10
+ - callers 10
+
+# using Tuna
+pip3 install tuna
+
+tuna tutorial_2Dlinhom.prof
+Use chrome to open 'localhost:8000' URL
+
