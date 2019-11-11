@@ -6,8 +6,8 @@ from typing import List
 import numpy
 
 from controls import consts
-from material.aberration_phantom import AberrationPhantom
-from material.interfaces import IMaterial
+from system.material.aberration_phantom import AberrationPhantom
+from system.material.interfaces import IMaterial
 
 
 class MaterialControl:

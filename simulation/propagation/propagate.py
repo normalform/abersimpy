@@ -4,11 +4,11 @@ propagate.py
 import numpy
 
 from controls.main_control import MainControl
-from diffraction.diffraction import ExactDiffraction, AngularSpectrumDiffraction, \
+from simulation.get_wave_numbers import get_wave_numbers
+from simulation.propagation.nonlinear.nonlinear_propagate import nonlinear_propagate
+from system.diffraction.diffraction import ExactDiffraction, AngularSpectrumDiffraction, \
     PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-from propagation.get_wave_numbers import get_wave_numbers
-from propagation.nonlinear.nonlinear_propagate import nonlinear_propagate
 
 
 def propagate(control: MainControl,

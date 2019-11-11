@@ -4,8 +4,8 @@ focus_pulse.py
 import numpy
 
 from filter.get_frequencies import get_frequencies
-from transducer.get_focal_curvature import get_focal_curvature
-from transducer.get_transducer_indexes import get_transducer_indexes
+from system.transducer.get_focal_curvature import get_focal_curvature
+from system.transducer.get_transducer_indexes import get_transducer_indexes
 
 
 def focus_pulse(control,
@@ -121,9 +121,9 @@ def _time_shift(signal: numpy.ndarray,
                 delta: numpy.ndarray,
                 method='fft') -> numpy.ndarray:
     """
-    Shift the elements in u by delta along the first dimension (cols).
-    If delta is a scalar, then every column in u is shifted by the same amount.
-    If delta is a vector, then u(i,:) is shifted by delta(i).
+    Shift the elements in pulse by delta along the first dimension (cols).
+    If delta is a scalar, then every column in pulse is shifted by the same amount.
+    If delta is a vector, then pulse(i,:) is shifted by delta(i).
     Positive values of delta gives a shift down. Negative values a shift up.
     :param signal: Signal to be shifted.
     :param delta:  Number of samples to shift.

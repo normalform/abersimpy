@@ -2,7 +2,7 @@
 diffraction.py
 """
 
-from diffraction.interfaces import IDiffractionType
+from system.diffraction.interfaces import IDiffractionType
 
 
 class NoDiffraction(IDiffractionType):

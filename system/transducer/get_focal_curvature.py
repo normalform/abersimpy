@@ -4,8 +4,8 @@ get_focal_curvature.py
 import numpy
 import scipy.interpolate
 
-from diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction, ExactDiffraction, \
-    PseudoDifferential
+from system.diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction, \
+    ExactDiffraction, PseudoDifferential
 
 
 def get_focal_curvature(focal_depth,

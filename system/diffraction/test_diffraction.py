@@ -2,7 +2,7 @@
 
 import unittest
 
-from diffraction.diffraction import NoDiffraction, \
+from system.diffraction.diffraction import NoDiffraction, \
     ExactDiffraction, \
     AngularSpectrumDiffraction, \
     PseudoDifferential, \

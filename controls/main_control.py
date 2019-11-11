@@ -9,11 +9,11 @@ from controls.material_control import MaterialControl
 from controls.signal_control import SignalControl
 from controls.simulation_control import SimulationControl
 from controls.transducer_control import TransducerControl
-from diffraction.diffraction import ExactDiffraction, PseudoDifferential
-from diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction
-from diffraction.interfaces import IDiffractionType
-from material.interfaces import IMaterial
-from material.muscle import Muscle
+from system.diffraction.diffraction import ExactDiffraction, PseudoDifferential
+from system.diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction
+from system.diffraction.interfaces import IDiffractionType
+from system.material.interfaces import IMaterial
+from system.material.muscle import Muscle
 
 
 class MainControl:

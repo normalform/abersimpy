@@ -9,8 +9,8 @@ from scipy.signal import hilbert
 
 from controls.main_control import MainControl
 from filter.bandpass import bandpass
-from transducer.focus_pulse import focus_pulse
-from transducer.get_transducer_indexes import get_transducer_indexes
+from system.transducer.focus_pulse import focus_pulse
+from system.transducer.get_transducer_indexes import get_transducer_indexes
 
 
 def pulse_generator(control: MainControl,

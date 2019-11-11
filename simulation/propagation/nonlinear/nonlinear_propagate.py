@@ -6,14 +6,14 @@ import scipy.sparse
 
 from controls.consts import ScaleForSpatialVariablesZ, ScaleForTemporalVariable
 from controls.main_control import MainControl
-from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, \
-    PseudoDifferential, \
+from simulation.get_wave_numbers import get_wave_numbers
+from simulation.propagation import propagate
+from simulation.propagation.nonlinear.attenuation_solve import attenuation_solve
+from simulation.propagation.nonlinear.burgers_solve import burgers_solve
+from system.diffraction.diffraction import NoDiffraction, ExactDiffraction, \
+    AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-from material.muscle import Muscle
-from propagation import propagate
-from propagation.get_wave_numbers import get_wave_numbers
-from propagation.nonlinear.attenuation_solve import attenuation_solve
-from propagation.nonlinear.burgers_solve import burgers_solve
+from system.material.muscle import Muscle
 
 
 def nonlinear_propagate(control: MainControl,

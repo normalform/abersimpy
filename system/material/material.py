@@ -8,7 +8,7 @@ import numpy
 from scipy.interpolate import interp1d
 
 from controls.consts import ScaleForSpatialVariablesZ, ScaleForPressure, ScaleForTemporalVariable
-from material.interfaces import IMaterial
+from system.material.interfaces import IMaterial
 
 
 class BaseMaterial(IMaterial):

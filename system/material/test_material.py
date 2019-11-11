@@ -4,7 +4,7 @@ import unittest
 
 import numpy
 
-from material.material import BaseMaterial
+from system.material.material import BaseMaterial
 
 
 class StubMaterial(BaseMaterial):

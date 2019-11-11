@@ -6,9 +6,10 @@ from scipy.signal import hilbert
 
 from controls.consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
 from controls.main_control import MainControl
-from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, \
-    PseudoDifferential, FiniteDifferenceTimeDifferenceFull, FiniteDifferenceTimeDifferenceReduced
 from filter.get_frequencies import get_frequencies
+from system.diffraction.diffraction import NoDiffraction, ExactDiffraction, \
+    AngularSpectrumDiffraction, PseudoDifferential, FiniteDifferenceTimeDifferenceFull, \
+    FiniteDifferenceTimeDifferenceReduced
 
 
 def get_wave_numbers(control: MainControl,

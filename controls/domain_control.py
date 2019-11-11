@@ -4,11 +4,11 @@ domain_control.py
 import numpy
 
 from controls.log2_round_off import log2_round_off
-from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, \
-    PseudoDifferential, \
+from system.diffraction.diffraction import NoDiffraction, ExactDiffraction, \
+    AngularSpectrumDiffraction, PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
-from diffraction.interfaces import IDiffractionType
-from material.interfaces import IMaterial
+from system.diffraction.interfaces import IDiffractionType
+from system.material.interfaces import IMaterial
 
 
 class DomainControl:

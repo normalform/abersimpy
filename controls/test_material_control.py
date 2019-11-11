@@ -7,8 +7,8 @@ import numpy.testing
 
 from controls import consts
 from controls.material_control import MaterialControl
-from material.aberration_phantom import AberrationPhantom
-from material.muscle import Muscle
+from system.material.aberration_phantom import AberrationPhantom
+from system.material.muscle import Muscle
 
 
 class MaterialControlTests(unittest.TestCase):

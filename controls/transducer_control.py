@@ -4,9 +4,9 @@ transducer_control.py
 import numpy
 
 from controls.domain_control import DomainControl
-from diffraction.diffraction import PseudoDifferential, \
+from system.diffraction.diffraction import PseudoDifferential, \
     FiniteDifferenceTimeDifferenceFull, FiniteDifferenceTimeDifferenceReduced
-from diffraction.interfaces import IDiffractionType
+from system.diffraction.interfaces import IDiffractionType
 
 
 class TransducerControl:

@@ -151,8 +151,8 @@ def _get_rms(wave_field,
     """
     Returns the RMS pressure profile of a signal.
     :param wave_field: The wave field.
-    :param scale_flag: Flag specifying to use the RMS (sqrt(1/N*sum(u^2))
-        or root of SOS (sqrt(sum(u^2)).
+    :param scale_flag: Flag specifying to use the RMS (sqrt(1/N*sum(pulse^2))
+        or root of SOS (sqrt(sum(pulse^2)).
     :return: The RMS pressure profile of a signal
     """
     if scale_flag:

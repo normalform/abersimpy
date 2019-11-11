@@ -1,19 +1,17 @@
 """
-aberration_phantom.py
+muscle.py
 """
 import numpy
 
-from material.material import BaseMaterial
+from system.material.material import BaseMaterial
 
 
-class AberrationPhantom(BaseMaterial):
+class Muscle(BaseMaterial):
     """
-    AberrationPhantom
-    TODO Need unit tests
+    The Muscle material
     """
 
-    def __init__(self,
-                 temperature: float):
+    def __init__(self, temperature: float):
         super().__init__(temperature)
 
     @property
@@ -22,8 +20,9 @@ class AberrationPhantom(BaseMaterial):
         Get the constant of the attenuation
         :return: The constant of the attenuation
         """
-        temperatures = numpy.array([20.0, 30.0])
-        measurements = numpy.array([0.5, 0.5])
+        temperatures = numpy.array([36.0, 37.0])
+        # db / cm
+        measurements = numpy.array([0.52, 0.52])
 
         return self._interpolation(temperatures, measurements)
 
@@ -33,8 +32,8 @@ class AberrationPhantom(BaseMaterial):
         Get the exponent of the attenuation
         :return: The exponent of the attenuation
         """
-        temperatures = numpy.array([20.0, 30.0])
-        measurements = numpy.array([1.0, 1.0])
+        temperatures = numpy.array([20.0, 40.0])
+        measurements = numpy.array([1.1, 1.1])
 
         return self._interpolation(temperatures, measurements)
 
@@ -44,8 +43,8 @@ class AberrationPhantom(BaseMaterial):
         Get the exponent of the attenuation
         :return: The exponent of the attenuation
         """
-        temperatures = numpy.array([20.0, 30.0])
-        measurements = numpy.array([0.0, 0.0])
+        temperatures = numpy.array([36.0, 37.0])
+        measurements = 1.0 + 0.5 * numpy.array([5.8, 5.8])
 
         return self._interpolation(temperatures, measurements)
 
@@ -55,8 +54,13 @@ class AberrationPhantom(BaseMaterial):
         Get the density
         :return: The density
         """
-        temperatures = numpy.array([20.0, 30.0])
-        measurements = numpy.array([1250.0, 1250.0])
+        # 37 celsius
+        rho0 = 1060.0
+        temp0 = 37.0
+        # volume expansion cow
+        alpha0 = 3.75e-4
+        temperatures = numpy.arange(35, 41)
+        measurements = rho0 * numpy.exp(alpha0 * (temp0 - temperatures))
 
         return self._interpolation(temperatures, measurements)
 
@@ -66,7 +70,10 @@ class AberrationPhantom(BaseMaterial):
         Get the wave speed
         :return: wave speed
         """
-        temperatures = numpy.array([20.0, 30.0])
-        measurements = numpy.array([1640.0, 1640.0])
+        # 18 celsius, cardiac
+        sound_speed = 1529.0
+        scale = 1.1
+        temperatures = numpy.array([18.0, 40.0])
+        measurements = numpy.array([sound_speed, sound_speed + scale * (40.0 - 18.0)])
 
         return self._interpolation(temperatures, measurements)

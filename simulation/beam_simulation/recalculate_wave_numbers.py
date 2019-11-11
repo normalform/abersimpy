@@ -1,7 +1,7 @@
 """
 recalculate_wave_numbers.py
 """
-from propagation.get_wave_numbers import get_wave_numbers
+from simulation.get_wave_numbers import get_wave_numbers
 
 
 def recalculate_wave_numbers(control,

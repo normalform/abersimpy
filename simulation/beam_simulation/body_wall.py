@@ -5,8 +5,8 @@ import numpy
 
 from controls.consts import AberrationFromDelayScreenBodyWall
 from controls.main_control import MainControl
-from propagation.get_wave_numbers import get_wave_numbers
 from simulation.beam_simulation.aberration import aberration
+from simulation.get_wave_numbers import get_wave_numbers
 
 
 def body_wall(control: MainControl,

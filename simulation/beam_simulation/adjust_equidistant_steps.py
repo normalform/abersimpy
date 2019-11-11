@@ -1,6 +1,6 @@
 import numpy
 
-from diffraction.diffraction import ExactDiffraction, PseudoDifferential
+from system.diffraction.diffraction import ExactDiffraction, PseudoDifferential
 
 
 def adjust_equidistant_steps(control,

@@ -2,7 +2,7 @@
 
 import unittest
 
-from material.muscle import Muscle
+from system.material.muscle import Muscle
 
 
 class TestMuscle(unittest.TestCase):
