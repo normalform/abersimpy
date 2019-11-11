@@ -1,17 +1,20 @@
+"""
+plot_beam_profile.py
+"""
 import matplotlib.pyplot as plt
 import numpy
 
-from visualization.makedb import makedb
+from visualization.make_db import make_db
 
 
-def plot_beamprofile(prof,
-                     control,
-                     dyn=40,
-                     harm=0,
-                     nrm=None,
-                     center_channel=None,
-                     fh=None,
-                     cmap='jet'):
+def plot_beam_profile(prof,
+                      control,
+                      dyn=40,
+                      harm=0,
+                      nrm=None,
+                      center_channel=None,
+                      fh=None,
+                      cmap='jet'):
     if center_channel is None:
         center_channel = control.transducer.center_channel
 
@@ -46,7 +49,7 @@ def plot_beamprofile(prof,
 
         if tmp_num_dimensions == 3:
             fig.canvas.set_window_title('Beam profile 3 Dim')
-            data = makedb(numpy.squeeze(tmp[int(center_channel[1]), :, :]), dyn, nrm)
+            data = make_db(numpy.squeeze(tmp[int(center_channel[1]), :, :]), dyn, nrm)
             axs[ii, k].imshow(data,
                               cmap=cmap,
                               aspect='auto',
@@ -55,7 +58,7 @@ def plot_beamprofile(prof,
             axs[ii, k].set_ylabel('Azimuth [mm]')
             axs[ii, k].set_title('Az. {}'.format(htstr))
 
-            data = makedb(numpy.squeeze(tmp[:, int(center_channel[0]), :]), dyn, nrm)
+            data = make_db(numpy.squeeze(tmp[:, int(center_channel[0]), :]), dyn, nrm)
             axs[ii, k + 1].imshow(data,
                                   cmap=cmap,
                                   aspect='auto',
@@ -84,7 +87,7 @@ def plot_beamprofile(prof,
                 yax = y
                 xstr = 'Azimuth [mm]'
             if nh > 1:
-                axs[k].imshow(makedb(tmp, dyn, nrm),
+                axs[k].imshow(make_db(tmp, dyn, nrm),
                               cmap=cmap,
                               aspect='auto',
                               extent=([0, numpy.max(xax), numpy.min(yax), numpy.max(yax)]))

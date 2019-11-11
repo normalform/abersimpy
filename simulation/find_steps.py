@@ -1,6 +1,6 @@
 """
 find_steps.py
-"""""
+"""
 from typing import Tuple
 
 import numpy

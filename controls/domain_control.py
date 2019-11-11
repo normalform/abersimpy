@@ -8,7 +8,7 @@ from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpec
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from diffraction.interfaces import IDiffractionType
 from material.interfaces import IMaterial
-from misc.log2_round_off import log2_round_off
+from controls.log2_round_off import log2_round_off
 
 
 class DomainControl:

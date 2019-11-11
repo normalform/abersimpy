@@ -2,7 +2,7 @@
 
 import unittest
 
-from misc.log2_round_off import log2_round_off
+from controls.log2_round_off import log2_round_off
 
 
 class DiffractionComparison(unittest.TestCase):

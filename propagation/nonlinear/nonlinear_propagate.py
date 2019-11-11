@@ -10,7 +10,6 @@ from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpec
     PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from material.muscle import Muscle
-from misc.make_banded import make_banded
 from propagation import propagate
 from propagation.get_wave_numbers import get_wave_numbers
 from propagation.nonlinear.attenuation_solve import attenuation_solve
@@ -109,8 +108,8 @@ def nonlinear_propagate(control: MainControl,
 
             if _diffraction_type == FiniteDifferenceTimeDifferenceReduced:
                 # Make matrices banded
-                _bx_banded = make_banded(_bx, numpy.arange(-2, 2, dtype=int))
-                _dx_inv_banded = make_banded(_dx_inv, numpy.arange(-10, 10, dtype=int))
+                _bx_banded = _make_banded(_bx, numpy.arange(-2, 2, dtype=int))
+                _dx_inv_banded = _make_banded(_dx_inv, numpy.arange(-10, 10, dtype=int))
             elif _diffraction_type == FiniteDifferenceTimeDifferenceFull:
                 raise NotImplementedError
     elif _diffraction_type in (NoDiffraction,
@@ -302,3 +301,38 @@ def _get_shock_dist(time_span,
         _shock_dist = numpy.inf
 
     return _shock_dist
+
+
+def _make_banded(
+        vector_a: numpy.ndarray,
+        vector_d: numpy.ndarray = None,
+        row_major: bool = False) -> numpy.ndarray:
+    """
+    Returning the diagonals of vector_a specified in vector_d on BLAS banded matrix form.
+    :param vector_a:  Matrix to be treated. The matrix is assumed to be of
+        standard, column major, Matlab form.
+    :param vector_d: Diagonals on vector form (-kl:ku) where 0 denotes main
+        diagonal, -kl denotes the kl'th subdiagonal and ku the ku'th superdiagonal
+    :param row_major: Used if the matrix is supposed to be in rowmajor storage (C-style).
+    :return: The vector_a on banded form.
+    """
+    if vector_d is None:
+        _m, _n = vector_a.shape
+        _vector_d = numpy.range(-_m + 1, _n - 1, dtype=int)
+    else:
+        _vector_d = vector_d
+
+    _num_points_x = numpy.min(vector_a.shape)
+    _banded = numpy.zeros((numpy.max(_vector_d.shape), _num_points_x))
+
+    for _index in range(_vector_d):
+        _diag = numpy.diag(vector_a, _vector_d[_index])
+        _idd = numpy.range(numpy.max(_diag.shape))
+        _stidx = numpy.max(numpy.sign(_vector_d[_index]) * (_num_points_x - numpy.max(_diag.shape)),
+                           0)
+        _banded[_index, _idd + _stidx] = _diag
+
+    if row_major:
+        _banded = numpy.transpose(_banded)
+
+    return _banded

@@ -46,55 +46,57 @@ def get_focal_curvature(focal_depth,
         if focal_depth == numpy.inf:
             _rd = numpy.zeros((num_points, 1))
         else:
-            nsprel = numpy.round(element_size / resolution_x)
+            _nsprel = numpy.round(element_size / resolution_x)
             if annular_transducer:
-                ae = numpy.arange(0, num_elements) * element_size
+                _ae = numpy.arange(0, num_elements) * element_size
             else:
-                ae = numpy.arange(-int(numpy.floor(num_elements / 2)),
-                                  int(numpy.ceil(num_elements / 2))) * \
-                     element_size + numpy.mod(num_elements + 1, 2) * element_size / 2
-            a = numpy.zeros((ae.size * int(nsprel)))
-            for x in range(int(nsprel)):
-                a[x::int(nsprel)] = ae
+                _ae = numpy.arange(-int(numpy.floor(num_elements / 2)),
+                                   int(numpy.ceil(num_elements / 2))) * \
+                      element_size + numpy.mod(num_elements + 1, 2) * element_size / 2
+            _a = numpy.zeros((_ae.size * int(_nsprel)))
+            for _x in range(int(_nsprel)):
+                _a[_x::int(_nsprel)] = _ae
 
             if annular_transducer:
-                if numpy.mod(nsprel, 2) == 0:
-                    a = a[int(numpy.ceil(nsprel / 2)):] + resolution_x / 2
+                if numpy.mod(_nsprel, 2) == 0:
+                    _a = _a[int(numpy.ceil(_nsprel / 2)):] + resolution_x / 2
                 else:
-                    a = a[int(numpy.floor(nsprel / 2)):]
-            if diffraction_type == NoDiffraction or \
-                    diffraction_type == ExactDiffraction or \
-                    diffraction_type == AngularSpectrumDiffraction or \
-                    diffraction_type == PseudoDifferential:
-                _rd = numpy.sqrt(a ** 2 + focal_depth ** 2) - focal_depth
+                    _a = _a[int(numpy.floor(_nsprel / 2)):]
+            if diffraction_type in (NoDiffraction,
+                                    ExactDiffraction,
+                                    AngularSpectrumDiffraction,
+                                    PseudoDifferential):
+                _rd = numpy.sqrt(_a ** 2 + focal_depth ** 2) - focal_depth
             else:
-                _rd = a ** 2 / (2 * focal_depth)
+                _rd = _a ** 2 / (2 * focal_depth)
     else:
         _rd = numpy.zeros(num_points)
 
-    x = numpy.arange(numpy.max(_rd.shape))
-    xi = numpy.linspace(0, numpy.max(_rd.shape) - 1, num_points)
-    intpf = scipy.interpolate.interp1d(numpy.transpose(x), _rd, kind='nearest')
-    _rd = intpf(numpy.transpose(xi))
+    _x = numpy.arange(numpy.max(_rd.shape))
+    _xi = numpy.linspace(0, numpy.max(_rd.shape) - 1, num_points)
+    _interpolation_function = scipy.interpolate.interp1d(numpy.transpose(_x), _rd, kind='nearest')
+    _rd = _interpolation_function(numpy.transpose(_xi))
 
-    # use evnetual lens focusing
+    # use eventual lens focusing
     if lens_focal_depth is not numpy.inf and lens_focal_depth != 0.0:
         if annular_transducer:
-            ac = numpy.arange(0, num_points) * resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
+            _ac = numpy.arange(0, num_points) * \
+                  resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
         else:
-            ac = numpy.arange(-int(numpy.floor(num_points / 2)), int(numpy.ceil(num_points / 2))) * \
-                 resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
-        if diffraction_type == NoDiffraction or \
-                diffraction_type == ExactDiffraction or \
-                diffraction_type == AngularSpectrumDiffraction or \
-                diffraction_type == PseudoDifferential:
-            R1 = numpy.sqrt(ac ** 2 + lens_focal_depth ** 2) - lens_focal_depth
+            _ac = numpy.arange(-int(numpy.floor(num_points / 2)),
+                               int(numpy.ceil(num_points / 2))) * \
+                  resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
+        if diffraction_type in (NoDiffraction,
+                                ExactDiffraction,
+                                AngularSpectrumDiffraction,
+                                PseudoDifferential):
+            _r1 = numpy.sqrt(_ac ** 2 + lens_focal_depth ** 2) - lens_focal_depth
         else:
-            R1 = ac ** 2 / (2 * lens_focal_depth)
+            _r1 = _ac ** 2 / (2 * lens_focal_depth)
     else:
-        R1 = 0
+        _r1 = 0
 
-    R = _rd + R1
-    R = R - numpy.min(R)
+    _r = _rd + _r1
+    _r = _r - numpy.min(_r)
 
-    return R
+    return _r
