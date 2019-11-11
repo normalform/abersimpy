@@ -3,7 +3,7 @@ get_window.py
 """
 import numpy
 
-from simulation.raised_cos import raised_cos
+from simulation.beam_simulation.raised_cos import raised_cos
 
 
 def get_window(num_points,

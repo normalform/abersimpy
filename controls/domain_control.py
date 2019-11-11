@@ -3,12 +3,12 @@ domain_control.py
 """
 import numpy
 
+from controls.log2_round_off import log2_round_off
 from diffraction.diffraction import NoDiffraction, ExactDiffraction, AngularSpectrumDiffraction, \
     PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from diffraction.interfaces import IDiffractionType
 from material.interfaces import IMaterial
-from controls.log2_round_off import log2_round_off
 
 
 class DomainControl:

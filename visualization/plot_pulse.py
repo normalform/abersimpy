@@ -39,7 +39,8 @@ def plot_pulse(u,
             x = numpy.arange(num_points_x) * control.signal.resolution_x * 1e3
 
         if num_dimensions == 3:
-            data = make_db(numpy.transpose(numpy.squeeze(u[:, int(center_channel[1]), :])), dyn, nrm)
+            data = make_db(numpy.transpose(numpy.squeeze(u[:, int(center_channel[1]), :])), dyn,
+                           nrm)
             axs[0, 0].imshow(data,
                              cmap=cmap,
                              aspect='auto',
@@ -51,7 +52,8 @@ def plot_pulse(u,
             axs[0, 1].set_xlabel('Time [us]')
             axs[0, 1].set_ylabel('Pressure [MPa]')
 
-            data = make_db(numpy.transpose(numpy.squeeze(u[:, :, int(center_channel[0])])), dyn, nrm)
+            data = make_db(numpy.transpose(numpy.squeeze(u[:, :, int(center_channel[0])])), dyn,
+                           nrm)
             axs[1, 0].imshow(data,
                              cmap=cmap,
                              aspect='auto',
@@ -92,7 +94,7 @@ def plot_pulse(u,
         U = numpy.fft.fftn(u, axes=(0,))
         nrmf = numpy.max(numpy.max(numpy.abs(U)))
         data = make_db(numpy.transpose(numpy.abs(U[:int(numpy.floor(num_points_t / 2)), :])), dyn,
-                      nrmf)
+                       nrmf)
         axs[nh - 1, 1].imshow(data,
                               cmap=cmap,
                               aspect='auto',
@@ -119,7 +121,7 @@ def plot_pulse(u,
             axs[idx, 0].set_title('Axial pulse, {}. harmonic'.format(idx))
             U = numpy.fft.fftn(tmp, axes=(0,))
             data = make_db(numpy.transpose(numpy.abs(U[:int(numpy.floor(num_points_t / 2)), :])),
-                          dyn, nrmf)
+                           dyn, nrmf)
             axs[idx, 1].imshow(data,
                                cmap=cmap,
                                aspect='auto',

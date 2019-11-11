@@ -36,10 +36,13 @@ class MaterialControlTests(unittest.TestCase):
                                                 MaterialControl._calc_delay_screens_seed(2))
 
     def test_get_num_screen_filename_no_aberration(self):
-        self.assertEqual('', MaterialControl._get_num_screen_filename(consts.NoAberrationAndHomogeneousMedium))
+        self.assertEqual('', MaterialControl._get_num_screen_filename(
+            consts.NoAberrationAndHomogeneousMedium))
 
     def test_get_num_screen_filename_with_aberration_from_file(self):
-        self.assertEqual('randseq.json', MaterialControl._get_num_screen_filename(consts.AberrationFromFile))
+        self.assertEqual('randseq.json',
+                         MaterialControl._get_num_screen_filename(consts.AberrationFromFile))
 
     def test_get_num_screen_filename_with_aberration_phantom(self):
-        self.assertEqual('phantom.json', MaterialControl._get_num_screen_filename(consts.AberrationPhantom))
+        self.assertEqual('phantom.json',
+                         MaterialControl._get_num_screen_filename(consts.AberrationPhantom))

@@ -4,7 +4,7 @@ calc_beam_profiles.py
 import numpy
 
 from controls.consts import NoHistory
-from postprocessing.export_beam_profile import export_beam_profile
+from simulation.post_processing.export_beam_profile import export_beam_profile
 
 
 def calc_beam_profiles(control,

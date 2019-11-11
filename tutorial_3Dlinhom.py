@@ -4,7 +4,7 @@ import numpy
 from controls.consts import NoAberrationAndHomogeneousMedium
 from controls.main_control import MainControl
 from diffraction.diffraction import ExactDiffraction
-from simulation.beam_simulation import beam_simulation
+from simulation.simulation import simulation
 from transducer.pulse_generator import pulse_generator
 from visualization.plot_beam_profile import plot_beam_profile
 from visualization.plot_pulse import plot_pulse
@@ -26,7 +26,7 @@ if __name__ == '__main__':
     plot_pulse(u, control)
 
     # running the simulation
-    u_out, rms_pro, max_pro, ax_pulse, _ = beam_simulation(control, u)
+    u_out, rms_pro, max_pro, ax_pulse, _ = simulation(control, u)
 
     # visualization of results
     plot_beam_profile(rms_pro, control)

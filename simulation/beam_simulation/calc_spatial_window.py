@@ -1,4 +1,4 @@
-from simulation.get_window import get_window
+from simulation.beam_simulation.get_window import get_window
 
 
 def calc_spatial_window(control,

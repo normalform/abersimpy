@@ -6,7 +6,7 @@ from unittest.mock import Mock
 import numpy
 
 from controls import consts
-from simulation.aberration import aberration
+from simulation.beam_simulation.aberration import aberration
 
 
 class TestAberration(unittest.TestCase):

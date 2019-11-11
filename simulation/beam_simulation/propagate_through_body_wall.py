@@ -2,7 +2,7 @@
 propagate_through_body_wall.py
 """
 from controls.consts import NoHistory
-from simulation.body_wall import body_wall
+from simulation.beam_simulation.body_wall import body_wall
 
 
 def propagate_through_body_wall(control,

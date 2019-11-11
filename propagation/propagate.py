@@ -135,4 +135,3 @@ def propagate(control: MainControl,
         exit(-1)
 
     return _wave
-

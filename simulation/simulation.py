@@ -1,5 +1,5 @@
 """
-beam_simulation.py
+simulation.py
 """
 import time
 
@@ -8,24 +8,24 @@ import scipy.sparse
 
 from controls.consts import ProfileHistory
 from controls.main_control import MainControl
-from postprocessing.export_beam_profile import export_beam_profile
 from propagation.get_wave_numbers import get_wave_numbers
 from propagation.propagate import propagate
-from simulation.adjust_equidistant_steps import adjust_equidistant_steps
-from simulation.calc_beam_profiles import calc_beam_profiles
-from simulation.calc_spatial_window import calc_spatial_window
+from simulation.beam_simulation.adjust_equidistant_steps import adjust_equidistant_steps
+from simulation.beam_simulation.calc_beam_profiles import calc_beam_profiles
+from simulation.beam_simulation.calc_spatial_window import calc_spatial_window
+from simulation.beam_simulation.find_steps import find_steps
+from simulation.beam_simulation.propagate_through_body_wall import propagate_through_body_wall
+from simulation.beam_simulation.recalculate_wave_numbers import recalculate_wave_numbers
 from simulation.estimate_eta import estimate_eta
-from simulation.find_steps import find_steps
-from simulation.propagate_through_body_wall import propagate_through_body_wall
-from simulation.recalculate_wave_numbers import recalculate_wave_numbers
+from simulation.post_processing.export_beam_profile import export_beam_profile
 from simulation.reporting_simulation_type import reporting_simulation_type
 
 
-def beam_simulation(control: MainControl,
-                    wave_field: numpy.ndarray,
-                    screen=numpy.array([]),
-                    window=None,
-                    phantom=None):
+def simulation(control: MainControl,
+               wave_field: numpy.ndarray,
+               screen=numpy.array([]),
+               window=None,
+               phantom=None):
     """
     Function that simulates propagation from the transducer to a certain distance.
     The function will depending on the kind of propagation (linear or non-linear)
