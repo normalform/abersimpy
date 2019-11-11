@@ -1,8 +1,8 @@
 import matplotlib.pyplot as plt
 import numpy
 
-from controls.consts import NoAberrationAndHomogeneousMedium
-from controls.main_control import MainControl
+from simulation.controls.consts import NoAberrationAndHomogeneousMedium
+from simulation.controls.main_control import MainControl
 from simulation.simulation import simulation
 from system.diffraction.diffraction import ExactDiffraction
 from system.transducer.pulse_generator import pulse_generator
