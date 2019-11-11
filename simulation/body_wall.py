@@ -5,7 +5,7 @@ import numpy
 
 from controls.consts import AberrationFromDelayScreenBodyWall
 from controls.main_control import MainControl
-from heterogeneous.aberration import aberration
+from simulation.aberration import aberration
 from propagation.get_wave_numbers import get_wave_numbers
 
 
