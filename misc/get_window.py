@@ -64,7 +64,8 @@ def get_window(num_points,
     _window_length_y = _total_num_y - 2 * _num_points_of_zero_y
 
     # create window in x
-    _wx = raised_cos(_window_length_x, _num_points_of_fall_off_x, _total_num_x)
+    _win_length = int(numpy.floor(_window_length_x))
+    _wx = raised_cos(_win_length, _num_points_of_fall_off_x, _total_num_x)
     if _total_num_y == 1 and annular_transducer:
         _wx = _wx[num_points[0]:]
         _total_num_x = _total_num_x / 2
@@ -73,7 +74,8 @@ def get_window(num_points,
     if _total_num_y == 1:
         _wy = numpy.array([1])
     else:
-        _wy = raised_cos(_window_length_y, _num_points_of_fall_off_y, _total_num_y)
+        _win_length = int(numpy.floor(_window_length_y))
+        _wy = raised_cos(_win_length, _num_points_of_fall_off_y, _total_num_y)
 
     # reshape window
     _window = _wy[..., numpy.newaxis] * numpy.transpose(_wx)

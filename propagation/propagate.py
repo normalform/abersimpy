@@ -3,34 +3,35 @@ propagate.py
 """
 import numpy
 
+from controls.main_control import MainControl
 from diffraction.diffraction import ExactDiffraction, AngularSpectrumDiffraction, \
     PseudoDifferential, \
     FiniteDifferenceTimeDifferenceReduced, FiniteDifferenceTimeDifferenceFull
 from propagation.get_wave_numbers import get_wave_numbers
-from propagation.nonlinear.nonlinearpropagate import nonlinearpropagate
+from propagation.nonlinear.nonlinear_propagate import nonlinear_propagate
 
 
-def propagate(control,
-              wave,
+def propagate(control: MainControl,
+              wave: numpy.ndarray,
               direction: int,
-              equidistant_steps,
-              wave_numbers=None):
+              equidistant_steps: bool,
+              wave_numbers: numpy.ndarray = None) -> numpy.ndarray:
     """
     Function that handles propagation of 3D wave field in z-direction using the method of
     angular spectrum. The function will forward the handling of propagation to
     nonlinear_propagate if control.non_linearity is set to True.
     :param control: The controls.
-    :param wave: Wave at position z: wave(x,y,z,t)  TODO reshape for performance
+    :param wave: Wave at position z: wave(x,y,z,t)
     :param direction: Direction of propagation.
         1 - positive z-direction
         -1 - negative z-direction
         For the values +/-2 linear propagation is chosen even if control.non_linearity is True.
     :param equidistant_steps: The flag specifying beam simulation with equidistant steps.
     :param wave_numbers: The wave numbers for the whole region.
-    :return: The resulting field after propagation: u_out(x,y,z+step_size,t)
+    :return: The resulting field after propagation: wave(x,y,z+step_size,t)
     """
-    if wave_numbers is not None:
-        _wave_numbers = wave_numbers
+    if wave_numbers is None:
+        _wave_numbers = get_wave_numbers(control, equidistant_steps)
     else:
         _wave_numbers = wave_numbers
 
@@ -48,7 +49,6 @@ def propagate(control,
         control.simulation.current_position = control.simulation.current_position + _step_size
     elif direction < 0:
         control.simulation.current_position = control.simulation.current_position - _step_size
-
     if (_diffraction_type == ExactDiffraction or
         _diffraction_type == AngularSpectrumDiffraction or
         _diffraction_type == PseudoDifferential) and \
@@ -76,7 +76,8 @@ def propagate(control,
         _wave = numpy.fft.fftn(_wave, axes=(0,))  # FFT in time
 
         # Propagation step
-        if _diffraction_type == ExactDiffraction or _diffraction_type == PseudoDifferential:
+        if _diffraction_type in (ExactDiffraction,
+                                 PseudoDifferential):
             if equidistant_steps:
                 _wave = _wave * numpy.squeeze(
                     _wave_numbers[:_num_points_t, :_num_points_x * _num_points_y])
@@ -84,7 +85,7 @@ def propagate(control,
                 _wave = _wave * numpy.exp(
                     (-1j * _step_size) * numpy.squeeze(
                         _wave_numbers[:_num_points_t, :_num_points_x * _num_points_y, 0]))
-        elif _diffraction_type == AngularSpectrumDiffraction:
+        elif _diffraction_type is AngularSpectrumDiffraction:
             raise NotImplementedError
             _kx = _wave_numbers[:_num_points_x, 0]
             _ky = _wave_numbers[:_num_points_y, 1]
@@ -107,7 +108,8 @@ def propagate(control,
         _wave = numpy.fft.ifftn(_wave, axes=(0,))
 
         # Backward spatial transform
-        if _diffraction_type == ExactDiffraction or _diffraction_type == AngularSpectrumDiffraction:
+        if _diffraction_type in (ExactDiffraction,
+                                 AngularSpectrumDiffraction):
             if control.num_dimensions == 3:
                 _wave = _wave.reshape((_num_points_t, _num_points_y, _num_points_x))
                 _wave = numpy.fft.ifftn(_wave, axes=(1,))
@@ -115,21 +117,22 @@ def propagate(control,
             else:
                 _wave = numpy.fft.ifftn(_wave, axes=(1,))
             _wave = _wave.real
-        elif _diffraction_type == PseudoDifferential:
+        elif _diffraction_type is PseudoDifferential:
             _wave = _wave.real
             raise NotImplementedError
-        elif (_diffraction_type == FiniteDifferenceTimeDifferenceReduced or
-              _diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
+        elif _diffraction_type in (FiniteDifferenceTimeDifferenceReduced,
+                                   FiniteDifferenceTimeDifferenceFull) or \
                 (_non_linearity or _attenuation):
             # Nonlinear propagation in external function
             raise NotImplementedError
-    elif (_diffraction_type == FiniteDifferenceTimeDifferenceReduced or
-          _diffraction_type == FiniteDifferenceTimeDifferenceFull) or \
+    elif _diffraction_type in (FiniteDifferenceTimeDifferenceReduced,
+                               FiniteDifferenceTimeDifferenceFull) or \
             (_non_linearity or _attenuation):
         # Nonlinear propagation in external function
-        _wave = nonlinearpropagate(wave, direction, control, equidistant_steps, _wave_numbers)
+        _wave = nonlinear_propagate(control, wave, direction, equidistant_steps, _wave_numbers)
     else:
         print('Propagation type must be specified')
         exit(-1)
 
     return _wave
+

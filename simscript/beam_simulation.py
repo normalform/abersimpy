@@ -12,7 +12,7 @@ from diffraction.diffraction import ExactDiffraction, PseudoDifferential
 from misc.estimate_eta import estimate_eta
 from misc.find_steps import find_steps
 from misc.get_window import get_window
-from postprocessing.export_beamprofile import export_beamprofile
+from postprocessing.export_beam_profile import export_beam_profile
 from propagation.get_wave_numbers import get_wave_numbers
 from propagation.propagate import propagate
 from simscript.body_wall import body_wall
@@ -171,7 +171,7 @@ def beam_simulation(control: MainControl,
                                           _window)
 
         # calculate beam profiles
-        _rms_pro, _max_pro, _ax_pulse, _z_pos = export_beamprofile(control,
+        _rms_pro, _max_pro, _ax_pulse, _z_pos = export_beam_profile(control,
                                                                    _wave_field,
                                                                    _rms_pro,
                                                                    _max_pro,
@@ -310,7 +310,7 @@ def _calc_beam_profiles(control,
 
     _step_index = 0
 
-    _rms_pro, _max_pro, _ax_pulse, _z_pos = export_beamprofile(control,
+    _rms_pro, _max_pro, _ax_pulse, _z_pos = export_beam_profile(control,
                                                                wave_field,
                                                                _rms_pro,
                                                                _max_pro,
