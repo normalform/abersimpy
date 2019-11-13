@@ -1,14 +1,17 @@
 """
 aberration.py
 """
+from typing import Optional
+
 import numpy
 
 from simulation.controls import consts
 from simulation.controls.main_control import MainControl
+from system.material.aberration_phantom import AberrationPhantom
 
 
 def aberration(control: MainControl,
-               phantom=None) -> numpy.ndarray:
+               phantom: Optional[AberrationPhantom] = None) -> numpy.ndarray:
     """
     Creates a set of time delays based on the body wall model specified by heterogeneity.
 
@@ -18,16 +21,16 @@ def aberration(control: MainControl,
         where the columns are sorted as [x y z R].
     :return:  A set of time delays
     """
-    heterogeneous_medium = control.heterogeneous_medium
+    _heterogeneous_medium = control.heterogeneous_medium
     if phantom is None:
-        heterogeneous_medium = consts.AberrationFromDelayScreenBodyWall
+        _heterogeneous_medium = consts.AberrationFromDelayScreenBodyWall
 
     # pylint: disable=no-else-raise
-    if heterogeneous_medium in (consts.AberrationFromDelayScreenBodyWall,
-                                consts.AberrationFromFile):
+    if _heterogeneous_medium in (consts.AberrationFromDelayScreenBodyWall,
+                                 consts.AberrationFromFile):
         raise NotImplementedError
         # pylint: disable=no-else-raise
-    elif heterogeneous_medium == consts.AberrationPhantom:
+    elif _heterogeneous_medium is consts.AberrationPhantom:
         raise NotImplementedError
     else:
         delta = numpy.array(0.0)

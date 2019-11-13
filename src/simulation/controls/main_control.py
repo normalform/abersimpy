@@ -1,6 +1,8 @@
 """
 main_Control.py
 """
+from typing import Type
+
 import numpy
 
 from simulation.controls.consts import ProfileHistory
@@ -28,7 +30,7 @@ class MainControl:
     def __init__(self,
                  simulation_name: str,
                  num_dimensions: int,
-                 diffraction_type: IDiffractionType,
+                 diffraction_type: Type[IDiffractionType],
                  non_linearity: bool,
                  attenuation: bool,
                  heterogeneous_medium: int,

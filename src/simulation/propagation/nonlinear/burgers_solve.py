@@ -10,7 +10,7 @@ def burgers_solve(time_span,
                   eps_n,
                   resolution_z):
     """
-    Non-linear distortion of periodic pressure puls with original time sampling.
+    Non-linear distortion of periodic pressure pulse with original time sampling.
     :param time_span: Scaled time span.
     :param pressure: Pressure.
     :param permutation: Permutation to be introduced.

@@ -1,6 +1,8 @@
 """
 export_beam_profile.py
 """
+from typing import Optional
+
 import numpy
 from scipy.signal import hilbert
 
@@ -12,8 +14,8 @@ from simulation.filter.bandpass import bandpass
 
 def export_beam_profile(control: MainControl,
                         wave_field: numpy.ndarray,
-                        rms_profile: numpy.ndarray = None,
-                        max_profile: numpy.ndarray = None,
+                        rms_profile: Optional[numpy.ndarray] = None,
+                        max_profile: Optional[numpy.ndarray] = None,
                         ax_pulse=None,
                         z_coordinate=None,
                         step=None):

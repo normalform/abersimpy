@@ -279,7 +279,6 @@ def _get_apodization(num_points_x: int,
                                               apodization_type,
                                               cutoff_percentage[1])
 
-        _apodization = _apodization_y[..., numpy.newaxis] * \
-                       numpy.transpose(_apodization_x)[numpy.newaxis, ...]
+        _apodization = _apodization_y[..., numpy.newaxis] * _apodization_x.T[numpy.newaxis, ...]
 
     return _apodization

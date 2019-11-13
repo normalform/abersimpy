@@ -2,7 +2,7 @@
 bandpass.py
 """
 import math
-from typing import Tuple
+from typing import Tuple, Optional
 
 import numpy
 from scipy.sparse import spdiags
@@ -13,9 +13,9 @@ from simulation.filter.get_frequencies import get_frequencies
 def bandpass(signal: numpy.ndarray,
              center_frequency: numpy.ndarray,
              sampling_interval: float,
-             bandwidth: float = 0.0,
-             steepness: float = 4.0,
-             attenuation: float = -6.0) -> Tuple[numpy.ndarray, numpy.ndarray]:
+             bandwidth: Optional[float] = 0.0,
+             steepness: Optional[float] = 4.0,
+             attenuation: Optional[float] = -6.0) -> Tuple[numpy.ndarray, numpy.ndarray]:
     """
     Performs a bandpass filtering of a signal with sampling frequency = 1 / sampling_interval.
     The filter which is used is

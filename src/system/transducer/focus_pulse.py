@@ -94,8 +94,7 @@ def focus_pulse(control,
                                                  _diffraction_type)
         if isinstance(_focal_curvature_y, numpy.ndarray) is False:
             _focal_curvature_y = numpy.array([_focal_curvature_y])
-        _delta_focus_x = numpy.ones((_num_surface_y, 1)) * numpy.transpose(
-            _focal_curvature_x) / _sound_speed
+        _delta_focus_x = numpy.ones((_num_surface_y, 1)) * _focal_curvature_x.T / _sound_speed
         _delta_focus_y = _focal_curvature_y[..., numpy.newaxis] / _sound_speed * numpy.ones(
             _num_surface_x)
         if _physical_lens_x != 0:

@@ -1,21 +1,26 @@
 """
 get_focal_curvature.py
 """
+import math
+from typing import Optional
+
 import numpy
 import scipy.interpolate
 
 from system.diffraction.diffraction import NoDiffraction, AngularSpectrumDiffraction, \
     ExactDiffraction, PseudoDifferential
+from system.diffraction.interfaces import IDiffractionType
 
 
 def get_focal_curvature(focal_depth,
                         num_points,
                         num_elements,
                         resolution_x,
-                        element_size=None,
-                        lens_focal_depth=numpy.inf,
-                        annular_transducer=False,
-                        diffraction_type=ExactDiffraction):
+                        element_size: Optional[float] = None,
+                        lens_focal_depth: Optional[float] = math.inf,
+                        annular_transducer: Optional[bool] = False,
+                        diffraction_type: Optional[IDiffractionType] = ExactDiffraction) \
+        -> numpy.ndarray:
     """
     Calculates focal curvature.
     :param focal_depth: Focal depth for delay focusing.
@@ -39,11 +44,11 @@ def get_focal_curvature(focal_depth,
 
     # if number of points is one
     if num_points <= 1:
-        return 0
+        return numpy.array(0, dtype=float)
 
     # use delay focusing for more than one element
     if num_elements > 1:
-        if focal_depth == numpy.inf:
+        if focal_depth == math.inf:
             _rd = numpy.zeros((num_points, 1))
         else:
             _nsprel = numpy.round(element_size / resolution_x)
@@ -74,11 +79,11 @@ def get_focal_curvature(focal_depth,
 
     _x = numpy.arange(numpy.max(_rd.shape))
     _xi = numpy.linspace(0, numpy.max(_rd.shape) - 1, num_points)
-    _interpolation_function = scipy.interpolate.interp1d(numpy.transpose(_x), _rd, kind='nearest')
-    _rd = _interpolation_function(numpy.transpose(_xi))
+    _interpolation_function = scipy.interpolate.interp1d(_x.T, _rd, kind='nearest')
+    _rd = _interpolation_function(_xi.T)
 
     # use eventual lens focusing
-    if lens_focal_depth is not numpy.inf and lens_focal_depth != 0.0:
+    if lens_focal_depth is not math.inf and lens_focal_depth != 0.0:
         if annular_transducer:
             _ac = numpy.arange(0, num_points) * \
                   resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2

@@ -1,6 +1,8 @@
 """
 propagate.py
 """
+from typing import Optional
+
 import numpy
 
 from simulation.controls.main_control import MainControl
@@ -15,7 +17,7 @@ def propagate(control: MainControl,
               wave: numpy.ndarray,
               direction: int,
               equidistant_steps: bool,
-              wave_numbers: numpy.ndarray = None) -> numpy.ndarray:
+              wave_numbers: Optional[numpy.ndarray] = None) -> numpy.ndarray:
     """
     Function that handles propagation of 3D wave field in z-direction using the method of
     angular spectrum. The function will forward the handling of propagation to

@@ -1,6 +1,8 @@
 """
 body_wall.py
 """
+from typing import Optional
+
 import numpy
 
 from simulation.beam_simulation.aberration import aberration
@@ -13,8 +15,8 @@ def body_wall(control: MainControl,
               signal: numpy.ndarray,
               direction: int,
               equidistant_steps: bool,
-              wave_numbers: numpy.ndarray = None,
-              window: numpy.ndarray = None,
+              wave_numbers: Optional[numpy.ndarray] = None,
+              window: Optional[numpy.ndarray] = None,
               phantom=None):
     """
     Propagation through a body wall consisting of equidistant delay screens or phantom.
@@ -52,10 +54,10 @@ def body_wall(control: MainControl,
         _wave_numbers = wave_numbers
 
     # Initiates profiles
-    rmspro = None
-    maxpro = None
-    axplse = None
-    zpos = None
+    _rms_profile = None
+    _max_profile = None
+    _ax_pulse = None
+    _z_position = None
 
     # Initiate variables
     num_dimensions = control.num_dimensions

@@ -77,11 +77,10 @@ def nonlinear_propagate(control: MainControl,
     _num_sub_steps = int(numpy.ceil((_step_size / ScaleForSpatialVariablesZ) / _resolution_z))
     _resolution_z = (_step_size / ScaleForSpatialVariablesZ) / _num_sub_steps
     _d = (_sound_speed / 2) * (_resolution_t / 2) * _resolution_z
-    _t_span = numpy.transpose(
-        numpy.linspace(_resolution_t,
-                       _num_points_t *
-                       _resolution_t + _resolution_t,
-                       _num_points_t))
+    _t_span = numpy.linspace(_resolution_t,
+                             _num_points_t *
+                             _resolution_t + _resolution_t,
+                             _num_points_t).T
 
     # assign flags
     _diffraction_type = control.diffraction_type
@@ -303,6 +302,7 @@ def _get_shock_dist(time_span,
     return _shock_dist
 
 
+# TODO remove Matlab form
 def _make_banded(
         vector_a: numpy.ndarray,
         vector_d: numpy.ndarray = None,
@@ -312,8 +312,8 @@ def _make_banded(
     :param vector_a:  Matrix to be treated. The matrix is assumed to be of
         standard, column major, Matlab form.
     :param vector_d: Diagonals on vector form (-kl:ku) where 0 denotes main
-        diagonal, -kl denotes the kl'th subdiagonal and ku the ku'th superdiagonal
-    :param row_major: Used if the matrix is supposed to be in rowmajor storage (C-style).
+        diagonal, -kl denotes the kl'th sub-diagonal and ku the ku'th super-diagonal
+    :param row_major: Used if the matrix is supposed to be in row-major storage (C-style).
     :return: The vector_a on banded form.
     """
     if vector_d is None:
@@ -333,6 +333,6 @@ def _make_banded(
         _banded[_index, _idd + _stidx] = _diag
 
     if row_major:
-        _banded = numpy.transpose(_banded)
+        _banded = _banded.T
 
     return _banded

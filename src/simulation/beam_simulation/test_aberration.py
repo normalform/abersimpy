@@ -7,6 +7,7 @@ import numpy
 
 from simulation.beam_simulation.aberration import aberration
 from simulation.controls import consts
+from system.material.aberration_phantom import AberrationPhantom
 
 
 class TestAberration(unittest.TestCase):
@@ -35,6 +36,12 @@ class TestAberration(unittest.TestCase):
             control = Mock()
             control.heterogeneous_medium = consts.AberrationPhantom
             aberration(control)
+
+    def test_WithPhantomAndAberrationPhantomCase2_Exception_NotSupported(self):
+        with self.assertRaises(NotImplementedError):
+            control = Mock()
+            control.heterogeneous_medium = consts.AberrationPhantom
+            aberration(control, AberrationPhantom(37.0))
 
     def test_WithoutPhantom_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):

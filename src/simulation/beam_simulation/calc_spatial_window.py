@@ -1,3 +1,6 @@
+"""
+calc_spatial_window.py
+"""
 from simulation.beam_simulation.get_window import get_window
 
 

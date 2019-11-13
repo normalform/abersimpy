@@ -1,6 +1,8 @@
 """
 get_wave_numbers.py
 """
+from typing import Optional
+
 import numpy
 from scipy.signal import hilbert
 
@@ -14,7 +16,7 @@ from system.diffraction.diffraction import NoDiffraction, ExactDiffraction, \
 
 def get_wave_numbers(control: MainControl,
                      equidistant_steps: bool,
-                     wave_number_operator: bool = False):
+                     wave_number_operator: Optional[bool] = False):
     """
     Define wave number arrays in Fourier domain used for linear propagation and diffraction
     using the Angular Spectrum method.

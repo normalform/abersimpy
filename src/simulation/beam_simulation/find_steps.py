@@ -1,17 +1,17 @@
 """
 find_steps.py
 """
-from typing import Tuple
+from typing import Tuple, List, Optional
 
 import numpy
-
+import math
 
 def find_steps(start_point: float,
                end_point: float,
                step_size: float,
-               store_position: numpy.ndarray = numpy.array([]),
-               screen_position: numpy.ndarray = numpy.array([])) \
-        -> Tuple[int, numpy.ndarray, numpy.ndarray]:
+               store_position: Optional[numpy.ndarray] = numpy.array([]),
+               screen_position: Optional[numpy.ndarray] = numpy.array([])) \
+        -> Tuple[int, List[float], List[int]]:
     """
     Function that simulates propagation from the transducer to a certain distance.
     The function will depending on the kind of propagation (linear or non-linear)
@@ -31,10 +31,9 @@ def find_steps(start_point: float,
     _Tolerance = 1e-14
     _spec_points = numpy.unique(numpy.concatenate((store_position, screen_position)))
     _current_point = start_point
-    _shape = (int(numpy.ceil(((end_point - start_point) / step_size) +
-                             numpy.max(_spec_points.shape))),)
-    _step_sizes = numpy.zeros(_shape)
-    _step_indexes = numpy.zeros(_shape, dtype=int)
+    _shape = int(math.ceil(((end_point - start_point) / step_size) + numpy.max(_spec_points.shape)))
+    _step_sizes = [0.0] * _shape
+    _step_indexes = [0] * _shape
     _num_steps = 0
 
     # start loop
@@ -59,7 +58,7 @@ def find_steps(start_point: float,
             _index = _index + 1
         else:
             if _spec_distance > step_size and numpy.abs(_spec_distance - step_size) > _Tolerance:
-                _temp_num_steps = numpy.ceil(numpy.sum(_step_sizes / step_size))
+                _temp_num_steps = numpy.ceil(numpy.sum(numpy.array(_step_sizes) / step_size))
                 _spec_distance = _temp_num_steps * step_size - _current_point
                 _step_indexes[_index] = 0
                 if _spec_distance < _Tolerance:
@@ -81,7 +80,7 @@ def find_steps(start_point: float,
                 _step_indexes[_index] = 0
                 _num_steps = _index
                 break
-        _current_point = start_point + numpy.sum(_step_sizes / step_size) * step_size
+        _current_point = start_point + numpy.sum(numpy.array(_step_sizes) / step_size) * step_size
         _num_steps = _index
 
     # adjust size of vectors

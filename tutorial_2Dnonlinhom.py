@@ -6,8 +6,8 @@ from simulation.controls.main_control import MainControl
 from simulation.simulation import simulation
 from system.diffraction.diffraction import ExactDiffraction
 from system.transducer.pulse_generator import pulse_generator
-from visualization import plot_beam_profile
-from visualization import plot_pulse
+from visualization.plot_beam_profile import plot_beam_profile
+from visualization.plot_pulse import plot_pulse
 
 if __name__ == '__main__':
     # generate control
@@ -17,7 +17,10 @@ if __name__ == '__main__':
                           non_linearity=True,
                           attenuation=True,
                           heterogeneous_medium=NoAberrationAndHomogeneousMedium,
-                          harmonic=1)
+                          harmonic=1,
+                          end_point=0.01,
+                          focus_azimuth=0.005,
+                          focus_elevation=0.005)
 
     # generate a  wave field at the transducer
     pulse, _ = pulse_generator(control, 'transducer')

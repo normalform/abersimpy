@@ -1,12 +1,14 @@
 """
 raised_cos.py
 """
+from typing import Optional
+
 import numpy
 
 
 def raised_cos(window_length: int,
                tap_length: int,
-               total_length: int = None) -> numpy.ndarray:
+               total_length: Optional[int] = None) -> numpy.ndarray:
     """
     Returning a Tukey (or raised cosine) window. The window is flat at the middle
     and tapered to zero at the ends with a cosine shape.
