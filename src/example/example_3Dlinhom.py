@@ -1,5 +1,5 @@
 """
-Tutorial for simulation of 2D non-linear homogeneous case
+Example for simulation of 3D linear homogeneous case
 
 Copyright (C) 2020  Jaeho Kim
 
@@ -29,19 +29,19 @@ from visualization.plot_pulse import plot_pulse
 
 if __name__ == '__main__':
     # generate control
-    control = MainControl(simulation_name='test_2dNonlinHom',
-                          num_dimensions=2,
+    control = MainControl(simulation_name='test_3dLinHom',
+                          num_dimensions=3,
                           diffraction_type=ExactDiffraction,
-                          non_linearity=True,
+                          non_linearity=False,
                           attenuation=True,
                           heterogeneous_medium=NoAberrationAndHomogeneousMedium,
-                          harmonic=1,
-                          end_point=0.01,
-                          focus_azimuth=0.005,
-                          focus_elevation=0.005)
+                          harmonic=1)
 
     # generate a  wave field at the transducer
-    pulse, _ = pulse_generator(control, 'transducer')
+    pulse, _ = pulse_generator(control, 'transducer', [0, 1])
+
+    # 3D pulses may also be plotted
+    plot_pulse(pulse, control)
 
     # running the simulation
     wave_field, rms_profile, max_profile, ax_pulse, _ = simulation(control, pulse)
