@@ -1,5 +1,5 @@
 """
-Tutorial for simulation of 2D linear homogeneous case
+Example for simulation of 2D linear homogeneous case
 
 Copyright (C) 2020  Jaeho Kim
 
