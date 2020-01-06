@@ -21,6 +21,7 @@ from typing import Tuple, List, Optional
 import numpy
 import math
 
+
 def find_steps(start_point: float,
                end_point: float,
                step_size: float,
