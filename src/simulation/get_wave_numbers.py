@@ -63,11 +63,11 @@ def get_wave_numbers(control: MainControl,
         _fy = 1 / control.signal.resolution_y
         _dkx = _fx / _num_points_x
         _dky = _fy / _num_points_y
-        if _num_points_x is 1:
+        if _num_points_x == 1:
             _kx = 0
         else:
             _kx = 2.0 * numpy.pi * numpy.arange(-_fx / 2, _fx / 2, _dkx)
-        if _num_points_y is 1:
+        if _num_points_y == 1:
             _ky = 0
         else:
             _ky = 2.0 * numpy.pi * numpy.arange(-_fy / 2, _fy / 2, _dky)
@@ -97,13 +97,13 @@ def get_wave_numbers(control: MainControl,
         return _wave_numbers
     else:
         # building full complex wave number operator
-        if control.num_dimensions is 3:
+        if control.num_dimensions == 3:
             _ky2, _kx2 = numpy.meshgrid(numpy.fft.ifftshift(_ky ** 2),
                                         numpy.fft.ifftshift(_kx ** 2),
                                         indexing='ij')
             _kxy2 = _kx2 + _ky2
             _kxy2 = _kxy2.reshape((_num_points_x * _num_points_y, 1))
-        elif control.num_dimensions is 2:
+        elif control.num_dimensions == 2:
             _kxy2 = numpy.fft.ifftshift(_kx ** 2)
         else:
             _kxy2 = 0
