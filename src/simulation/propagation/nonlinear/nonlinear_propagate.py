@@ -180,18 +180,18 @@ def _get_difference_stencil(num_order: int = 4,
         second order differential. First order is possible.
     :return: Difference stencil as a row vector.
     """
-    if differential_order is 1:
-        if num_order is 2:
+    if differential_order == 1:
+        if num_order == 2:
             _difference_stencil = numpy.array([-1.0, 0.0, 1.0]) / 2.0
-        elif num_order is 4:
+        elif num_order == 4:
             _difference_stencil = numpy.array([1.0, -8.0, 0.0, 8.0, -1.0]) / 12.0
         else:
             print('Unrecognized numerical order. Using fourth order differencing')
             _difference_stencil = _get_difference_stencil(differential_order, 4)
-    elif differential_order is 2:
-        if num_order is 2:
+    elif differential_order == 2:
+        if num_order == 2:
             _difference_stencil = numpy.array([-1.0, 2.0, -1.0])
-        elif num_order is 4:
+        elif num_order == 4:
             _difference_stencil = numpy.array([-1.0, 16.0, -30.0, 16.0, -1.0]) / 12.0
         else:
             print('Unrecognized numerical order. Using fourth order differencing')
@@ -248,7 +248,7 @@ def _nonlinear_attenuation_split(scaled_time_span,
     """
     # Initiation of sizes
     _num_dimensions = wave_field.ndim
-    if _num_dimensions is 3:
+    if _num_dimensions == 3:
         _num_points_t, _num_points_y, _num_points_x = wave_field.shape
         _wave_field = wave_field.reshape((_num_points_t, _num_points_x * _num_points_y))
     else:
@@ -285,7 +285,7 @@ def _nonlinear_attenuation_split(scaled_time_span,
                 raise NotImplementedError
         _wave_field[:, _index] = _temp
 
-    if _num_dimensions is 3:
+    if _num_dimensions == 3:
         _wave_field = _wave_field.reshape((_num_points_t, _num_points_y, _num_points_x))
 
     return _wave_field
