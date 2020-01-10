@@ -1,18 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-get_transducer_indexes.py
+    get_transducer_indexes.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import numpy
 
@@ -30,64 +21,64 @@ def get_transducer_indexes(control: MainControl):
              The center channel for the transducer field.
     """
     # initiation of parameters
-    _num_points_x = control.domain.num_points_x
-    _num_points_y = control.domain.num_points_y
-    _resolution_x = control.signal.resolution_x
-    _resolution_y = control.signal.resolution_y
-    _num_element_x = control.transducer.num_elements_azimuth
-    _num_element_y = control.transducer.num_elements_elevation
-    _elements_size_azimuth = control.transducer.elements_size_azimuth
-    _elements_size_elevation = control.transducer.elements_size_elevation
-    _center_channel = control.transducer.center_channel
-    _num_dimensions = control.num_dimensions
-    _annular_transducer = control.annular_transducer
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    resolution_x = control.signal.resolution_x
+    resolution_y = control.signal.resolution_y
+    num_element_x = control.transducer.num_elements_azimuth
+    num_element_y = control.transducer.num_elements_elevation
+    elements_size_azimuth = control.transducer.elements_size_azimuth
+    elements_size_elevation = control.transducer.elements_size_elevation
+    center_channel = control.transducer.center_channel
+    num_dimensions = control.num_dimensions
+    annular_transducer = control.annular_transducer
 
     # set lengths of transducers
-    if _num_dimensions == 1:
-        _index_xs = 1
-        _index_ys = 1
-        _index_x0 = []
-        _index_y0 = []
-        _ccs = [1, 1]
-        return _index_xs, _index_ys, _index_x0, _index_y0, _ccs
+    if num_dimensions == 1:
+        index_xs = 1
+        index_ys = 1
+        index_x0 = []
+        index_y0 = []
+        ccs = [1, 1]
+        return index_xs, index_ys, index_x0, index_y0, ccs
 
-    if _annular_transducer and _num_dimensions == 2:
-        _ndx = numpy.round((2 * _num_element_x - 1) * _elements_size_azimuth / _resolution_x)
-        _ndy = 1
-    elif _annular_transducer:
-        _ndx = numpy.round((2 * _num_element_x - 1) * _elements_size_azimuth / _resolution_x)
-        _ndy = numpy.round((2 * _num_element_y - 1) * _elements_size_elevation / _resolution_y)
+    if annular_transducer and num_dimensions == 2:
+        ndx = numpy.round((2 * num_element_x - 1) * elements_size_azimuth / resolution_x)
+        ndy = 1
+    elif annular_transducer:
+        ndx = numpy.round((2 * num_element_x - 1) * elements_size_azimuth / resolution_x)
+        ndy = numpy.round((2 * num_element_y - 1) * elements_size_elevation / resolution_y)
     else:
-        _ndx = numpy.round(_num_element_x * _elements_size_azimuth / _resolution_x)
-        _ndy = numpy.round(_num_element_y * _elements_size_elevation / _resolution_y)
+        ndx = numpy.round(num_element_x * elements_size_azimuth / resolution_x)
+        ndy = numpy.round(num_element_y * elements_size_elevation / resolution_y)
 
-    if _num_dimensions == 2:
-        _ndy = 1
+    if num_dimensions == 2:
+        ndy = 1
 
     # set up indices
-    if _annular_transducer and _num_dimensions == 2:
-        _index_xs = numpy.arange(0, numpy.ceil(_ndx / 2)) + _center_channel[0]
-        _index_ys = numpy.array(1)
+    if annular_transducer and num_dimensions == 2:
+        index_xs = numpy.arange(0, numpy.ceil(ndx / 2)) + center_channel[0]
+        index_ys = numpy.array(1)
     else:
-        _index_xs = numpy.arange(-numpy.floor(_ndx / 2), numpy.ceil(_ndx / 2)) + _center_channel[0]
-        _index_ys = numpy.arange(-numpy.floor(_ndy / 2), numpy.ceil(_ndy / 2)) + _center_channel[1]
+        index_xs = numpy.arange(-numpy.floor(ndx / 2), numpy.ceil(ndx / 2)) + center_channel[0]
+        index_ys = numpy.arange(-numpy.floor(ndy / 2), numpy.ceil(ndy / 2)) + center_channel[1]
 
-    _index_x0 = numpy.setxor1d(_index_xs, numpy.arange(1, _num_points_x + 1))
-    _index_y0 = numpy.setxor1d(_index_ys, numpy.arange(1, _num_points_y + 1))
+    index_x0 = numpy.setxor1d(index_xs, numpy.arange(1, num_points_x + 1))
+    index_y0 = numpy.setxor1d(index_ys, numpy.arange(1, num_points_y + 1))
 
     # set center index for transducer field
-    _ccs = numpy.zeros((2, 1))
-    if _annular_transducer and _num_dimensions == 2:
-        _ccs[0] = 1
-        _ccs[1] = 1
+    ccs = numpy.zeros((2, 1))
+    if annular_transducer and num_dimensions == 2:
+        ccs[0] = 1
+        ccs[1] = 1
     else:
-        _ccs[0] = numpy.floor(_ndx / 2) + 1
-        _ccs[1] = numpy.floor(_ndy / 2) + 1
-        if _center_channel[1] <= 1:
-            _center_channel[1] = 1
+        ccs[0] = numpy.floor(ndx / 2) + 1
+        ccs[1] = numpy.floor(ndy / 2) + 1
+        if center_channel[1] <= 1:
+            center_channel[1] = 1
 
-    return _index_xs.astype(int) - 1, \
-           _index_ys.astype(int) - 1, \
-           _index_x0.astype(int) - 1, \
-           _index_y0.astype(int) - 1, \
-           _ccs.astype(int) - 1
+    return index_xs.astype(int) - 1, \
+           index_ys.astype(int) - 1, \
+           index_x0.astype(int) - 1, \
+           index_y0.astype(int) - 1, \
+           ccs.astype(int) - 1

@@ -1,20 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-material_control.py
+    material_control.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 from typing import List
 
@@ -39,21 +28,21 @@ class MaterialControl:
         self._thickness = self._get_thickness(material)
         self._offset = self._get_offset()
 
-        _num_screens = 8
-        self._num_screens = _num_screens
-        self._delay_screens_amplitude = self._calc_delay_screens_amplitude(_num_screens)
-        self._delay_screens_length = self._calc_delay_screens_length(_num_screens)
-        self._delay_screens_seed = self._calc_delay_screens_seed(_num_screens)
+        num_screens = 8
+        self._num_screens = num_screens
+        self._delay_screens_amplitude = self._calc_delay_screens_amplitude(num_screens)
+        self._delay_screens_length = self._calc_delay_screens_length(num_screens)
+        self._delay_screens_seed = self._calc_delay_screens_seed(num_screens)
         self._delay_screens_file = self._get_num_screen_filename(heterogeneous_medium)
 
     @staticmethod
     def _get_thickness(material: IMaterial) -> float:
         if isinstance(material, AberrationPhantom):
-            _thickness = 0.035
+            thickness = 0.035
         else:
-            _thickness = 0.02
+            thickness = 0.02
 
-        return _thickness
+        return thickness
 
     @staticmethod
     def _get_offset() -> List[float]:
@@ -73,14 +62,14 @@ class MaterialControl:
 
     @staticmethod
     def _get_num_screen_filename(heterogeneous_medium: int) -> str:
-        if heterogeneous_medium == consts.AberrationFromFile:
-            _delay_screens_file = 'randseq.json'
-        elif heterogeneous_medium == consts.AberrationPhantom:
-            _delay_screens_file = 'phantom.json'
+        if heterogeneous_medium == consts.ABERRATION_FROM_FILE:
+            delay_screens_file = 'randseq.json'
+        elif heterogeneous_medium == consts.ABERRATION_PHANTOM:
+            delay_screens_file = 'phantom.json'
         else:
-            _delay_screens_file = ''
+            delay_screens_file = ''
 
-        return _delay_screens_file
+        return delay_screens_file
 
     @property
     def material(self) -> IMaterial:

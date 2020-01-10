@@ -1,18 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-burgers_solve.py
+    burgers_solve.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import numpy
 
@@ -31,28 +22,28 @@ def burgers_solve(time_span,
     :param resolution_z: Step size.
     :return: Perturbed wave field.
     """
-    _num_points_t = numpy.max(time_span.shape)
-    _resolution_t = time_span[1] - time_span[0]
-    _num_points = (time_span[_num_points_t - 1] - time_span[0]) + _resolution_t
+    num_points_t = numpy.max(time_span.shape)
+    resolution_t = time_span[1] - time_span[0]
+    num_points = (time_span[num_points_t - 1] - time_span[0]) + resolution_t
 
     # introduce permutation
-    _t2 = time_span - eps_n * resolution_z * permutation
+    t2 = time_span - eps_n * resolution_z * permutation
 
     # extends by periodicity
-    _idt = int(numpy.floor(_num_points_t / 10))
-    _idx_tail = numpy.arange(_idt)
-    _idx_front = numpy.arange(_num_points_t - _idt, _num_points_t)
+    idt = int(numpy.floor(num_points_t / 10))
+    idx_tail = numpy.arange(idt)
+    idx_front = numpy.arange(num_points_t - idt, num_points_t)
 
-    _t_tail = _t2[_idx_tail] + _num_points
-    _t_front = _t2[_idx_front] - _num_points
-    _t2 = numpy.concatenate((_t_front, _t2, _t_tail))
+    t_tail = t2[idx_tail] + num_points
+    t_front = t2[idx_front] - num_points
+    t2 = numpy.concatenate((t_front, t2, t_tail))
 
-    _pressure_tail = pressure[_idx_tail]
-    _pressure_front = pressure[_idx_front]
-    _pressure2 = numpy.concatenate((_pressure_front, pressure, _pressure_tail))
+    pressure_tail = pressure[idx_tail]
+    pressure_front = pressure[idx_front]
+    pressure2 = numpy.concatenate((pressure_front, pressure, pressure_tail))
 
     # re-sample at equidistant time points
-    _pressure = _get_linear(_t2, _pressure2, time_span)
+    _pressure = _get_linear(t2, pressure2, time_span)
 
     return _pressure
 
@@ -68,18 +59,18 @@ def _get_linear(time_span: numpy.ndarray,
     :param equidistant_time_span: Equidistant monotonic time span.
     :return: Pressure values at t2
     """
-    _num_t2 = numpy.max(equidistant_time_span.shape)
-    _index_t2 = 2
+    num_t2 = numpy.max(equidistant_time_span.shape)
+    index_t2 = 2
 
-    _pressure_values_t2 = []
-    for _index in range(_num_t2):
-        while equidistant_time_span[_index] > time_span[_index_t2]:
-            _index_t2 = _index_t2 + 1
-        _index_t1 = _index_t2 - 1
-        _dpdt = (pressure_values[_index_t2] - pressure_values[_index_t1]) / \
-                (time_span[_index_t2] - time_span[_index_t1])
-        _pressure_values_t2.append(
-            pressure_values[_index_t1] +
-            (equidistant_time_span[_index] - time_span[_index_t1]) * _dpdt)
+    pressure_values_t2 = []
+    for index in range(num_t2):
+        while equidistant_time_span[index] > time_span[index_t2]:
+            index_t2 = index_t2 + 1
+        index_t1 = index_t2 - 1
+        dp_dt = (pressure_values[index_t2] - pressure_values[index_t1]) / \
+                (time_span[index_t2] - time_span[index_t1])
+        pressure_values_t2.append(
+            pressure_values[index_t1] +
+            (equidistant_time_span[index] - time_span[index_t1]) * dp_dt)
 
-    return numpy.array(_pressure_values_t2)
+    return numpy.array(pressure_values_t2)

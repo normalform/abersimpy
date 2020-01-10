@@ -1,25 +1,16 @@
+# -*- coding: utf-8 -*-
 """
-get_wave_numbers.py
+    get_wave_numbers.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 from typing import Optional
 
 import numpy
 from scipy.signal import hilbert
 
-from simulation.controls.consts import ScaleForTemporalVariable, ScaleForSpatialVariablesZ
+from simulation.controls.consts import SCALE_FOR_TEMPORAL_VARIABLE, SCALE_FOR_SPATIAL_VARIABLES_Z
 from simulation.controls.main_control import MainControl
 from simulation.filter.get_frequencies import get_frequencies
 from system.diffraction.diffraction import NoDiffraction, ExactDiffraction, \
@@ -43,34 +34,34 @@ def get_wave_numbers(control: MainControl,
         three layers, the first is the wave numbers in time and eigenvalues of difference matrix A.
         The second layer is the inverse eigenvector matrix Q, and the third the matrix Q.
     """
-    _num_points_x = control.domain.num_points_x
-    _num_points_y = control.domain.num_points_y
-    _num_points_t = control.domain.num_points_t
-    _resolution_t = control.signal.resolution_t
-    _material = control.material.material
-    _sound_speed = _material.sound_speed
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    num_points_t = control.domain.num_points_t
+    resolution_t = control.signal.resolution_t
+    material = control.material.material
+    sound_speed = material.sound_speed
 
-    _ft = 1 / _resolution_t
-    _df = _ft / _num_points_t
-    _kt = 2.0 * numpy.pi / _sound_speed * numpy.arange(-_ft / 2,
-                                                       _ft / 2,
-                                                       _df)
+    ft = 1 / resolution_t
+    df = ft / num_points_t
+    kt = 2.0 * numpy.pi / sound_speed * numpy.arange(-ft / 2,
+                                                     ft / 2,
+                                                     df)
 
     if control.diffraction_type in (NoDiffraction,
                                     ExactDiffraction,
                                     AngularSpectrumDiffraction):
-        _fx = 1 / control.signal.resolution_x
-        _fy = 1 / control.signal.resolution_y
-        _dkx = _fx / _num_points_x
-        _dky = _fy / _num_points_y
-        if _num_points_x == 1:
-            _kx = 0
+        fx = 1 / control.signal.resolution_x
+        fy = 1 / control.signal.resolution_y
+        dkx = fx / num_points_x
+        dky = fy / num_points_y
+        if num_points_x == 1:
+            kx = 0
         else:
-            _kx = 2.0 * numpy.pi * numpy.arange(-_fx / 2, _fx / 2, _dkx)
-        if _num_points_y == 1:
-            _ky = 0
+            kx = 2.0 * numpy.pi * numpy.arange(-fx / 2, fx / 2, dkx)
+        if num_points_y == 1:
+            ky = 0
         else:
-            _ky = 2.0 * numpy.pi * numpy.arange(-_fy / 2, _fy / 2, _dky)
+            ky = 2.0 * numpy.pi * numpy.arange(-fy / 2, fy / 2, dky)
     elif control.diffraction_type is PseudoDifferential:
         raise NotImplementedError
     elif control.diffraction_type in (FiniteDifferenceTimeDifferenceReduced,
@@ -78,57 +69,57 @@ def get_wave_numbers(control: MainControl,
         raise NotImplementedError
 
     # calculate attenuation if propagation is linear
-    _loss = numpy.zeros(_kt.size)
+    loss = numpy.zeros(kt.size)
     if control.attenuation and control.non_linearity is False:
-        _w = get_frequencies(_num_points_t, control.signal.resolution_t / (
-                2.0 * numpy.pi * ScaleForTemporalVariable))
-        _eps_a = _material.eps_a
-        _eps_b = _material.eps_b
-        _loss = _eps_a * numpy.conj(hilbert(numpy.abs(_w) ** _eps_b)) / ScaleForSpatialVariablesZ
+        w = get_frequencies(num_points_t, control.signal.resolution_t / (
+                2.0 * numpy.pi * SCALE_FOR_TEMPORAL_VARIABLE))
+        eps_a = material.eps_a
+        eps_b = material.eps_b
+        loss = eps_a * numpy.conj(hilbert(numpy.abs(w) ** eps_b)) / SCALE_FOR_SPATIAL_VARIABLES_Z
 
     # assembly of wave-number operator
     if control.diffraction_type is AngularSpectrumDiffraction:
         # assign to vectors
-        _wave_numbers = numpy.zeros((numpy.max((_num_points_x, _num_points_y, _num_points_t)), 4))
-        _wave_numbers[:_num_points_x, 0] = numpy.fft.ifftshift(_kx)
-        _wave_numbers[:_num_points_y, 1] = numpy.fft.ifftshift(_ky)
-        _wave_numbers[:_num_points_t, 2] = numpy.fft.ifftshift(_kt)
-        _wave_numbers[:_num_points_t, 3] = _loss
-        return _wave_numbers
+        wave_numbers = numpy.zeros((numpy.max((num_points_x, num_points_y, num_points_t)), 4))
+        wave_numbers[:num_points_x, 0] = numpy.fft.ifftshift(kx)
+        wave_numbers[:num_points_y, 1] = numpy.fft.ifftshift(ky)
+        wave_numbers[:num_points_t, 2] = numpy.fft.ifftshift(kt)
+        wave_numbers[:num_points_t, 3] = loss
+        return wave_numbers
     else:
         # building full complex wave number operator
         if control.num_dimensions == 3:
-            _ky2, _kx2 = numpy.meshgrid(numpy.fft.ifftshift(_ky ** 2),
-                                        numpy.fft.ifftshift(_kx ** 2),
-                                        indexing='ij')
-            _kxy2 = _kx2 + _ky2
-            _kxy2 = _kxy2.reshape((_num_points_x * _num_points_y, 1))
+            ky2, kx2 = numpy.meshgrid(numpy.fft.ifftshift(ky ** 2),
+                                      numpy.fft.ifftshift(kx ** 2),
+                                      indexing='ij')
+            kxy2 = kx2 + ky2
+            kxy2 = kxy2.reshape((num_points_x * num_points_y, 1))
         elif control.num_dimensions == 2:
-            _kxy2 = numpy.fft.ifftshift(_kx ** 2)
+            kxy2 = numpy.fft.ifftshift(kx ** 2)
         else:
-            _kxy2 = 0
-    _kt, _kxy = numpy.meshgrid(numpy.fft.ifftshift(_kt), _kxy2, indexing='ij')
-    _wave_numbers = numpy.sqrt((_kt ** 2 - _kxy).astype(complex))
-    _wave_numbers = numpy.sign(_kt) * _wave_numbers.real - 1j * _wave_numbers.imag
+            kxy2 = 0
+    kt, kxy = numpy.meshgrid(numpy.fft.ifftshift(kt), kxy2, indexing='ij')
+    wave_numbers = numpy.sqrt((kt ** 2 - kxy).astype(complex))
+    wave_numbers = numpy.sign(kt) * wave_numbers.real - 1j * wave_numbers.imag
 
     # introduces retarded time
     if wave_number_operator is False:
-        _wave_numbers = _wave_numbers - _kt
+        wave_numbers = wave_numbers - kt
 
-    # introduces _loss in wave number operator
+    # introduces loss in wave number operator
     if control.attenuation:
-        for _index in range(0, _num_points_t):
-            _wave_numbers[_index, ...] = _wave_numbers[_index, ...] - 1j * _loss[_index]
+        for index in range(0, num_points_t):
+            wave_numbers[index, ...] = wave_numbers[index, ...] - 1j * loss[index]
 
     # convert wave number operator to propagation operator
     if equidistant_steps:
-        _step_size = control.simulation.step_size
+        step_size = control.simulation.step_size
         if control.non_linearity:
-            _num_sub_steps = int(numpy.ceil(_step_size / control.signal.resolution_z))
-            _step_size = _step_size / _num_sub_steps
-        _wave_numbers = numpy.exp(-1j * _wave_numbers * _step_size)
+            num_sub_steps = int(numpy.ceil(step_size / control.signal.resolution_z))
+            step_size = step_size / num_sub_steps
+        wave_numbers = numpy.exp(-1j * wave_numbers * step_size)
 
     if control.diffraction_type is PseudoDifferential:
         raise NotImplementedError
 
-    return _wave_numbers
+    return wave_numbers

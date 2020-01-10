@@ -1,20 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-test_aberration.py
+    test_aberration.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 # pylint: disable-all
 
@@ -31,7 +20,7 @@ from system.material.aberration_phantom import AberrationPhantom
 class TestAberration(unittest.TestCase):
     def test_WithPhantomButNoAberration(self):
         control = Mock()
-        control.heterogeneous_medium = consts.NoAberrationAndHomogeneousMedium
+        control.heterogeneous_medium = consts.NO_ABERRATION_AND_HOMOGENEOUS_MEDIUM
         phantom = Mock()
         delta = aberration(control, phantom)
 
@@ -40,29 +29,29 @@ class TestAberration(unittest.TestCase):
     def test_WithPhantomAndAberrationFromDelayScreenBodyWall_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):
             control = Mock()
-            control.heterogeneous_medium = consts.AberrationFromDelayScreenBodyWall
+            control.heterogeneous_medium = consts.ABERRATION_FROM_DELAY_SCREEN_BODY_WALL
             aberration(control)
 
     def test_WithPhantomAndAberrationFromFile_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):
             control = Mock()
-            control.heterogeneous_medium = consts.AberrationFromFile
+            control.heterogeneous_medium = consts.ABERRATION_FROM_FILE
             aberration(control)
 
     def test_WithPhantomAndAberrationPhantom_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):
             control = Mock()
-            control.heterogeneous_medium = consts.AberrationPhantom
+            control.heterogeneous_medium = consts.ABERRATION_PHANTOM
             aberration(control)
 
     def test_WithPhantomAndAberrationPhantomCase2_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):
             control = Mock()
-            control.heterogeneous_medium = consts.AberrationPhantom
+            control.heterogeneous_medium = consts.ABERRATION_PHANTOM
             aberration(control, AberrationPhantom(37.0))
 
     def test_WithoutPhantom_Exception_NotSupported(self):
         with self.assertRaises(NotImplementedError):
             control = Mock()
-            control.heterogeneous_medium = consts.NoAberrationAndHomogeneousMedium
+            control.heterogeneous_medium = consts.NO_ABERRATION_AND_HOMOGENEOUS_MEDIUM
             aberration(control)

@@ -1,18 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-attenuation_solve.py
+    attenuation_solve.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import numpy
 from scipy.signal import hilbert
@@ -34,17 +25,17 @@ def attenuation_solve(sample_points,
     :param eps_b: Attenuation exponent
     :return: The propagated pulse at sampling times.
     """
-    _resolution_t = sample_points[1] - sample_points[0]
+    resolution_t = sample_points[1] - sample_points[0]
     _pulse = numpy.array(pulse)
-    _num_points_t = numpy.max(_pulse.shape)
-    _loss = 2 * numpy.pi * get_frequencies(_num_points_t, _resolution_t)
+    num_points_t = numpy.max(_pulse.shape)
+    loss = 2 * numpy.pi * get_frequencies(num_points_t, resolution_t)
 
     # prepare attenuation coefficients
-    _loss = eps_a * numpy.conj(hilbert(numpy.abs(_loss) ** eps_b)) * resolution_z
-    _loss = numpy.exp(-_loss)
+    loss = eps_a * numpy.conj(hilbert(numpy.abs(loss) ** eps_b)) * resolution_z
+    loss = numpy.exp(-loss)
 
-    _pulse_f = numpy.fft.fftn(_pulse, axes=(0,))
-    _propagated_pulse_f = _loss * _pulse_f
-    _propagated_pulse = numpy.fft.ifftn(_propagated_pulse_f, axes=(0,)).real
+    pulse_f = numpy.fft.fftn(_pulse, axes=(0,))
+    propagated_pulse_f = loss * pulse_f
+    propagated_pulse = numpy.fft.ifftn(propagated_pulse_f, axes=(0,)).real
 
-    return _propagated_pulse
+    return propagated_pulse

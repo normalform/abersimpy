@@ -1,23 +1,14 @@
+# -*- coding: utf-8 -*-
 """
-nonlinear_propagate.py
+    nonlinear_propagate.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import numpy
 import scipy.sparse
 
-from simulation.controls.consts import ScaleForSpatialVariablesZ, ScaleForTemporalVariable
+from simulation.controls.consts import SCALE_FOR_SPATIAL_VARIABLES_Z, SCALE_FOR_TEMPORAL_VARIABLE
 from simulation.controls.main_control import MainControl
 from simulation.get_wave_numbers import get_wave_numbers
 from simulation.propagation import propagate
@@ -63,109 +54,108 @@ def nonlinear_propagate(control: MainControl,
         _wave_numbers = get_wave_numbers(control, equidistant_steps)
 
     # preparation of variables
-    _material = control.material.material
-    _sound_speed = _material.sound_speed
+    material = control.material.material
 
     # scaling sound speed
-    _sound_speed = _sound_speed / ScaleForSpatialVariablesZ * ScaleForTemporalVariable
+    sound_speed = material.sound_speed / SCALE_FOR_SPATIAL_VARIABLES_Z * SCALE_FOR_TEMPORAL_VARIABLE
     # scale sampling to micro seconds
-    _resolution_t = control.signal.resolution_t / ScaleForTemporalVariable
-    # _resolution_x scaled to centimeter
-    _resolution_x = control.signal.resolution_x / ScaleForSpatialVariablesZ
-    # _resolution_y scaled to centimeter
-    _resolution_y = control.signal.resolution_y / ScaleForSpatialVariablesZ
-    # _resolution_z scaled to centimeter
-    _resolution_z = control.signal.resolution_z / ScaleForSpatialVariablesZ
+    resolution_t = control.signal.resolution_t / SCALE_FOR_TEMPORAL_VARIABLE
+    # resolution_x scaled to centimeter
+    resolution_x = control.signal.resolution_x / SCALE_FOR_SPATIAL_VARIABLES_Z
+    # resolution_y scaled to centimeter
+    resolution_y = control.signal.resolution_y / SCALE_FOR_SPATIAL_VARIABLES_Z
+    # resolution_z scaled to centimeter
+    resolution_z = control.signal.resolution_z / SCALE_FOR_SPATIAL_VARIABLES_Z
 
-    _num_dimensions = control.num_dimensions
-    _num_points_x = control.domain.num_points_x
-    _num_points_y = control.domain.num_points_y
-    _num_points_t = control.domain.num_points_t
+    num_dimensions = control.num_dimensions
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    num_points_t = control.domain.num_points_t
 
-    _annular_transducer = control.annular_transducer
-    _shock_step = control.simulation.shock_step
-    _step_size = control.simulation.step_size
-    _perfect_matching_layer_width = control.domain.perfect_matching_layer_width
+    annular_transducer = control.annular_transducer
+    shock_step = control.simulation.shock_step
+    step_size = control.simulation.step_size
+    perfect_matching_layer_width = control.domain.perfect_matching_layer_width
 
-    _num_sub_steps = int(numpy.ceil((_step_size / ScaleForSpatialVariablesZ) / _resolution_z))
-    _resolution_z = (_step_size / ScaleForSpatialVariablesZ) / _num_sub_steps
-    _d = (_sound_speed / 2) * (_resolution_t / 2) * _resolution_z
-    _t_span = numpy.linspace(_resolution_t,
-                             _num_points_t *
-                             _resolution_t + _resolution_t,
-                             _num_points_t).T
+    num_sub_steps = int(numpy.ceil((step_size / SCALE_FOR_SPATIAL_VARIABLES_Z) / resolution_z))
+    resolution_z = (step_size / SCALE_FOR_SPATIAL_VARIABLES_Z) / num_sub_steps
+    d = (sound_speed / 2) * (resolution_t / 2) * resolution_z
+    t_span = numpy.linspace(resolution_t,
+                            num_points_t *
+                            resolution_t + resolution_t,
+                            num_points_t).T
 
     # assign flags
-    _diffraction_type = control.diffraction_type
-    _non_linearity = control.non_linearity
-    _attenuation = control.attenuation
+    diffraction_type = control.diffraction_type
+    non_linearity = control.non_linearity
+    attenuation = control.attenuation
 
     # prepare PML and FD matrices
-    if _perfect_matching_layer_width > 0:
-        _a = _d * _get_difference_matrix(2 * _perfect_matching_layer_width,
-                                         _resolution_x,
-                                         4)
+    if perfect_matching_layer_width > 0:
+        a = d * _get_difference_matrix(2 * perfect_matching_layer_width,
+                                       resolution_x,
+                                       4)
 
-    if _diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
-            _diffraction_type == FiniteDifferenceTimeDifferenceFull:
-        if numpy.abs(_wave_numbers[4] - _d) > 1e-12:
+    if diffraction_type == FiniteDifferenceTimeDifferenceReduced or \
+            diffraction_type == FiniteDifferenceTimeDifferenceFull:
+        if numpy.abs(_wave_numbers[4] - d) > 1e-12:
             # find difference matrix A
-            _ax = _d * _get_difference_matrix(_num_points_x,
-                                              _resolution_x,
-                                              4,
-                                              _annular_transducer)
-            _bx = numpy.eye(_num_points_x) + _ax
-            _dx = numpy.eye(_num_points_x) - _ax
-            _dx_inv = numpy.inv(_dx)
+            ax = d * _get_difference_matrix(num_points_x,
+                                            resolution_x,
+                                            4,
+                                            annular_transducer)
+            bx = numpy.eye(num_points_x) + ax
+            dx = numpy.eye(num_points_x) - ax
+            dx_inv = numpy.inv(dx)
 
-            if _diffraction_type == FiniteDifferenceTimeDifferenceReduced:
+            if diffraction_type == FiniteDifferenceTimeDifferenceReduced:
                 # Make matrices banded
-                _bx_banded = _make_banded(_bx, numpy.arange(-2, 2, dtype=int))
-                _dx_inv_banded = _make_banded(_dx_inv, numpy.arange(-10, 10, dtype=int))
-            elif _diffraction_type == FiniteDifferenceTimeDifferenceFull:
+                bx_banded = _make_banded(bx, numpy.arange(-2, 2, dtype=int))
+                dx_inv_banded = _make_banded(dx_inv, numpy.arange(-10, 10, dtype=int))
+            elif diffraction_type == FiniteDifferenceTimeDifferenceFull:
                 raise NotImplementedError
-    elif _diffraction_type in (NoDiffraction,
-                               ExactDiffraction,
-                               AngularSpectrumDiffraction,
-                               PseudoDifferential):
-        control.simulation.step_size = _resolution_z * ScaleForSpatialVariablesZ
+    elif diffraction_type in (NoDiffraction,
+                              ExactDiffraction,
+                              AngularSpectrumDiffraction,
+                              PseudoDifferential):
+        control.simulation.step_size = resolution_z * SCALE_FOR_SPATIAL_VARIABLES_Z
 
     _wave = wave
 
     # Nonlinear propagation
-    for _index in range(_num_sub_steps):
+    for index in range(num_sub_steps):
         # diffraction
-        if _diffraction_type in (ExactDiffraction,
-                                 AngularSpectrumDiffraction,
-                                 PseudoDifferential):
+        if diffraction_type in (ExactDiffraction,
+                                AngularSpectrumDiffraction,
+                                PseudoDifferential):
             _wave = propagate.propagate(control,
                                         _wave,
                                         2 * direction,
                                         equidistant_steps,
                                         _wave_numbers)
-        elif _diffraction_type in (FiniteDifferenceTimeDifferenceReduced,
-                                   FiniteDifferenceTimeDifferenceFull):
+        elif diffraction_type in (FiniteDifferenceTimeDifferenceReduced,
+                                  FiniteDifferenceTimeDifferenceFull):
             raise NotImplementedError
 
         # perfectly matching layers, absorbing boundaries
-        if _perfect_matching_layer_width > 0:
+        if perfect_matching_layer_width > 0:
             if control.num_dimensions == 2:
-                _wave = _wave.reshape((_num_points_x, 1, _num_points_t))
+                _wave = _wave.reshape((num_points_x, 1, num_points_t))
                 raise NotImplementedError
 
-        # Nonlinear and _attenuation
-        if _non_linearity or _attenuation:
-            _wave = _nonlinear_attenuation_split(_t_span,
+        # Nonlinear and attenuation
+        if non_linearity or attenuation:
+            _wave = _nonlinear_attenuation_split(t_span,
                                                  _wave,
-                                                 _resolution_z,
-                                                 _shock_step,
-                                                 _material,
-                                                 _non_linearity,
-                                                 _attenuation)
+                                                 resolution_z,
+                                                 shock_step,
+                                                 material,
+                                                 non_linearity,
+                                                 attenuation)
 
-    # set _step_size back to normal
-    if _diffraction_type in (ExactDiffraction, AngularSpectrumDiffraction):
-        control.simulation.step_size = _step_size
+    # set step_size back to normal
+    if diffraction_type in (ExactDiffraction, AngularSpectrumDiffraction):
+        control.simulation.step_size = step_size
 
     return _wave
 
@@ -182,25 +172,25 @@ def _get_difference_stencil(num_order: int = 4,
     """
     if differential_order == 1:
         if num_order == 2:
-            _difference_stencil = numpy.array([-1.0, 0.0, 1.0]) / 2.0
+            difference_stencil = numpy.array([-1.0, 0.0, 1.0]) / 2.0
         elif num_order == 4:
-            _difference_stencil = numpy.array([1.0, -8.0, 0.0, 8.0, -1.0]) / 12.0
+            difference_stencil = numpy.array([1.0, -8.0, 0.0, 8.0, -1.0]) / 12.0
         else:
             print('Unrecognized numerical order. Using fourth order differencing')
-            _difference_stencil = _get_difference_stencil(differential_order, 4)
+            difference_stencil = _get_difference_stencil(differential_order, 4)
     elif differential_order == 2:
         if num_order == 2:
-            _difference_stencil = numpy.array([-1.0, 2.0, -1.0])
+            difference_stencil = numpy.array([-1.0, 2.0, -1.0])
         elif num_order == 4:
-            _difference_stencil = numpy.array([-1.0, 16.0, -30.0, 16.0, -1.0]) / 12.0
+            difference_stencil = numpy.array([-1.0, 16.0, -30.0, 16.0, -1.0]) / 12.0
         else:
             print('Unrecognized numerical order. Using fourth order differencing')
-            _difference_stencil = _get_difference_stencil(differential_order, 4)
+            difference_stencil = _get_difference_stencil(differential_order, 4)
     else:
         print('Unrecognized differential order, Using second order differential')
-        _difference_stencil = _get_difference_stencil(2, num_order)
+        difference_stencil = _get_difference_stencil(2, num_order)
 
-    return _difference_stencil
+    return difference_stencil
 
 
 def _get_difference_matrix(num_points: int = 8,
@@ -219,12 +209,12 @@ def _get_difference_matrix(num_points: int = 8,
         The outer (right) boundary is assumed to always be reflective.
     :return: Difference matrix.
     """
-    _col = numpy.ones((num_points, 1))
-    _d = _get_difference_stencil(order, 2)
-    _a = scipy.sparse.spdiags(_col * _d,
-                              numpy.arange(-order / 2, order / 2, dtype=int),
-                              num_points,
-                              num_points)
+    col = numpy.ones((num_points, 1))
+    d = _get_difference_stencil(order, 2)
+    a = scipy.sparse.spdiags(col * d,
+                             numpy.arange(-order / 2, order / 2, dtype=int),
+                             num_points,
+                             num_points)
     raise NotImplementedError
 
 
@@ -247,46 +237,46 @@ def _nonlinear_attenuation_split(scaled_time_span,
     :return: Perturbed and attenuated wave field.
     """
     # Initiation of sizes
-    _num_dimensions = wave_field.ndim
-    if _num_dimensions == 3:
-        _num_points_t, _num_points_y, _num_points_x = wave_field.shape
-        _wave_field = wave_field.reshape((_num_points_t, _num_points_x * _num_points_y))
+    num_dimensions = wave_field.ndim
+    if num_dimensions == 3:
+        num_points_t, num_points_y, num_points_x = wave_field.shape
+        _wave_field = wave_field.reshape((num_points_t, num_points_x * num_points_y))
     else:
-        _num_points_t, _num_points_x = wave_field.shape
-        _num_points_y = 1
+        num_points_t, num_points_x = wave_field.shape
+        num_points_y = 1
         _wave_field = wave_field
 
     # Check material
-    _is_regular = material.is_regular
-    _eps_n = material.eps_n
-    _eps_a = material.eps_a
-    _eps_b = material.eps_b
+    is_regular = material.is_regular
+    eps_n = material.eps_n
+    eps_a = material.eps_a
+    eps_b = material.eps_b
 
-    for _index in range(_num_points_x * _num_points_y):
-        _num_step = 0
-        _temp = _wave_field[:, _index]
-        _dz_tmp = resolution_z
-        while _dz_tmp > 0:
-            _z_step = numpy.minimum(_dz_tmp,
-                                    shock_step * _get_shock_dist(scaled_time_span, _temp, _eps_n))
-            _dz_tmp = _dz_tmp - _z_step
-            _num_step = _num_step + 1
-            if _is_regular:
+    for index in range(num_points_x * num_points_y):
+        num_step = 0
+        temp = _wave_field[:, index]
+        dz_tmp = resolution_z
+        while dz_tmp > 0:
+            z_step = numpy.minimum(dz_tmp,
+                                   shock_step * _get_shock_dist(scaled_time_span, temp, eps_n))
+            dz_tmp = dz_tmp - z_step
+            num_step = num_step + 1
+            if is_regular:
                 # for regular materials
                 if non_linearity and attenuation is False:
-                    _temp = burgers_solve(scaled_time_span, _temp, _temp, _eps_n, _z_step)
+                    temp = burgers_solve(scaled_time_span, temp, temp, eps_n, z_step)
                 elif non_linearity and attenuation:
-                    _temp = burgers_solve(scaled_time_span, _temp, _temp, _eps_n, _z_step / 2)
-                    _temp = attenuation_solve(scaled_time_span, _temp, _z_step, _eps_a, _eps_b)
-                    _temp = burgers_solve(scaled_time_span, _temp, _temp, _eps_n, _z_step / 2)
+                    temp = burgers_solve(scaled_time_span, temp, temp, eps_n, z_step / 2)
+                    temp = attenuation_solve(scaled_time_span, temp, z_step, eps_a, eps_b)
+                    temp = burgers_solve(scaled_time_span, temp, temp, eps_n, z_step / 2)
                 elif non_linearity is False and attenuation:
-                    _temp = attenuation_solve(scaled_time_span, _temp, _z_step, _eps_a, _eps_b)
+                    temp = attenuation_solve(scaled_time_span, temp, z_step, eps_a, eps_b)
             else:
                 raise NotImplementedError
-        _wave_field[:, _index] = _temp
+        _wave_field[:, index] = temp
 
-    if _num_dimensions == 3:
-        _wave_field = _wave_field.reshape((_num_points_t, _num_points_y, _num_points_x))
+    if num_dimensions == 3:
+        _wave_field = _wave_field.reshape((num_points_t, num_points_y, num_points_x))
 
     return _wave_field
 
@@ -301,18 +291,18 @@ def _get_shock_dist(time_span,
     :param eps_n: Coefficient of non-linearity.
     :return:
     """
-    _resolution_t = numpy.diff(time_span)
-    if numpy.min(_resolution_t) <= 0.0:
+    resolution_t = numpy.diff(time_span)
+    if numpy.min(resolution_t) <= 0.0:
         return 0.0
 
     # calculate shock distance
-    _dpdt_max = numpy.max(numpy.diff(pressure) / _resolution_t)
-    if _dpdt_max > 0.0 and eps_n != 0.0:
-        _shock_dist = 1 / (eps_n * _dpdt_max)
+    dp_dt_max = numpy.max(numpy.diff(pressure) / resolution_t)
+    if dp_dt_max > 0.0 and eps_n != 0.0:
+        shock_dist = 1 / (eps_n * dp_dt_max)
     else:
-        _shock_dist = numpy.inf
+        shock_dist = numpy.inf
 
-    return _shock_dist
+    return shock_dist
 
 
 # TODO remove Matlab form
@@ -330,22 +320,22 @@ def _make_banded(
     :return: The vector_a on banded form.
     """
     if vector_d is None:
-        _m, _n = vector_a.shape
-        _vector_d = numpy.range(-_m + 1, _n - 1, dtype=int)
+        m, n = vector_a.shape
+        _vector_d = numpy.range(-m + 1, n - 1, dtype=int)
     else:
         _vector_d = vector_d
 
-    _num_points_x = numpy.min(vector_a.shape)
-    _banded = numpy.zeros((numpy.max(_vector_d.shape), _num_points_x))
+    num_points_x = numpy.min(vector_a.shape)
+    banded = numpy.zeros((numpy.max(_vector_d.shape), num_points_x))
 
-    for _index in range(_vector_d):
-        _diag = numpy.diag(vector_a, _vector_d[_index])
-        _idd = numpy.range(numpy.max(_diag.shape))
-        _stidx = numpy.max(numpy.sign(_vector_d[_index]) * (_num_points_x - numpy.max(_diag.shape)),
-                           0)
-        _banded[_index, _idd + _stidx] = _diag
+    for index in range(_vector_d):
+        diag = numpy.diag(vector_a, _vector_d[index])
+        idd = numpy.range(numpy.max(diag.shape))
+        stidx = numpy.max(numpy.sign(_vector_d[index]) * (num_points_x - numpy.max(diag.shape)),
+                          0)
+        banded[index, idd + stidx] = diag
 
     if row_major:
-        _banded = _banded.T
+        banded = banded.T
 
-    return _banded
+    return banded

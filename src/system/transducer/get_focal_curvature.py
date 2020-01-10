@@ -1,18 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-get_focal_curvature.py
+    get_focal_curvature.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import math
 from typing import Optional
@@ -62,59 +53,59 @@ def get_focal_curvature(focal_depth,
     # use delay focusing for more than one element
     if num_elements > 1:
         if focal_depth == math.inf:
-            _rd = numpy.zeros((num_points, 1))
+            rd = numpy.zeros((num_points, 1))
         else:
-            _nsprel = numpy.round(element_size / resolution_x)
+            nsprel = numpy.round(element_size / resolution_x)
             if annular_transducer:
-                _ae = numpy.arange(0, num_elements) * element_size
+                ae = numpy.arange(0, num_elements) * element_size
             else:
-                _ae = numpy.arange(-int(numpy.floor(num_elements / 2)),
-                                   int(numpy.ceil(num_elements / 2))) * \
-                      element_size + numpy.mod(num_elements + 1, 2) * element_size / 2
-            _a = numpy.zeros((_ae.size * int(_nsprel)))
-            for _x in range(int(_nsprel)):
-                _a[_x::int(_nsprel)] = _ae
+                ae = numpy.arange(-int(numpy.floor(num_elements / 2)),
+                                  int(numpy.ceil(num_elements / 2))) * \
+                     element_size + numpy.mod(num_elements + 1, 2) * element_size / 2
+            a = numpy.zeros((ae.size * int(nsprel)))
+            for x in range(int(nsprel)):
+                a[x::int(nsprel)] = ae
 
             if annular_transducer:
-                if numpy.mod(_nsprel, 2) == 0:
-                    _a = _a[int(numpy.ceil(_nsprel / 2)):] + resolution_x / 2
+                if numpy.mod(nsprel, 2) == 0:
+                    a = a[int(numpy.ceil(nsprel / 2)):] + resolution_x / 2
                 else:
-                    _a = _a[int(numpy.floor(_nsprel / 2)):]
+                    a = a[int(numpy.floor(nsprel / 2)):]
             if diffraction_type in (NoDiffraction,
                                     ExactDiffraction,
                                     AngularSpectrumDiffraction,
                                     PseudoDifferential):
-                _rd = numpy.sqrt(_a ** 2 + focal_depth ** 2) - focal_depth
+                rd = numpy.sqrt(a ** 2 + focal_depth ** 2) - focal_depth
             else:
-                _rd = _a ** 2 / (2 * focal_depth)
+                rd = a ** 2 / (2 * focal_depth)
     else:
-        _rd = numpy.zeros(num_points)
+        rd = numpy.zeros(num_points)
 
-    _x = numpy.arange(numpy.max(_rd.shape))
-    _xi = numpy.linspace(0, numpy.max(_rd.shape) - 1, num_points)
-    _interpolation_function = scipy.interpolate.interp1d(_x.T, _rd, kind='nearest')
-    _rd = _interpolation_function(_xi.T)
+    x = numpy.arange(numpy.max(rd.shape))
+    xi = numpy.linspace(0, numpy.max(rd.shape) - 1, num_points)
+    interpolation_function = scipy.interpolate.interp1d(x.T, rd, kind='nearest')
+    rd = interpolation_function(xi.T)
 
     # use eventual lens focusing
     if lens_focal_depth is not math.inf and lens_focal_depth != 0.0:
         if annular_transducer:
-            _ac = numpy.arange(0, num_points) * \
-                  resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
+            ac = numpy.arange(0, num_points) * \
+                 resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
         else:
-            _ac = numpy.arange(-int(numpy.floor(num_points / 2)),
-                               int(numpy.ceil(num_points / 2))) * \
-                  resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
+            ac = numpy.arange(-int(numpy.floor(num_points / 2)),
+                              int(numpy.ceil(num_points / 2))) * \
+                 resolution_x + numpy.mod(num_points + 1, 2) * resolution_x / 2
         if diffraction_type in (NoDiffraction,
                                 ExactDiffraction,
                                 AngularSpectrumDiffraction,
                                 PseudoDifferential):
-            _r1 = numpy.sqrt(_ac ** 2 + lens_focal_depth ** 2) - lens_focal_depth
+            r1 = numpy.sqrt(ac ** 2 + lens_focal_depth ** 2) - lens_focal_depth
         else:
-            _r1 = _ac ** 2 / (2 * lens_focal_depth)
+            r1 = ac ** 2 / (2 * lens_focal_depth)
     else:
-        _r1 = 0
+        r1 = 0
 
-    _r = _rd + _r1
-    _r = _r - numpy.min(_r)
+    r = rd + r1
+    r = r - numpy.min(r)
 
-    return _r
+    return r

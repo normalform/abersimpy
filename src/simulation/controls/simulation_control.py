@@ -1,20 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-simulation_control.py
+    simulation_control.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import numpy
 
@@ -40,11 +29,11 @@ class SimulationControl:
         self._shock_step: float = 0.5
         self._endpoint = end_point
 
-        _store_position = [focus_elevation, focus_azimuth]
+        store_position = [focus_elevation, focus_azimuth]
 
         if heterogeneous_medium:
-            _store_position = numpy.array([_store_position, material.thickness])
-        self._store_position = numpy.unique(_store_position)
+            store_position = numpy.array([store_position, material.thickness])
+        self._store_position = numpy.unique(store_position)
 
         self._step_size = domain.step_size
         self._current_position: float = 0.0

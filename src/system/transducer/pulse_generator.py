@@ -1,18 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-pulse_generator.py
+    pulse_generator.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import sys
 
@@ -78,23 +69,23 @@ def pulse_generator(control: MainControl,
     else:
         _lens_focusing = lens_focusing
 
-    _transmit_frequency = control.signal.transmit_frequency
-    _amplitude = control.signal.amplitude
-    _bandwidth = control.signal.bandwidth
-    _num_periods = control.signal.num_periods
-    _num_points_x = control.domain.num_points_x
-    _num_points_y = control.domain.num_points_y
-    _num_points_t = control.domain.num_points_t
-    _resolution_x = control.signal.resolution_x
-    _resolution_y = control.signal.resolution_y
-    _resolution_t = control.signal.resolution_t
-    _sound_speed = control.material.material.sound_speed
-    _annular_transducer = control.annular_transducer
+    transmit_frequency = control.signal.transmit_frequency
+    amplitude = control.signal.amplitude
+    bandwidth = control.signal.bandwidth
+    num_periods = control.signal.num_periods
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    num_points_t = control.domain.num_points_t
+    resolution_x = control.signal.resolution_x
+    resolution_y = control.signal.resolution_y
+    resolution_t = control.signal.resolution_t
+    sound_speed = control.material.material.sound_speed
+    annular_transducer = control.annular_transducer
 
     # set length of transducer
-    _index_x, _index_y, _, _, _ = get_transducer_indexes(control)
-    _index_num_x = _index_x.size
-    _index_num_y = _index_y.size
+    index_x, index_y, _, _, _ = get_transducer_indexes(control)
+    index_num_x = index_x.size
+    index_num_y = index_y.size
 
     if _lens_focusing.size == 1:
         _lens_focusing = _lens_focusing * numpy.array([1, 1])
@@ -102,51 +93,51 @@ def pulse_generator(control: MainControl,
     # generate _signal
     if isinstance(signal, str):
         if str.lower(signal) == 'gaussian':
-            _t, _tp, _signal, _nrm = _gaussian(_resolution_t,
-                                               _transmit_frequency,
-                                               _num_periods,
-                                               _num_points_t)
+            t, tp, _signal, nrm = _gaussian(resolution_t,
+                                            transmit_frequency,
+                                            num_periods,
+                                            num_points_t)
         elif str.lower(signal) == 'cosine':
-            _t = numpy.arange(-_num_points_t / 2, _num_points_t / 2) * _resolution_t
-            _tp = _num_periods / _transmit_frequency
-            _ntp = int(numpy.round(_tp / _resolution_t))
-            _tp = numpy.arange(-numpy.ceil(_ntp / 2),
-                               numpy.floor(_ntp / 2) + 1) * _resolution_t
-            _sigp = numpy.cos(2.0 * numpy.pi * _transmit_frequency * _tp) * \
-                    numpy.cos(numpy.pi * _transmit_frequency / _num_periods * _tp)
-            _signal = numpy.zeros(_t.size)
-            _index = numpy.where(_t < _tp[0])[0]
-            _signal[_index[-1]: _index[-1] + _ntp + 1] = _sigp
+            t = numpy.arange(-num_points_t / 2, num_points_t / 2) * resolution_t
+            tp = num_periods / transmit_frequency
+            ntp = int(numpy.round(tp / resolution_t))
+            tp = numpy.arange(-numpy.ceil(ntp / 2),
+                              numpy.floor(ntp / 2) + 1) * resolution_t
+            sigp = numpy.cos(2.0 * numpy.pi * transmit_frequency * tp) * \
+                   numpy.cos(numpy.pi * transmit_frequency / num_periods * tp)
+            _signal = numpy.zeros(t.size)
+            index = numpy.where(t < tp[0])[0]
+            _signal[index[-1]: index[-1] + ntp + 1] = sigp
             _signal, _ = bandpass(_signal,
-                                  _transmit_frequency,
-                                  _resolution_t,
-                                  _bandwidth,
+                                  transmit_frequency,
+                                  resolution_t,
+                                  bandwidth,
                                   4)
-            _nrm = numpy.max(numpy.abs(hilbert(_signal)))
+            nrm = numpy.max(numpy.abs(hilbert(_signal)))
         else:
             print('pulse not specified - uses gaussian')
-            _t, _tp, _signal, _nrm = _gaussian(_resolution_t, _transmit_frequency,
-                                               _num_periods, _num_points_t)
+            t, tp, _signal, nrm = _gaussian(resolution_t, transmit_frequency,
+                                            num_periods, num_points_t)
     else:
         _signal = signal
-        _nrm = numpy.max(numpy.abs(hilbert(_signal)))
+        nrm = numpy.max(numpy.abs(hilbert(_signal)))
 
-    _signal = _signal / _nrm * _amplitude
+    _signal = _signal / nrm * amplitude
 
     # adjust length of _signal
-    if _signal.size < _num_points_t:
-        _ntzp = (_num_points_t - _signal.size) / 2
+    if _signal.size < num_points_t:
+        ntzp = (num_points_t - _signal.size) / 2
         _signal = numpy.concatenate(
-            (numpy.zeros(int((numpy.ceil(_ntzp)))), _signal.reshape(_signal.size),
-             numpy.zeros(int((numpy.floor(_ntzp))))))
-    elif _signal.size > 1.1 * _num_points_t:
+            (numpy.zeros(int((numpy.ceil(ntzp)))), _signal.reshape(_signal.size),
+             numpy.zeros(int((numpy.floor(ntzp))))))
+    elif _signal.size > 1.1 * num_points_t:
         print(
             'Increase your number of spatial grid points.\nMaximum truncation '
             'of _signal vector is 10 percent.')
         sys.exit(-1)
     else:
-        _nttr = int(numpy.ceil((_signal.size - _num_points_t) / 2.0))
-        _signal = _signal[_nttr:_num_points_t + _nttr]
+        nttr = int(numpy.ceil((_signal.size - num_points_t) / 2.0))
+        _signal = _signal[nttr:num_points_t + nttr]
 
     if control.num_dimensions == 1:
         return _signal
@@ -165,33 +156,33 @@ def pulse_generator(control: MainControl,
             raise NotImplementedError
         elif isinstance(apodization, list):
             _apodization = numpy.array(apodization)
-            _apodization = _get_apodization(_index_num_x,
-                                            _index_num_y,
+            _apodization = _get_apodization(index_num_x,
+                                            index_num_y,
                                             'tukey',
                                             _apodization,
-                                            _annular_transducer)
+                                            annular_transducer)
         elif isinstance(apodization, int):
-            _apodization = _get_apodization(_index_num_x,
-                                            _index_num_y,
+            _apodization = _get_apodization(index_num_x,
+                                            index_num_y,
                                             'tukey',
                                             apodization,
-                                            _annular_transducer)
+                                            annular_transducer)
         else:
             raise NotImplementedError
 
         # create wave field
-        _xd_signal = _signal[..., numpy.newaxis] * _apodization.reshape(
-            (_index_num_x * _index_num_y))
-        _xd_signal = _xd_signal.reshape((_num_points_t, _index_num_y, _index_num_x))
-        _xd_signal, _delta_focus = focus_pulse(control,
-                                               _xd_signal,
-                                               _lens_focusing,
-                                               no_focusing_flag)
+        xd_signal = _signal[..., numpy.newaxis] * _apodization.reshape(
+            (index_num_x * index_num_y))
+        xd_signal = xd_signal.reshape((num_points_t, index_num_y, index_num_x))
+        xd_signal, delta_focus = focus_pulse(control,
+                                             xd_signal,
+                                             _lens_focusing,
+                                             no_focusing_flag)
 
         # create full domain
-        _signal = numpy.zeros((_num_points_t, _num_points_y, _num_points_x))
-        _signal[:, slice(_index_y[0], _index_y[-1] + 1), slice(_index_x[0], _index_x[-1] + 1)] = \
-            _xd_signal
+        _signal = numpy.zeros((num_points_t, num_points_y, num_points_x))
+        _signal[:, slice(index_y[0], index_y[-1] + 1), slice(index_x[0], index_x[-1] + 1)] = \
+            xd_signal
     else:
         print('Source type is not implemented')
         sys.exit(-1)
@@ -199,17 +190,17 @@ def pulse_generator(control: MainControl,
     # squeeze y-direction for 2D sim
     _signal = numpy.squeeze(_signal)
 
-    return _signal, _delta_focus
+    return _signal, delta_focus
 
 
 def _gaussian(resolution_t, transmit_frequency, num_periods, num_points_t):
-    _t = numpy.arange(-num_points_t / 2, num_points_t / 2) * resolution_t
-    _tp = num_periods / transmit_frequency
-    _sig = numpy.sin(2.0 * numpy.pi * transmit_frequency * _t) * numpy.exp(
-        -(2.0 * _t / _tp) ** 2)
-    _nrm = 1.0
+    t = numpy.arange(-num_points_t / 2, num_points_t / 2) * resolution_t
+    tp = num_periods / transmit_frequency
+    sig = numpy.sin(2.0 * numpy.pi * transmit_frequency * t) * numpy.exp(
+        -(2.0 * t / tp) ** 2)
+    nrm = 1.0
 
-    return _t, _tp, _sig, _nrm
+    return t, tp, sig, nrm
 
 
 def _get_apodization(num_points_x: int,
@@ -227,7 +218,7 @@ def _get_apodization(num_points_x: int,
     :param cutoff_percentage: Specifies the cut-off percentage for a tukey-window.
         First element is apodization in the x-direction and the second in the y-direction.
         For a scalar, the same value is used for both x and y. Default value is 1.
-            _apodization = tukeywin(nx,s)
+            apodization = tukeywin(nx,s)
             For s=1 tueky is a hann window and s=0 it is a rect.
             Note that the apodization is rectangular for s=0, and will go towards a rectangular
             apodization with zero at the endpoints for s -> Inf.
@@ -242,56 +233,56 @@ def _get_apodization(num_points_x: int,
     if num_points_y == 1 and annular_transducer is False and isinstance(cutoff_percentage,
                                                                         list) is False:
         if apodization_type == 'tukey':
-            _apodization = scipy.signal.tukey(num_points_x, cutoff_percentage)
+            apodization = scipy.signal.tukey(num_points_x, cutoff_percentage)
         elif apodization_type == 'hamming':
-            _apodization = numpy.hamming(num_points_x)
+            apodization = numpy.hamming(num_points_x)
         elif apodization_type == 'hanning':
-            _apodization = numpy.hanning(num_points_x)
+            apodization = numpy.hanning(num_points_x)
         elif apodization_type == 'hann':
-            _apodization = scipy.signal.hann(num_points_x)
+            apodization = scipy.signal.hann(num_points_x)
         elif apodization_type == 'rect':
-            _apodization = scipy.signal.boxcar(num_points_x)
-        return _apodization
+            apodization = scipy.signal.boxcar(num_points_x)
+        return apodization
 
     # calculate 2d and annular apodization
     if annular_transducer:
         if num_points_y == 1:
             # get apodization for axis-symmetric simulations
-            _apodization_x = _get_apodization(2 * num_points_x - 1,
-                                              1,
-                                              apodization_type,
-                                              cutoff_percentage[0])
-            _apodization = _apodization_x[num_points_x:]
+            apodization_x = _get_apodization(2 * num_points_x - 1,
+                                             1,
+                                             apodization_type,
+                                             cutoff_percentage[0])
+            apodization = apodization_x[num_points_x:]
         elif num_points_x == num_points_y:
             # get apodization for annual transducer in full 3D
             raise NotImplementedError
         else:
             # return rectangular apodization
             print('For annular transducers, num_points_x and num_points_y has to be the same')
-            _apodization = numpy.ones((num_points_y, num_points_x))
-            return _apodization
+            apodization = numpy.ones((num_points_y, num_points_x))
+            return apodization
     else:
         if len(cutoff_percentage) == 2:
             # different windows in x and y
-            _apodization_x = _get_apodization(num_points_x,
-                                              1,
-                                              apodization_type,
-                                              cutoff_percentage[0])
-            _apodization_y = _get_apodization(num_points_y,
-                                              1,
-                                              apodization_type,
-                                              cutoff_percentage[1])
+            apodization_x = _get_apodization(num_points_x,
+                                             1,
+                                             apodization_type,
+                                             cutoff_percentage[0])
+            apodization_y = _get_apodization(num_points_y,
+                                             1,
+                                             apodization_type,
+                                             cutoff_percentage[1])
         else:
             # equal windows in x and y
-            _apodization_x = _get_apodization(num_points_x,
-                                              1,
-                                              apodization_type,
-                                              cutoff_percentage[0])
-            _apodization_y = _get_apodization(num_points_y,
-                                              1,
-                                              apodization_type,
-                                              cutoff_percentage[1])
+            apodization_x = _get_apodization(num_points_x,
+                                             1,
+                                             apodization_type,
+                                             cutoff_percentage[0])
+            apodization_y = _get_apodization(num_points_y,
+                                             1,
+                                             apodization_type,
+                                             cutoff_percentage[1])
 
-        _apodization = _apodization_y[..., numpy.newaxis] * _apodization_x.T[numpy.newaxis, ...]
+        apodization = apodization_y[..., numpy.newaxis] * apodization_x.T[numpy.newaxis, ...]
 
-    return _apodization
+    return apodization

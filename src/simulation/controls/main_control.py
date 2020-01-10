@@ -1,26 +1,15 @@
+# -*- coding: utf-8 -*-
 """
-main_Control.py
+    main_control.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 from typing import Type
 
 import numpy
 
-from simulation.controls.consts import ProfileHistory
+from simulation.controls.consts import PROFILE_HISTORY
 from simulation.controls.domain_control import DomainControl
 from simulation.controls.material_control import MaterialControl
 from simulation.controls.signal_control import SignalControl
@@ -49,7 +38,7 @@ class MainControl:
                  non_linearity: bool,
                  attenuation: bool,
                  heterogeneous_medium: int,
-                 history: int = ProfileHistory,
+                 history: int = PROFILE_HISTORY,
                  annular_transducer: bool = False,
                  equidistant_steps: bool = False,
                  harmonic: int = 2,
@@ -142,7 +131,7 @@ class MainControl:
         self._equidistant_steps = equidistant_steps
         self._history = history
 
-        if self.harmonic > 1:
+        if harmonic > 1:
             _non_linearity = True
         else:
             _non_linearity = non_linearity
