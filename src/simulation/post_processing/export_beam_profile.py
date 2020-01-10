@@ -1,28 +1,17 @@
+# -*- coding: utf-8 -*-
 """
-export_beam_profile.py
+    export_beam_profile.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 from typing import Optional
 
 import numpy
 from scipy.signal import hilbert
 
-from simulation.controls.consts import NoHistory, PositionHistory, \
-    ProfileHistory, FullHistory, PlaneHistory, PlaneByChannelHistory
+from simulation.controls.consts import NO_HISTORY, POSITION_HISTORY, \
+    PROFILE_HISTORY, FULL_HISTORY, PLANE_HISTORY, PLANE_BY_CHANNEL_HISTORY
 from simulation.controls.main_control import MainControl
 from simulation.filter.bandpass import bandpass
 
@@ -47,38 +36,38 @@ def export_beam_profile(control: MainControl,
     :return:
         Temporal RMS beam profile for all frequencies. The profile has
             dimensions (ny * nx * np+1 * num_harm), possibly with ny as singleton dimension.
-            The index of the harm-dimension gives the n'th _harmonic profile starting
+            The index of the harm-dimension gives the n'th harmonic profile starting
             with 0 as the total field.
         Maximum pressure in the temporal direction. The profile is structured as the RMS profile.
             The maximum is found as the maximum of the envelope of
             the signal at each point in space.
-        Signal located at the control.transducer._center_channel index in space.
+        Signal located at the control.transducer.center_channel index in space.
             This is the raw signal without any filtering performed for each step.
         The z-coordinate of each profile and axial pulse.
     """
     # setting variables
-    _file_name = control.simulation_name
+    file_name = control.simulation_name
 
-    _history = control.history
-    _position = control.simulation.current_position
-    _file_name = '{}{}.json'.format(_file_name, _get_string_position(_position * 1e3))
+    history = control.history
+    position = control.simulation.current_position
+    file_name = '{}{}.json'.format(file_name, _get_string_position(position * 1e3))
 
     # stores full field or exits
-    if _history == NoHistory:
-        # No _history --> Exit
+    if history == NO_HISTORY:
+        # No history --> Exit
         raise NotImplementedError
-    elif _history == FullHistory:
+    elif history == FULL_HISTORY:
         # Saving pulse for each step, then exit
-        print('save pulse to {}'.format(_file_name))
+        print('save pulse to {}'.format(file_name))
         raise NotImplementedError
 
-    _harmonic = control.harmonic
-    _store_position = control.simulation.store_position
-    _center_channel = control.transducer.center_channel.astype(int)
+    harmonic = control.harmonic
+    store_position = control.simulation.store_position
+    center_channel = control.transducer.center_channel.astype(int)
 
-    _transmit_frequency = control.signal.transmit_frequency
-    _resolution_t = control.signal.resolution_t
-    _filter = control.signal.filter
+    transmit_frequency = control.signal.transmit_frequency
+    resolution_t = control.signal.resolution_t
+    filter = control.signal.filter
 
     # initializing profiles
     _rms_profile = rms_profile
@@ -87,61 +76,61 @@ def export_beam_profile(control: MainControl,
     _z_coordinate = z_coordinate
 
     # finding dimensions
-    _num_dimensions = control.num_dimensions
-    if _num_dimensions == 2:
-        _num_points_t, _num_points_y = wave_field.shape
-        _num_points_x = _num_points_y
-        _num_points_y = 1
+    num_dimensions = control.num_dimensions
+    if num_dimensions == 2:
+        num_points_t, num_points_y = wave_field.shape
+        num_points_x = num_points_y
+        num_points_y = 1
     else:
-        _num_points_t, _num_points_y, _num_points_x = wave_field.shape
+        num_points_t, num_points_y, num_points_x = wave_field.shape
     if step is None:
-        _num_periods = 0
+        num_periods = 0
         _z_coordinate = 0
     else:
-        _num_periods = step
+        num_periods = step
 
-    # saving pulse for steps specified in _store_position
-    if _store_position.size != 0:
-        if numpy.min(numpy.abs(_store_position - _position)) < 1e-12:
-            print('[DUMMY] save pulse to {}'.format(_file_name))
+    # saving pulse for steps specified in store_position
+    if store_position.size != 0:
+        if numpy.min(numpy.abs(store_position - position)) < 1e-12:
+            print('[DUMMY] save pulse to {}'.format(file_name))
 
-    if _history is PositionHistory:
+    if history is POSITION_HISTORY:
         return _rms_profile, _max_profile, _ax_pulse, _z_coordinate
-    elif _history is PlaneByChannelHistory:
+    elif history is PLANE_BY_CHANNEL_HISTORY:
         raise NotImplementedError
-    elif _history is ProfileHistory:
-        if _num_dimensions == 2:
-            _ax_pulse[:, _num_periods] = wave_field[:, _center_channel[0, ...]]
+    elif history is PROFILE_HISTORY:
+        if num_dimensions == 2:
+            _ax_pulse[:, num_periods] = wave_field[:, center_channel[0, ...]]
         else:
-            _ax_pulse[:, _num_periods] = wave_field[:, _center_channel[1], _center_channel[0, ...]]
+            _ax_pulse[:, num_periods] = wave_field[:, center_channel[1], center_channel[0, ...]]
 
-        if _num_periods == 0:
+        if num_periods == 0:
             _rms_profile = numpy.zeros_like(_rms_profile)
             _max_profile = numpy.zeros_like(_max_profile)
 
-        _wave_field = wave_field.reshape((_num_points_t, _num_points_x * _num_points_y))
-        _rms = _get_rms(_wave_field)
-        _max = _get_max(_wave_field)
-        _rms_profile[..., _num_periods, 0] = _rms.reshape((_num_points_y, _num_points_x))
-        _max_profile[..., _num_periods, 0] = _max.reshape((_num_points_y, _num_points_x))
-        _z_coordinate[_num_periods] = _position
+        wave_field = wave_field.reshape((num_points_t, num_points_x * num_points_y))
+        _rms = _get_rms(wave_field)
+        _max = _get_max(wave_field)
+        _rms_profile[..., num_periods, 0] = _rms.reshape((num_points_y, num_points_x))
+        _max_profile[..., num_periods, 0] = _max.reshape((num_points_y, num_points_x))
+        _z_coordinate[num_periods] = position
 
         # filtering out harmonics
-        for _harmonic_index in range(_harmonic):
-            _index = _harmonic_index + 1
-            _wave_field = wave_field.reshape((_num_points_t, _num_points_x * _num_points_y))
-            _wave_field, _ = bandpass(_wave_field,
-                                      numpy.array([_index * _transmit_frequency]),
-                                      _resolution_t,
-                                      _index * _transmit_frequency * _filter[_harmonic_index],
-                                      4)
-            _rms = _get_rms(_wave_field)
-            _max = _get_max(_wave_field)
-            _rms_profile[..., _num_periods, _harmonic_index + 1] = _rms.reshape((_num_points_y,
-                                                                                 _num_points_x))
-            _max_profile[..., _num_periods, _harmonic_index + 1] = _max.reshape((_num_points_y,
-                                                                                 _num_points_x))
-    elif _history is PlaneHistory:
+        for harmonic_index in range(harmonic):
+            index = harmonic_index + 1
+            wave_field = wave_field.reshape((num_points_t, num_points_x * num_points_y))
+            wave_field, _ = bandpass(wave_field,
+                                     numpy.array([index * transmit_frequency]),
+                                     resolution_t,
+                                     index * transmit_frequency * filter[harmonic_index],
+                                     4)
+            _rms = _get_rms(wave_field)
+            _max = _get_max(wave_field)
+            _rms_profile[..., num_periods, harmonic_index + 1] = _rms.reshape((num_points_y,
+                                                                               num_points_x))
+            _max_profile[..., num_periods, harmonic_index + 1] = _max.reshape((num_points_y,
+                                                                               num_points_x))
+    elif history is PLANE_HISTORY:
         raise NotImplementedError
 
     return _rms_profile, _max_profile, _ax_pulse, _z_coordinate
@@ -156,11 +145,11 @@ def _get_max(wave_field: numpy.ndarray,
     :return: The maximum pressure profile.
     """
     if envelope_flag != 0:
-        _maximum_pressure_profile = numpy.max(numpy.abs(hilbert(wave_field, axis=0)), axis=0)
+        maximum_pressure_profile = numpy.max(numpy.abs(hilbert(wave_field, axis=0)), axis=0)
     else:
-        _maximum_pressure_profile = numpy.max(wave_field, axis=0)
+        maximum_pressure_profile = numpy.max(wave_field, axis=0)
 
-    return _maximum_pressure_profile
+    return maximum_pressure_profile
 
 
 def _get_rms(wave_field,
@@ -173,12 +162,12 @@ def _get_rms(wave_field,
     :return: The RMS pressure profile of a signal
     """
     if scale_flag:
-        _n = wave_field.shape[0]
-        _rms_pressure_profile = numpy.sqrt(1 / _n * numpy.sum(wave_field ** 2, axis=0))
+        n = wave_field.shape[0]
+        rms_pressure_profile = numpy.sqrt(1 / n * numpy.sum(wave_field ** 2, axis=0))
     else:
-        _rms_pressure_profile = numpy.sqrt(numpy.sum(wave_field ** 2, axis=0))
+        rms_pressure_profile = numpy.sqrt(numpy.sum(wave_field ** 2, axis=0))
 
-    return _rms_pressure_profile
+    return rms_pressure_profile
 
 
 def _get_string_position(position: float):
@@ -192,28 +181,28 @@ def _get_string_position(position: float):
     """
     _position = numpy.round(100 * position) / 100
     _position = _position / 100
-    _n = 6
+    n = 6
 
-    _num = numpy.zeros(_n, dtype=int)
-    for _index in range(_n):
-        _num[_index] = int(numpy.floor(_position))
-        _position = _position - _num[_index]
+    num = numpy.zeros(n, dtype=int)
+    for index in range(n):
+        num[index] = int(numpy.floor(_position))
+        _position = _position - num[index]
         _position = 10 * _position
 
-    _temp = _num[-1]
-    _cl = 0
-    for _index in range(_n - 1):
-        if _num[_n - _index - 1] == 9 and _temp == 9:
-            _cl = _cl + 1
-            _temp = _num[_n - _index - 1]
+    temp = num[-1]
+    cl = 0
+    for index in range(n - 1):
+        if num[n - index - 1] == 9 and temp == 9:
+            cl = cl + 1
+            temp = num[n - index - 1]
         else:
-            _temp = _num[_n - _index - 1]
+            temp = num[n - index - 1]
 
-    if _cl > 1:
-        _num[_n - 1] = 0
-        for _index in range(_cl):
-            _num[_n - _index - 1] = int(numpy.mod(_num[_n - _index - 1] + 1, 10))
+    if cl > 1:
+        num[n - 1] = 0
+        for index in range(cl):
+            num[n - index - 1] = int(numpy.mod(num[n - index - 1] + 1, 10))
 
-    _output = '_{:1d}{:1d}{:1d}{:1d}{:1d}'.format(_num[0], _num[1], _num[2], _num[3], _num[4])
+    output = '_{:1d}{:1d}{:1d}{:1d}{:1d}'.format(num[0], num[1], num[2], num[3], num[4])
 
-    return _output
+    return output

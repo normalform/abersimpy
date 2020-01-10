@@ -1,20 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-get_window.py
+    get_window.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 from typing import Union, Tuple
 
@@ -68,40 +57,40 @@ def get_window(num_points: Union[int, Tuple[int, int]],
         _window_length0 = window_length0
 
     # calculate number of points of fall-off and zero part
-    _num_points_of_fall_off_x = int(numpy.ceil(_window_length[0] / _resolution[0]))
-    _num_points_of_zero_x = int(numpy.ceil(_window_length0[0] / _resolution[0]))
+    num_points_of_fall_off_x = int(numpy.ceil(_window_length[0] / _resolution[0]))
+    num_points_of_zero_x = int(numpy.ceil(_window_length0[0] / _resolution[0]))
 
-    # adjust _total_num_x for annular_transducer = 1
-    _total_num_y = num_points[1]
-    if _total_num_y == 1 and annular_transducer:
-        _total_num_x = 2 * num_points[0]
-        _num_points_of_fall_off_y = 0
-        _num_points_of_zero_y = 0
+    # adjust total_num_x for annular_transducer = 1
+    total_num_y = num_points[1]
+    if total_num_y == 1 and annular_transducer:
+        total_num_x = 2 * num_points[0]
+        num_points_of_fall_off_y = 0
+        num_points_of_zero_y = 0
     else:
-        _total_num_x = num_points[0]
-        _num_points_of_fall_off_y = int(numpy.ceil(_window_length[1] / _resolution[1]))
-        _num_points_of_zero_y = int(numpy.ceil(_window_length0[1] / _resolution[1]))
+        total_num_x = num_points[0]
+        num_points_of_fall_off_y = int(numpy.ceil(_window_length[1] / _resolution[1]))
+        num_points_of_zero_y = int(numpy.ceil(_window_length0[1] / _resolution[1]))
 
     # find length of window
-    _window_length_x = _total_num_x - 2 * _num_points_of_zero_x
-    _window_length_y = _total_num_y - 2 * _num_points_of_zero_y
+    window_length_x = total_num_x - 2 * num_points_of_zero_x
+    window_length_y = total_num_y - 2 * num_points_of_zero_y
 
     # create window in x
-    _win_length = int(numpy.floor(_window_length_x))
-    _wx = raised_cos(_win_length, _num_points_of_fall_off_x, _total_num_x)
-    if _total_num_y == 1 and annular_transducer:
-        _wx = _wx[num_points[0]:]
-        _total_num_x = _total_num_x / 2
+    win_length = int(numpy.floor(window_length_x))
+    wx = raised_cos(win_length, num_points_of_fall_off_x, total_num_x)
+    if total_num_y == 1 and annular_transducer:
+        wx = wx[num_points[0]:]
+        total_num_x = total_num_x / 2
 
     # create window in y
-    if _total_num_y == 1:
-        _wy = numpy.array([1])
+    if total_num_y == 1:
+        wy = numpy.array([1])
     else:
-        _win_length = int(numpy.floor(_window_length_y))
-        _wy = raised_cos(_win_length, _num_points_of_fall_off_y, _total_num_y)
+        win_length = int(numpy.floor(window_length_y))
+        wy = raised_cos(win_length, num_points_of_fall_off_y, total_num_y)
 
     # reshape window
-    _window = _wy[..., numpy.newaxis] * _wx.T
-    _window = _window.reshape(_total_num_x * _total_num_y)
+    window = wy[..., numpy.newaxis] * wx.T
+    window = window.reshape(total_num_x * total_num_y)
 
-    return _window
+    return window

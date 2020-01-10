@@ -1,18 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-propagate.py
+    propagate.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 from typing import Optional
 
@@ -50,39 +41,39 @@ def propagate(control: MainControl,
     else:
         _wave_numbers = wave_numbers
 
-    _diffraction_type = control.diffraction_type
-    _non_linearity = control.non_linearity
-    _attenuation = control.attenuation
-    _step_size = control.simulation.step_size
+    diffraction_type = control.diffraction_type
+    non_linearity = control.non_linearity
+    attenuation = control.attenuation
+    step_size = control.simulation.step_size
 
-    _num_points_x = control.domain.num_points_x
-    _num_points_y = control.domain.num_points_y
-    _num_points_t = control.domain.num_points_t
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    num_points_t = control.domain.num_points_t
 
     # Update position and chose propagation mode
     if direction > 0:
-        control.simulation.current_position = control.simulation.current_position + _step_size
+        control.simulation.current_position = control.simulation.current_position + step_size
     elif direction < 0:
-        control.simulation.current_position = control.simulation.current_position - _step_size
-    if (_diffraction_type == ExactDiffraction or
-        _diffraction_type == AngularSpectrumDiffraction or
-        _diffraction_type == PseudoDifferential) and \
-            (_non_linearity is False or abs(direction) == 2):
+        control.simulation.current_position = control.simulation.current_position - step_size
+    if (diffraction_type == ExactDiffraction or
+        diffraction_type == AngularSpectrumDiffraction or
+        diffraction_type == PseudoDifferential) and \
+            (non_linearity is False or abs(direction) == 2):
         # Linear propagation and exact diffraction
         if _wave_numbers.size == 0:
             _wave_numbers = get_wave_numbers(control, equidistant_steps)
 
         # Forward spatial transform
-        if _diffraction_type == ExactDiffraction or _diffraction_type == AngularSpectrumDiffraction:
+        if diffraction_type == ExactDiffraction or diffraction_type == AngularSpectrumDiffraction:
             if control.num_dimensions == 3:
                 _wave = numpy.fft.fftn(wave, axes=(2,))
                 _wave = numpy.fft.fftn(wave, axes=(1,))
-                _wave = _wave.reshape((_num_points_t, _num_points_x * _num_points_y))
+                _wave = _wave.reshape((num_points_t, num_points_x * num_points_y))
             else:
                 _wave = numpy.fft.fftn(wave, axes=(1,))
-        elif _diffraction_type == PseudoDifferential:
+        elif diffraction_type == PseudoDifferential:
             # TODO Need to complete
-            tmp = _wave_numbers[:, _num_points_x:]
+            tmp = _wave_numbers[:, num_points_x:]
             raise NotImplementedError
         else:
             _wave = wave
@@ -91,58 +82,57 @@ def propagate(control: MainControl,
         _wave = numpy.fft.fftn(_wave, axes=(0,))  # FFT in time
 
         # Propagation step
-        if _diffraction_type in (ExactDiffraction,
-                                 PseudoDifferential):
+        if diffraction_type in (ExactDiffraction, PseudoDifferential):
             if equidistant_steps:
                 _wave = _wave * numpy.squeeze(
-                    _wave_numbers[:_num_points_t, :_num_points_x * _num_points_y])
+                    _wave_numbers[:num_points_t, :num_points_x * num_points_y])
             else:
                 _wave = _wave * numpy.exp(
-                    (-1j * _step_size) * numpy.squeeze(
-                        _wave_numbers[:_num_points_t, :_num_points_x * _num_points_y, 0]))
-        elif _diffraction_type is AngularSpectrumDiffraction:
+                    (-1j * step_size) * numpy.squeeze(
+                        _wave_numbers[:num_points_t, :num_points_x * num_points_y, 0]))
+        elif diffraction_type is AngularSpectrumDiffraction:
             raise NotImplementedError
-            _kx = _wave_numbers[:_num_points_x, 0]
-            _ky = _wave_numbers[:_num_points_y, 1]
-            _kt = _wave_numbers[:_num_points_t, 2]
-            _loss = _wave_numbers[:_num_points_t, 3]
-            _index = 1
-            for _index_x in range(_num_points_x):
-                _kx2 = _kx[_index_x] ** 2
-                for _index_y in range(_num_points_y):
-                    ky2 = _ky[_index_y] ** 2
+            kx = _wave_numbers[:num_points_x, 0]
+            ky = _wave_numbers[:num_points_y, 1]
+            kt = _wave_numbers[:num_points_t, 2]
+            loss = _wave_numbers[:num_points_t, 3]
+            index = 1
+            for index_x in range(num_points_x):
+                kx2 = kx[index_x] ** 2
+                for index_y in range(num_points_y):
+                    ky2 = ky[index_y] ** 2
                     # Calculate propagation wave numbers
-                    kz = numpy.sqrt(_kt ** 2 - _kx2 - ky2)
+                    kz = numpy.sqrt(kt ** 2 - kx2 - ky2)
                     # Dampen evanescent waves
-                    kz = numpy.sign(_kt) * kz.real - 1j * kz.imag
-                    kz = kz - _kt - 1j * _loss
-                    _wave[:, _index] = _wave[:, _index] * numpy.exp((-1j * _step_size) * kz)
-                    _index = _index + 1
+                    kz = numpy.sign(kt) * kz.real - 1j * kz.imag
+                    kz = kz - kt - 1j * loss
+                    _wave[:, index] = _wave[:, index] * numpy.exp((-1j * step_size) * kz)
+                    index = index + 1
 
         # Backward temporal FFT
         _wave = numpy.fft.ifftn(_wave, axes=(0,))
 
         # Backward spatial transform
-        if _diffraction_type in (ExactDiffraction,
-                                 AngularSpectrumDiffraction):
+        if diffraction_type in (ExactDiffraction,
+                                AngularSpectrumDiffraction):
             if control.num_dimensions == 3:
-                _wave = _wave.reshape((_num_points_t, _num_points_y, _num_points_x))
+                _wave = _wave.reshape((num_points_t, num_points_y, num_points_x))
                 _wave = numpy.fft.ifftn(_wave, axes=(1,))
                 _wave = numpy.fft.ifftn(_wave, axes=(2,))
             else:
                 _wave = numpy.fft.ifftn(_wave, axes=(1,))
             _wave = _wave.real
-        elif _diffraction_type is PseudoDifferential:
+        elif diffraction_type is PseudoDifferential:
             _wave = _wave.real
             raise NotImplementedError
-        elif _diffraction_type in (FiniteDifferenceTimeDifferenceReduced,
-                                   FiniteDifferenceTimeDifferenceFull) or \
-                (_non_linearity or _attenuation):
+        elif diffraction_type in (FiniteDifferenceTimeDifferenceReduced,
+                                  FiniteDifferenceTimeDifferenceFull) or \
+                (non_linearity or attenuation):
             # Nonlinear propagation in external function
             raise NotImplementedError
-    elif _diffraction_type in (FiniteDifferenceTimeDifferenceReduced,
-                               FiniteDifferenceTimeDifferenceFull) or \
-            (_non_linearity or _attenuation):
+    elif diffraction_type in (FiniteDifferenceTimeDifferenceReduced,
+                              FiniteDifferenceTimeDifferenceFull) or \
+            (non_linearity or attenuation):
         # Nonlinear propagation in external function
         _wave = nonlinear_propagate(control, wave, direction, equidistant_steps, _wave_numbers)
     else:

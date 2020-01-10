@@ -1,25 +1,16 @@
+# -*- coding: utf-8 -*-
 """
-Example for simulation of 2D linear homogeneous case
+    Example for simulation of 2D linear homogeneous case
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
+
 import matplotlib.pyplot as plt
 import numpy
 
-from simulation.controls.consts import NoAberrationAndHomogeneousMedium
+from simulation.controls.consts import NO_ABERRATION_AND_HOMOGENEOUS_MEDIUM
 from simulation.controls.main_control import MainControl
 from simulation.simulation import simulation
 from system.diffraction.diffraction import ExactDiffraction
@@ -34,7 +25,7 @@ if __name__ == '__main__':
                           diffraction_type=ExactDiffraction,
                           non_linearity=False,
                           attenuation=True,
-                          heterogeneous_medium=NoAberrationAndHomogeneousMedium,
+                          heterogeneous_medium=NO_ABERRATION_AND_HOMOGENEOUS_MEDIUM,
                           harmonic=1)
 
     # generate a  wave field at the transducer

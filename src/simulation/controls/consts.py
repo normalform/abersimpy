@@ -1,43 +1,32 @@
+# -*- coding: utf-8 -*-
 """
-const.py
+    consts.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 # Scale factors
-ScaleForSpatialVariablesZ: float = 1e-2
-ScaleForPressure: float = 1e6
-ScaleForTemporalVariable: float = 1e-6
+SCALE_FOR_SPATIAL_VARIABLES_Z: float = 1e-2
+SCALE_FOR_PRESSURE: float = 1e6
+SCALE_FOR_TEMPORAL_VARIABLE: float = 1e-6
 
 # Material parameter IDs
-WaveSpeedParamId: int = 1
-MassDensityParamId: int = 2
-NonLinearityCoefficientParamId: int = 3
-ConstantOfAttenuationParamId: int = 4
-ExponentOfAttenuationParamId: int = 5
+WAVE_SPEED_PARAM_ID: int = 1
+MASS_DENSITY_PARAM_ID: int = 2
+NON_LINEARITY_COEFFICIENT_PARAM_ID: int = 3
+CONSTANT_OF_ATTENUATION_PARAM_ID: int = 4
+EXPONENT_OF_ATTENUATION_PARAM_ID: int = 5
 
 # History types
-NoHistory: int = 0
-PositionHistory: int = 1
-ProfileHistory: int = 2
-FullHistory: int = 3
-PlaneHistory: int = 4
-PlaneByChannelHistory: int = 5
+NO_HISTORY: int = 0
+POSITION_HISTORY: int = 1
+PROFILE_HISTORY: int = 2
+FULL_HISTORY: int = 3
+PLANE_HISTORY: int = 4
+PLANE_BY_CHANNEL_HISTORY: int = 5
 
 # Aberration types
-NoAberrationAndHomogeneousMedium: int = 0
-AberrationFromDelayScreenBodyWall: int = 1
-AberrationFromFile: int = 2
-AberrationPhantom: int = 3
+NO_ABERRATION_AND_HOMOGENEOUS_MEDIUM: int = 0
+ABERRATION_FROM_DELAY_SCREEN_BODY_WALL: int = 1
+ABERRATION_FROM_FILE: int = 2
+ABERRATION_PHANTOM: int = 3

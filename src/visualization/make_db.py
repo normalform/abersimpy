@@ -1,18 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-make_db.py
+    make_db.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import numpy
 
@@ -38,31 +29,33 @@ def make_db(signal: numpy.ndarray,
     :return: The decibel compressed signal.
     """
     if normalization is None:
-        normalization = numpy.max(numpy.abs(signal))
+        _normalization = numpy.max(numpy.abs(signal))
+    else:
+        _normalization = normalization
 
-    _index_positive = numpy.where(signal > 0)
-    _index_negative = numpy.where(signal < 0)
+    index_positive = numpy.where(signal > 0)
+    index_negative = numpy.where(signal < 0)
 
-    if _index_negative[0].size != 0:
-        _negative_flag = 1
+    if index_negative[0].size != 0:
+        negative_flag = 1
         _dual = 1
     else:
         _dual = dual
 
-    _signal_db = signal / normalization
+    signal_db = signal / _normalization
 
     if _dual != 0:
-        _signal_db[_index_positive] = 20.0 * numpy.log10(_signal_db[_index_positive])
-        _signal_db[_index_negative] = -20.0 * numpy.log10(-_signal_db[_index_negative])
-        _index_null = numpy.where(numpy.abs(_signal_db) > dynamic_range)
+        signal_db[index_positive] = 20.0 * numpy.log10(signal_db[index_positive])
+        signal_db[index_negative] = -20.0 * numpy.log10(-signal_db[index_negative])
+        index_null = numpy.where(numpy.abs(signal_db) > dynamic_range)
 
-        _signal_db[_index_positive] = _signal_db[_index_positive] + dynamic_range
-        _signal_db[_index_negative] = _signal_db[_index_negative] - dynamic_range
+        signal_db[index_positive] = signal_db[index_positive] + dynamic_range
+        signal_db[index_negative] = signal_db[index_negative] - dynamic_range
 
-        _signal_db[_index_null] = 0.0
+        signal_db[index_null] = 0.0
     else:
-        _signal_db = 20.0 * numpy.log10(_signal_db)
-        _index_null = numpy.where(numpy.abs(_signal_db) > dynamic_range)
-        _signal_db[_index_null] = -dynamic_range
+        signal_db = 20.0 * numpy.log10(signal_db)
+        index_null = numpy.where(numpy.abs(signal_db) > dynamic_range)
+        signal_db[index_null] = -dynamic_range
 
-    return _signal_db
+    return signal_db

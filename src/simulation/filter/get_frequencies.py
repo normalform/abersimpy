@@ -1,20 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-get_frequencies.py
+    get_frequencies.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import numpy
 from numpy.fft import ifftshift
@@ -31,7 +20,7 @@ def get_frequencies(num_frequency: int,
     :param resolution_t: Sampling interval.
     :return: Array of frequencies.
     """
-    _df = 1.0 / (resolution_t * num_frequency)
-    _frequencies = ifftshift(numpy.arange(0, num_frequency) - numpy.floor(num_frequency / 2)) * _df
+    df = 1.0 / (resolution_t * num_frequency)
+    frequencies = ifftshift(numpy.arange(0, num_frequency) - numpy.floor(num_frequency / 2)) * df
 
-    return _frequencies
+    return frequencies

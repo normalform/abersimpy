@@ -1,20 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-raised_cos.py
+    raised_cos.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 from typing import Optional
 
@@ -44,25 +33,25 @@ def raised_cos(window_length: int,
         _total_length = window_length
 
     # initialize window
-    _window = numpy.ones(window_length)
+    window = numpy.ones(window_length)
 
     # calculate tapering
     if tap_length > 1:
-        _xtap = numpy.arange(0, tap_length) / (tap_length - 1)
-        _window[:tap_length] = (1 - numpy.cos(numpy.pi * _xtap)) / 2.0
-        _window[window_length - tap_length:window_length] = numpy.flipud(_window[:tap_length])
+        x_tap = numpy.arange(0, tap_length) / (tap_length - 1)
+        window[:tap_length] = (1 - numpy.cos(numpy.pi * x_tap)) / 2.0
+        window[window_length - tap_length:window_length] = numpy.flipud(window[:tap_length])
     else:
-        _window[0] = 0
-        _window[-1] = 0
+        window[0] = 0
+        window[-1] = 0
 
     # calculate zero-pad region
-    _l1 = int(numpy.floor((_total_length - window_length) / 2))
-    _l2 = _total_length - _l1 - window_length
+    l1 = int(numpy.floor((_total_length - window_length) / 2))
+    l2 = _total_length - l1 - window_length
 
     # zero-pad window
-    if _l1 > 0:
-        _window = numpy.concatenate((numpy.zeros(_l1), _window))
-    if _l2 > 0:
-        _window = numpy.concatenate((_window, numpy.zeros(_l2)))
+    if l1 > 0:
+        window = numpy.concatenate((numpy.zeros(l1), window))
+    if l2 > 0:
+        window = numpy.concatenate((window, numpy.zeros(l2)))
 
-    return _window
+    return window

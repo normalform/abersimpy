@@ -1,18 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-simulation.py
+    simulation.py
 
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 import time
 from typing import Tuple, List
@@ -25,8 +16,8 @@ from simulation.beam_simulation.calc_spatial_window import calc_spatial_window
 from simulation.beam_simulation.find_steps import find_steps
 from simulation.beam_simulation.propagate_through_body_wall import propagate_through_body_wall
 from simulation.beam_simulation.recalculate_wave_numbers import recalculate_wave_numbers
-from simulation.controls.consts import NoHistory
-from simulation.controls.consts import ProfileHistory
+from simulation.controls.consts import NO_HISTORY
+from simulation.controls.consts import PROFILE_HISTORY
 from simulation.controls.main_control import MainControl
 from simulation.estimate_eta import estimate_eta
 from simulation.get_wave_numbers import get_wave_numbers
@@ -71,180 +62,184 @@ def simulation(control: MainControl,
              The z-coordinate of each profile and axial pulse.
     """
     # calculate number of propagation steps beyond the body wall
-    _current_pos = control.simulation.current_position
-    _end_point = control.simulation.endpoint
-    _step_size = control.simulation.step_size
-    _store_pos = control.simulation.store_position
-    _equidistant_steps = control.equidistant_steps
+    current_pos = control.simulation.current_position
+    end_point = control.simulation.endpoint
+    step_size = control.simulation.step_size
+    store_pos = control.simulation.store_position
+    equidistant_steps = control.equidistant_steps
 
-    _num_steps, _step_sizes, _step_idx = _calc_steps(control,
-                                                     _current_pos,
-                                                     _end_point,
-                                                     _step_size,
-                                                     _store_pos)
+    num_steps, step_sizes, step_idx = _calc_steps(control,
+                                                  current_pos,
+                                                  end_point,
+                                                  step_size,
+                                                  store_pos)
 
-    # adjust _equidistant_steps size flag
-    _diff_step_idx, _equidistant_steps, _recalculate = \
+    # adjust equidistant_steps size flag
+    diff_step_idx, equidistant_steps, recalculate = \
         adjust_equidistant_steps(control.diffraction_type,
-                                 _equidistant_steps,
-                                 _num_steps,
-                                 _step_idx)
+                                 equidistant_steps,
+                                 num_steps,
+                                 step_idx)
 
     # sets sizes
-    _num_points_x = control.domain.num_points_x
-    _num_points_y = control.domain.num_points_y
-    _num_points_t = control.domain.num_points_t
-    _non_linearity = control.non_linearity
-    _annular_transducer = control.annular_transducer
-    _history = control.history
-    _num_dimensions = control.num_dimensions
-    _resolution_x = control.signal.resolution_x
-    _resolution_y = control.signal.resolution_y
+    num_points_x = control.domain.num_points_x
+    num_points_y = control.domain.num_points_y
+    num_points_t = control.domain.num_points_t
+    non_linearity = control.non_linearity
+    annular_transducer = control.annular_transducer
+    history = control.history
+    num_dimensions = control.num_dimensions
+    resolution_x = control.signal.resolution_x
+    resolution_y = control.signal.resolution_y
 
     # initializing variables
     if screen.size != 0:
         raise NotImplementedError
-    _file_name = control.simulation_name
+    file_name = control.simulation_name
 
-    _wave_numbers = get_wave_numbers(control, _equidistant_steps)
+    wave_numbers = get_wave_numbers(control, equidistant_steps)
 
-    _times_for_eta = [0.0] * (_num_steps + 1)
-    _lap_time_for_eta = 0.0
-    _step_index = 0
+    times_for_eta = [0.0] * (num_steps + 1)
+    lap_time_for_eta = 0.0
+    step_index = 0
 
     # calculate spatial _window
     _window = calc_spatial_window(control,
                                   window,
-                                  _annular_transducer,
-                                  _num_points_x,
-                                  _num_points_y,
-                                  _resolution_x,
-                                  _resolution_y,
-                                  _step_size)
+                                  annular_transducer,
+                                  num_points_x,
+                                  num_points_y,
+                                  resolution_x,
+                                  resolution_y,
+                                  step_size)
 
     # reporting simulation type
-    reporting_simulation_type(_non_linearity,
-                              _num_dimensions,
-                              _num_points_t,
-                              _num_points_x,
-                              _num_points_y)
+    reporting_simulation_type(non_linearity,
+                              num_dimensions,
+                              num_points_t,
+                              num_points_x,
+                              num_points_y)
 
     # calculating beam profiles
-    _ax_pulse, _max_profile, _rms_profile, _z_pos = _calc_beam_profiles(control,
-                                                                        _history,
-                                                                        _num_points_t,
-                                                                        _num_points_x,
-                                                                        _num_points_y,
-                                                                        _num_steps,
-                                                                        _step_index,
-                                                                        wave_field)
+    ax_pulse, max_profile, rms_profile, z_pos = _calc_beam_profiles(control,
+                                                                    history,
+                                                                    num_points_t,
+                                                                    num_points_x,
+                                                                    num_points_y,
+                                                                    num_steps,
+                                                                    step_index,
+                                                                    wave_field)
 
     # Propagating through body wall
-    _ax_pulse, _max_profile, _rms_profile, _wave_field, _z_pos = \
+    ax_pulse, max_profile, rms_profile, _wave_field, z_pos = \
         propagate_through_body_wall(control,
                                     phantom,
-                                    _wave_numbers,
-                                    _ax_pulse,
-                                    _current_pos,
-                                    _equidistant_steps,
-                                    _history,
-                                    _max_profile,
-                                    _rms_profile,
+                                    wave_numbers,
+                                    ax_pulse,
+                                    current_pos,
+                                    equidistant_steps,
+                                    history,
+                                    max_profile,
+                                    rms_profile,
                                     wave_field,
                                     _window,
-                                    _z_pos)
+                                    z_pos)
 
     # Make window into sparse matrix
     _window = _make_window_into_sparse_matrix(_window)
 
     # Propagating the rest of the distance
-    for _index in range(_num_steps - 1):
-        _step_index = _step_index + 1
-        _start_time = time.time()
+    for index in range(num_steps - 1):
+        step_index = step_index + 1
+        start_time = time.time()
 
         # recalculate wave number operator
-        _wave_numbers, _equidistant_steps = \
+        wave_numbers, equidistant_steps = \
             recalculate_wave_numbers(control,
-                                     _wave_numbers,
-                                     _diff_step_idx,
-                                     _equidistant_steps,
-                                     _index,
-                                     _recalculate,
-                                     _step_idx)
+                                     wave_numbers,
+                                     diff_step_idx,
+                                     equidistant_steps,
+                                     index,
+                                     recalculate,
+                                     step_idx)
 
         # Propagation
-        control.simulation.step_size = _step_sizes[_index]
+        control.simulation.step_size = step_sizes[index]
         _wave_field = propagate(control,
                                 _wave_field,
                                 direction=1,
-                                equidistant_steps=_equidistant_steps,
-                                wave_numbers=_wave_numbers)
+                                equidistant_steps=equidistant_steps,
+                                wave_numbers=wave_numbers)
 
         # windowing of solution
-        _wave_field = _solution_windowing(_num_dimensions,
-                                          _num_points_t,
-                                          _num_points_x,
-                                          _num_points_y,
+        _wave_field = _solution_windowing(num_dimensions,
+                                          num_points_t,
+                                          num_points_x,
+                                          num_points_y,
                                           _wave_field,
                                           _window)
 
         # calculate beam profiles
-        _rms_profile, _max_profile, _ax_pulse, _z_pos = export_beam_profile(control,
-                                                                            _wave_field,
-                                                                            _rms_profile,
-                                                                            _max_profile,
-                                                                            _ax_pulse,
-                                                                            _z_pos,
-                                                                            _step_index)
+        rms_profile, max_profile, ax_pulse, z_pos = export_beam_profile(control,
+                                                                        _wave_field,
+                                                                        rms_profile,
+                                                                        max_profile,
+                                                                        ax_pulse,
+                                                                        z_pos,
+                                                                        step_index)
 
-        _elapsed_time = time.time() - _start_time
-        _times_for_eta[_index + 1] = _times_for_eta[_index] + _elapsed_time
-        _lap_time_for_eta = estimate_eta(_times_for_eta, _num_steps, _index, _lap_time_for_eta)
+        elapsed_time = time.time() - start_time
+        times_for_eta[index + 1] = times_for_eta[index] + elapsed_time
+        lap_time_for_eta = estimate_eta(times_for_eta, num_steps, index, lap_time_for_eta)
 
     print('Simulation finished in {:.2f} min using an average of {} sec per step.'
-          .format(_times_for_eta[-2] / 60.0, numpy.mean(numpy.diff(_times_for_eta[:-2]))))
+          .format(times_for_eta[-2] / 60.0, numpy.mean(numpy.diff(times_for_eta[:-2]))))
 
     # saving the last profiles
-    if _history == ProfileHistory:
-        print(f'[DUMMY] Saving the last profiles to {_file_name}.json')
+    if history == PROFILE_HISTORY:
+        print(f'[DUMMY] Saving the last profiles to {file_name}.json')
 
-    return _wave_field, _rms_profile, _max_profile, _ax_pulse, _z_pos
+    return _wave_field, rms_profile, max_profile, ax_pulse, z_pos
 
 
-def _calc_steps(control, _current_pos, _end_point, _step_size, _store_pos) \
+def _calc_steps(control, current_pos, end_point, step_size, store_pos) \
         -> Tuple[int, List[float], List[int]]:
     if control.heterogeneous_medium and \
             control.simulation.current_position < control.material.thickness:
-        _num_steps, _step_sizes, _step_idx = find_steps(control.material.thickness,
-                                                        _end_point,
-                                                        _step_size,
-                                                        _store_pos)
+        num_steps, step_sizes, step_idx = find_steps(control.material.thickness,
+                                                     end_point,
+                                                     step_size,
+                                                     store_pos)
     else:
-        _num_steps, _step_sizes, _step_idx = find_steps(_current_pos,
-                                                        _end_point,
-                                                        _step_size,
-                                                        _store_pos)
-    return _num_steps, _step_sizes, _step_idx,
+        num_steps, step_sizes, step_idx = find_steps(current_pos,
+                                                     end_point,
+                                                     step_size,
+                                                     store_pos)
+    return num_steps, step_sizes, step_idx,
 
 
-def _make_window_into_sparse_matrix(_window):
+def _make_window_into_sparse_matrix(window):
     # TODO check and improve usage of this condition of 'if'
-    if _window[0] != -1:
-        _nw = numpy.max(_window.shape)
-        _window = scipy.sparse.spdiags(_window, 0, _nw, _nw)
-    return _window
+    if window[0] != -1:
+        nw = numpy.max(window.shape)
+        window = scipy.sparse.spdiags(window, 0, nw, nw)
+    return window
 
 
-def _solution_windowing(_num_dimensions, _num_points_t, _num_points_x, _num_points_y, _wave_field,
-                        _window):
-    if _window.data[0, 0] != -1:
+def _solution_windowing(num_dimensions,
+                        num_points_t,
+                        num_points_x,
+                        num_points_y,
+                        wave_field,
+                        window):
+    if window.data[0, 0] != -1:
         # TODO check and improve usage of this condition of 'if'
-        if _num_dimensions == 3:
-            _wave_field = _wave_field.reshape((_num_points_t, _num_points_x * _num_points_y))
-        _wave_field = _wave_field * _window
-        if _num_dimensions == 3:
-            _wave_field = _wave_field.reshape((_num_points_t, _num_points_y, _num_points_x))
-    return _wave_field
+        if num_dimensions == 3:
+            wave_field = wave_field.reshape((num_points_t, num_points_x * num_points_y))
+        wave_field = wave_field * window
+        if num_dimensions == 3:
+            wave_field = wave_field.reshape((num_points_t, num_points_y, num_points_x))
+    return wave_field
 
 
 def _calc_beam_profiles(control,
@@ -255,24 +250,24 @@ def _calc_beam_profiles(control,
                         num_steps,
                         step_index,
                         wave_field):
-    if history != NoHistory:
-        _rms_profile = numpy.zeros((num_points_y, num_points_x, num_steps, control.harmonic + 1))
-        _max_profile = numpy.zeros((num_points_y, num_points_x, num_steps, control.harmonic + 1))
-        _ax_pulse = numpy.zeros((num_points_t, num_steps))
-        _z_pos = numpy.zeros(num_steps)
+    if history != NO_HISTORY:
+        rms_profile = numpy.zeros((num_points_y, num_points_x, num_steps, control.harmonic + 1))
+        max_profile = numpy.zeros((num_points_y, num_points_x, num_steps, control.harmonic + 1))
+        ax_pulse = numpy.zeros((num_points_t, num_steps))
+        z_pos = numpy.zeros(num_steps)
     else:
-        _rms_profile = numpy.array([])
-        _max_profile = numpy.array([])
-        _ax_pulse = numpy.array([])
-        _z_pos = numpy.array([])
+        rms_profile = numpy.array([])
+        max_profile = numpy.array([])
+        ax_pulse = numpy.array([])
+        z_pos = numpy.array([])
 
-    _step_index = 0
-    _rms_profile, _max_profile, _ax_pulse, _z_pos = export_beam_profile(control,
-                                                                        wave_field,
-                                                                        _rms_profile,
-                                                                        _max_profile,
-                                                                        _ax_pulse,
-                                                                        _z_pos,
-                                                                        step_index)
+    step_index = 0
+    rms_profile, max_profile, ax_pulse, z_pos = export_beam_profile(control,
+                                                                    wave_field,
+                                                                    rms_profile,
+                                                                    max_profile,
+                                                                    ax_pulse,
+                                                                    z_pos,
+                                                                    step_index)
 
-    return _ax_pulse, _max_profile, _rms_profile, _z_pos
+    return ax_pulse, max_profile, rms_profile, z_pos

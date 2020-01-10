@@ -1,20 +1,9 @@
+# -*- coding: utf-8 -*-
 """
-aberration.py
+    aberration.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 from typing import Optional
 
@@ -36,16 +25,16 @@ def aberration(control: MainControl,
         where the columns are sorted as [x y z R].
     :return:  A set of time delays
     """
-    _heterogeneous_medium = control.heterogeneous_medium
+    heterogeneous_medium = control.heterogeneous_medium
     if phantom is None:
-        _heterogeneous_medium = consts.AberrationFromDelayScreenBodyWall
+        heterogeneous_medium = consts.ABERRATION_FROM_DELAY_SCREEN_BODY_WALL
 
     # pylint: disable=no-else-raise
-    if _heterogeneous_medium in (consts.AberrationFromDelayScreenBodyWall,
-                                 consts.AberrationFromFile):
+    if heterogeneous_medium in (consts.ABERRATION_FROM_DELAY_SCREEN_BODY_WALL,
+                                consts.ABERRATION_FROM_FILE):
         raise NotImplementedError
         # pylint: disable=no-else-raise
-    elif _heterogeneous_medium is consts.AberrationPhantom:
+    elif heterogeneous_medium is consts.ABERRATION_PHANTOM:
         raise NotImplementedError
     else:
         delta = numpy.array(0.0)

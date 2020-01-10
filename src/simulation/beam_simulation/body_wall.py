@@ -1,27 +1,16 @@
+# -*- coding: utf-8 -*-
 """
-body_wall.py
+    body_wall.py
 
-Copyright (C) 2020  Jaeho Kim
-
-This program is free software: you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation, either version 3 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program.  If not, see <https://www.gnu.org/licenses/>.
+    :copyright (C) 2020  Jaeho
+    :license: GPL-3.0
 """
 from typing import Optional
 
 import numpy
 
 from simulation.beam_simulation.aberration import aberration
-from simulation.controls.consts import AberrationFromDelayScreenBodyWall
+from simulation.controls.consts import ABERRATION_FROM_DELAY_SCREEN_BODY_WALL
 from simulation.controls.main_control import MainControl
 from simulation.get_wave_numbers import get_wave_numbers
 
@@ -69,10 +58,10 @@ def body_wall(control: MainControl,
         _wave_numbers = wave_numbers
 
     # Initiates profiles
-    _rms_profile = None
-    _max_profile = None
-    _ax_pulse = None
-    _z_position = None
+    rms_profile = None
+    max_profile = None
+    ax_pulse = None
+    z_position = None
 
     # Initiate variables
     num_dimensions = control.num_dimensions
@@ -90,10 +79,10 @@ def body_wall(control: MainControl,
     endpoint = numpy.min(control.simulation.endpoint, thickness)
 
     # adjust step sizes
-    if heterogeneous_medium == AberrationFromDelayScreenBodyWall or phantom is None:
+    if heterogeneous_medium == ABERRATION_FROM_DELAY_SCREEN_BODY_WALL or phantom is None:
         if phantom is None:
             print('Changing heterogeneous_medium to AberrationFromDelayScreenBodyWall')
-            heterogeneous_medium = AberrationFromDelayScreenBodyWall
+            heterogeneous_medium = ABERRATION_FROM_DELAY_SCREEN_BODY_WALL
             control.heterogeneous_medium = heterogeneous_medium
 
     dscreen = thickness / ns
